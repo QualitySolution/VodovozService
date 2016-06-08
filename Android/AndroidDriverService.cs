@@ -5,6 +5,10 @@ using System.Text;
 using System.Collections.Generic;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Repository;
+using Vodovoz.Repository.Logistics;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 
 
 namespace Android
@@ -15,80 +19,94 @@ namespace Android
 
 		#region IAndroidDriverService implementation
 
+		/// <summary>
+		/// Authenticating driver by login and password.
+		/// </summary>
+		/// <returns>authentication string or <c>null</c></returns>
+		/// <param name="login">Login.</param>
+		/// <param name="password">Password.</param>
 		public string Auth (string login, string password)
 		{
 			#if DEBUG
 			Console.WriteLine("Auth called with args:\nlogin: {0}\npassword: {1}", login, password);
 			#endif
 
-			Employee employeeAlias = null;
+			var employee = EmployeeRepository.GetDriverByAndroidLogin (uow, login);
 
-			var employees = uow.Session.QueryOver<Employee> (() => employeeAlias)
-				.Where (() => employeeAlias.AndroidLogin == login)
-				.Where (() => employeeAlias.IsFired == false)
-				.List ();
-
-			if (employees == null)
+			if (employee == null)
 				return null;
-			var employee = employees.First ();
 
+			//Generating hash from driver password
 			var hash = (new SHA1Managed()).ComputeHash(Encoding.UTF8.GetBytes(employee.AndroidPassword));
-			string str = string.Join("", hash.Select(b => b.ToString("x2")).ToArray());
-			if (password == str) {
+			var hashString = string.Join("", hash.Select(b => b.ToString("x2")).ToArray());
+			if (password == hashString) {
+
+				//Creating session auth key if needed
 				if (String.IsNullOrEmpty (employee.AndroidSessionKey)) {
 					employee.AndroidSessionKey = Guid.NewGuid ().ToString ();
 					uow.Save<Employee> (employee);
 				}
 				return employee.AndroidSessionKey;
 			}
-			else
-				return null;
+			return null;
 		}
 
+		/// <summary>
+		/// Checking authentication key
+		/// </summary>
+		/// <returns><c>true</c>, if auth was checked, <c>false</c> otherwise.</returns>
+		/// <param name="authKey">Auth key.</param>
 		public bool CheckAuth (string authKey)
 		{
 			#if DEBUG
 			Console.WriteLine("CheckAuth called with args:\nauthKey: {0}", authKey);
 			#endif
 
-			Employee employeeAlias = null;
-
-			var employees = uow.Session.QueryOver<Employee> (() => employeeAlias)
-				.Where (() => employeeAlias.AndroidSessionKey == authKey)
-				.Where (() => employeeAlias.IsFired == false)
-				.List ();
-
-			if (employees == null)
-				return false;
-			return true;
+			var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+			return driver != null;
 		}
 
-		public List<string> GetRouteLists (string authKey)
+		/// <summary>
+		/// Gets the route lists for driver authenticated with the specified key.
+		/// </summary>
+		/// <returns>The route lists or <c>null</c>.</returns>
+		/// <param name="authKey">Authentication key.</param>
+		public List<RouteListDTO> GetRouteLists (string authKey)
 		{
-			//TODO: Replace with real logic
+			#if DEBUG
 			Console.WriteLine("GetRouteLists called with args:\nauthKey: {0}", authKey);
+			#endif
+
 			if (!CheckAuth (authKey))
 				return null;
-			List<string> routeLists = new List<string> ();
-			routeLists.Add ("Маршрутный лист 1");
-			routeLists.Add ("Маршрутный лист 2");
+			var driver = EmployeeRepository.GetDriverByAuthKey (uow, authKey);
+			var routeLists = RouteListRepository.GetDriverRouteLists(uow, driver);
 
-			return routeLists; 		
+			var result = new List<RouteListDTO> ();
+			foreach (RouteList rl in routeLists) {
+				result.Add (new RouteListDTO (rl));
+			}
+
+			return result;
 		}
 
-		public List<string> GetRouteListOrders (string authKey, int routeListId)
+		public List<OrderDTO> GetRouteListOrders (string authKey, int routeListId)
 		{
-			//TODO: Replace with real logic
+			#if DEBUG
 			Console.WriteLine("GetRouteListOrders called with args:\nauthKey: {0}\nrouteListId: {1}", authKey, routeListId);
+			#endif
+
 			if (!CheckAuth (authKey))
 				return null;
-			List<string> orders = new List<string> ();
-			if (routeListId == 1) {
-				orders.Add ("Заказ 1");
-				orders.Add ("Заказ 2");
-			} else {
-				orders.Add ("Заказ 3");
-				orders.Add ("Заказ 4");
+			
+			var routeListUoW = UnitOfWorkFactory.CreateForRoot<RouteList> (routeListId);
+
+			if (routeListUoW == null || routeListUoW.Root == null)
+				return null;
+
+			var orders = new List<OrderDTO> ();
+			foreach (RouteListItem item in routeListUoW.Root.Addresses) {
+				orders.Add (new OrderDTO(item.Order));
 			}
 			return orders;
 		}

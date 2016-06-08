@@ -18,11 +18,11 @@ namespace Android
 
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/GetRouteLists", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
-		List<string> GetRouteLists (string authKey);
+		List<RouteListDTO> GetRouteLists (string authKey);
 
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/GetRouteListOrders", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
-		List<string> GetRouteListOrders (string authKey, int routeListId);
+		List<OrderDTO> GetRouteListOrders (string authKey, int routeListId);
 	}
 }
 
