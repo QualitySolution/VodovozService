@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ServiceModel;
 using System.ServiceModel.Web;
+using System.Collections.Generic;
 
 namespace Android
 {
@@ -17,11 +18,11 @@ namespace Android
 
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/GetRouteLists", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
-		string GetRouteLists (string authKey);
+		List<string> GetRouteLists (string authKey);
 
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/GetRouteListOrders", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
-		string GetRouteListOrders (string authKey, int routeListId);
+		List<string> GetRouteListOrders (string authKey, int routeListId);
 	}
 }
 
