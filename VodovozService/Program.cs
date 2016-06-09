@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ServiceModel;
-using System.ServiceModel.Web;
 using System.Threading;
 using Android;
 using Mono.Unix;
@@ -12,7 +11,6 @@ using System.Collections.ObjectModel;
 using MySql.Data.MySqlClient;
 using QSProjectsLib;
 using QSOrmProject;
-using FluentNHibernate.Cfg.Db;
 
 namespace VodovozService
 {
@@ -45,8 +43,8 @@ namespace VodovozService
 				AndroidDriverHost.AddServiceEndpoint (
 					typeof(IAndroidDriverService), 
 					new BasicHttpBinding(),
-				//	"http://rs.qsolution.ru:9000/AndroidDriverService");
-					"http://vinogradov.sknt.ru:9000/AndroidDriverService");
+					"http://rs.qsolution.ru:9000/AndroidDriverService");
+				//	"http://vinogradov.sknt.ru:9000/AndroidDriverService");
 				#if DEBUG
 				//AndroidDriverHost.Description.Behaviors.Add (new PreFilter ());
 				#endif

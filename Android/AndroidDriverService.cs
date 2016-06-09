@@ -15,8 +15,7 @@ namespace Android
 {
 	public class AndroidDriverService : IAndroidDriverService
 	{
-		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
-
+		
 		#region IAndroidDriverService implementation
 
 		/// <summary>
@@ -29,24 +28,32 @@ namespace Android
 		{
 			#if DEBUG
 			Console.WriteLine("Auth called with args:\nlogin: {0}\npassword: {1}", login, password);
-			#endif
+#endif
+			try
+			{
+				IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
+				var employee = EmployeeRepository.GetDriverByAndroidLogin(uow, login);
+			
+				if (employee == null)
+					return null;
 
-			var employee = EmployeeRepository.GetDriverByAndroidLogin (uow, login);
+				//Generating hash from driver password
+				var hash = (new SHA1Managed()).ComputeHash(Encoding.UTF8.GetBytes(employee.AndroidPassword));
+				var hashString = string.Join("", hash.Select(b => b.ToString("x2")).ToArray());
+				if (password == hashString) {
 
-			if (employee == null)
-				return null;
-
-			//Generating hash from driver password
-			var hash = (new SHA1Managed()).ComputeHash(Encoding.UTF8.GetBytes(employee.AndroidPassword));
-			var hashString = string.Join("", hash.Select(b => b.ToString("x2")).ToArray());
-			if (password == hashString) {
-
-				//Creating session auth key if needed
-				if (String.IsNullOrEmpty (employee.AndroidSessionKey)) {
-					employee.AndroidSessionKey = Guid.NewGuid ().ToString ();
-					uow.Save<Employee> (employee);
+					//Creating session auth key if needed
+					if (String.IsNullOrEmpty (employee.AndroidSessionKey)) {
+						employee.AndroidSessionKey = Guid.NewGuid ().ToString ();
+						uow.Save (employee);
+						uow.Commit();
+					}
+					return employee.AndroidSessionKey;
 				}
-				return employee.AndroidSessionKey;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.StackTrace);
 			}
 			return null;
 		}
@@ -61,9 +68,16 @@ namespace Android
 			#if DEBUG
 			Console.WriteLine("CheckAuth called with args:\nauthKey: {0}", authKey);
 			#endif
-
-			var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
-			return driver != null;
+			try {
+				IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
+				var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+				return driver != null;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.StackTrace);
+			}
+			return false;
 		}
 
 		/// <summary>
@@ -75,19 +89,27 @@ namespace Android
 		{
 			#if DEBUG
 			Console.WriteLine("GetRouteLists called with args:\nauthKey: {0}", authKey);
-			#endif
+#endif
+			try
+			{
+				var result = new List<RouteListDTO>();
+				IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
+				if (!CheckAuth(authKey))
+					return null;
+				var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+				var routeLists = RouteListRepository.GetDriverRouteLists(uow, driver);
 
-			if (!CheckAuth (authKey))
-				return null;
-			var driver = EmployeeRepository.GetDriverByAuthKey (uow, authKey);
-			var routeLists = RouteListRepository.GetDriverRouteLists(uow, driver);
-
-			var result = new List<RouteListDTO> ();
-			foreach (RouteList rl in routeLists) {
-				result.Add (new RouteListDTO (rl));
+				foreach (RouteList rl in routeLists)
+				{
+					result.Add(new RouteListDTO(rl));
+				}
+				return result;
 			}
-
-			return result;
+			catch (Exception e)
+			{
+				Console.WriteLine(e.StackTrace);
+			}
+			return null;
 		}
 
 		public List<OrderDTO> GetRouteListOrders (string authKey, int routeListId)
@@ -96,19 +118,28 @@ namespace Android
 			Console.WriteLine("GetRouteListOrders called with args:\nauthKey: {0}\nrouteListId: {1}", authKey, routeListId);
 			#endif
 
-			if (!CheckAuth (authKey))
-				return null;
+			try
+			{
+				if (!CheckAuth (authKey))
+					return null;
 			
-			var routeListUoW = UnitOfWorkFactory.CreateForRoot<RouteList> (routeListId);
+				var routeListUoW = UnitOfWorkFactory.CreateForRoot<RouteList> (routeListId);
 
-			if (routeListUoW == null || routeListUoW.Root == null)
-				return null;
+				if (routeListUoW == null || routeListUoW.Root == null)
+					return null;
 
-			var orders = new List<OrderDTO> ();
-			foreach (RouteListItem item in routeListUoW.Root.Addresses) {
-				orders.Add (new OrderDTO(item.Order));
+				var orders = new List<OrderDTO> ();
+				foreach (RouteListItem item in routeListUoW.Root.Addresses)
+				{
+					orders.Add(new OrderDTO(item.Order));
+				}
+				return orders;
 			}
-			return orders;
+			catch (Exception e)
+			{
+				Console.WriteLine(e.StackTrace);
+			}
+			return null;
 		}
 		#endregion
 	}

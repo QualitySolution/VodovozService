@@ -129,7 +129,14 @@ namespace Android
 			Latitude = order.DeliveryPoint.Latitude;
 			Longitude = order.DeliveryPoint.Longitude;
 			DeliveryPointComment = order.DeliveryPoint.Comment;
-			Contact = order.DeliveryPoint.Contact.FullName;
+			if (order.DeliveryPoint.Contact != null)
+			{
+				Contact = order.DeliveryPoint.Contact.FullName;
+			}
+			else 
+			{
+				Contact = "Отсутствует";
+			}
 			Phone = order.DeliveryPoint.Phone;
 			DeliverySchedule = order.DeliverySchedule.DeliveryTime;
 			OrderStatus = order.OrderStatus.ToString(); //FIXME
