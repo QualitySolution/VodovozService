@@ -22,7 +22,15 @@ namespace Android
 
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/GetRouteListOrders", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
-		List<OrderDTO> GetRouteListOrders (string authKey, int routeListId);
+		List<ShortOrderDTO> GetRouteListOrders (string authKey, int routeListId);
+
+		[OperationContract]
+		[WebInvoke (UriTemplate = "/GetOrderDetailed", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
+		OrderDTO GetOrderDetailed (string authKey, int orderId);
+
+		[OperationContract]
+		[WebInvoke (UriTemplate = "/SendCoordinates", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
+		void SendCoordinates (string authKey, TrackPointList TrackPointList);
 	}
 }
 

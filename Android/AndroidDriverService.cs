@@ -112,7 +112,7 @@ namespace Android
 			return null;
 		}
 
-		public List<OrderDTO> GetRouteListOrders (string authKey, int routeListId)
+		public List<ShortOrderDTO> GetRouteListOrders (string authKey, int routeListId)
 		{
 			#if DEBUG
 			Console.WriteLine("GetRouteListOrders called with args:\nauthKey: {0}\nrouteListId: {1}", authKey, routeListId);
@@ -128,10 +128,10 @@ namespace Android
 				if (routeListUoW == null || routeListUoW.Root == null)
 					return null;
 
-				var orders = new List<OrderDTO> ();
+				var orders = new List<ShortOrderDTO> ();
 				foreach (RouteListItem item in routeListUoW.Root.Addresses)
 				{
-					orders.Add(new OrderDTO(item.Order));
+					orders.Add(new ShortOrderDTO(item.Order));
 				}
 				return orders;
 			}
@@ -140,6 +140,35 @@ namespace Android
 				Console.WriteLine(e.StackTrace);
 			}
 			return null;
+		}
+
+		public OrderDTO GetOrderDetailed (string authKey, int orderId)
+		{
+			#if DEBUG
+			Console.WriteLine("GetOrderDetailed called with args:\nauthKey: {0}\norderId: {1}", authKey, orderId);
+			#endif
+
+			try
+			{
+				if (!CheckAuth (authKey))
+					return null;
+
+				var orderUoW = UnitOfWorkFactory.CreateForRoot<Order> (orderId);
+				if (orderUoW == null || orderUoW.Root == null)
+					return null;
+
+				return new OrderDTO(orderUoW.Root);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.StackTrace);
+			}
+			return null;
+		}
+			
+		public void SendCoordinates (string authKey, TrackPointList TrackPointList)
+		{
+			Console.WriteLine ("{0}", authKey);
 		}
 		#endregion
 	}

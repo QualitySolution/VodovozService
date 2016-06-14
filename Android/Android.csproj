@@ -42,12 +42,17 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="NLog">
+      <HintPath>..\..\QSProjects\packages\NLog.4.2.3\lib\net40\NLog.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IAndroidDriverService.cs" />
     <Compile Include="AndroidDriverService.cs" />
     <Compile Include="DTO\RouteListDTO.cs" />
     <Compile Include="DTO\OrderDTO.cs" />
+    <Compile Include="DTO\ShortOrderDTO.cs" />
+    <Compile Include="DTO\TrackPointDTO.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
@@ -65,6 +70,22 @@
     <ProjectReference Include="..\..\QSProjects\QSOsm\QSOsm.csproj">
       <Project>{5CFB297D-4964-4CBD-9102-A5E795BE7B85}</Project>
       <Name>QSOsm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GammaBinding\GammaUtil\GammaUtil.csproj">
+      <Project>{1BF2A638-420D-456C-96A7-36873A0FB894}</Project>
+      <Name>GammaUtil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSContacts\QSContacts.csproj">
+      <Project>{A236518F-E4D0-4CFF-B23F-769802B2821F}</Project>
+      <Name>QSContacts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
+      <Project>{54F958F5-7E58-4C89-9A04-8835E63B97C3}</Project>
+      <Name>System.Data.Bindings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSBusinessCommon\QSBusinessCommon.csproj">
+      <Project>{AD329D59-938D-42AC-ABE2-B0F14FDBB7C6}</Project>
+      <Name>QSBusinessCommon</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

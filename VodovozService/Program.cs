@@ -11,11 +11,13 @@ using System.Collections.ObjectModel;
 using MySql.Data.MySqlClient;
 using QSProjectsLib;
 using QSOrmProject;
+using NLog;
 
 namespace VodovozService
 {
 	class Service
 	{
+		static Logger logger = LogManager.GetCurrentClassLogger (); 
 		[STAThread]
 		public static void Main (string[] args)
 		{
@@ -43,14 +45,15 @@ namespace VodovozService
 				AndroidDriverHost.AddServiceEndpoint (
 					typeof(IAndroidDriverService), 
 					new BasicHttpBinding(),
-					"http://rs.qsolution.ru:9000/AndroidDriverService");
+				//	"http://rs.qsolution.ru:9000/AndroidDriverService");
 				//	"http://vinogradov.sknt.ru:9000/AndroidDriverService");
+					"http://10.204.250.124:9000/AndroidDriverService");
 				#if DEBUG
-				//AndroidDriverHost.Description.Behaviors.Add (new PreFilter ());
+				AndroidDriverHost.Description.Behaviors.Add (new PreFilter ());
 				#endif
 
+				logger.Info("Server started.");
 				AndroidDriverHost.Open();
-
 				UnixSignal[] signals = { 
 					new UnixSignal (Signum.SIGINT),
 					new UnixSignal (Signum.SIGHUP),
@@ -99,7 +102,7 @@ namespace VodovozService
 			Message msg = buffer.CreateMessage ();
 			try {
 				if (action == Action.Receive)
-					Console.WriteLine ("\n\nReceived: {0}", msg);
+					Console.WriteLine("\n\nReceived: {0}", msg);
 				else
 					Console.WriteLine ("\n\nSended: {0}", msg);
 			} catch (Exception ex) {

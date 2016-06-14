@@ -2,6 +2,9 @@
 using System.Runtime.Serialization;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Client;
+using Gamma.Utilities;
+using System.Collections.Generic;
+using QSContacts;
 
 namespace Android
 {
@@ -14,34 +17,6 @@ namespace Android
 		[DataMember]
 		public string Title;
 
-		//Тип населенного пункта
-		[DataMember]
-		public string LocalityType;
-
-		//Город
-		[DataMember]
-		public string City;
-
-		//Корпус
-		[DataMember]
-		public string Housing;
-
-		//Литера
-		[DataMember]
-		public string Letter;
-
-		//Строение
-		[DataMember]
-		public string Structure;
-
-		//Помещение
-		[DataMember]
-		public string Placement;
-
-		//Этаж
-		[DataMember]
-		public int Floor;
-
 		//Регион
 		[DataMember]
 		public string Region;
@@ -50,25 +25,9 @@ namespace Android
 		[DataMember]
 		public string CityDistrict;
 
-		//Улица
-		[DataMember]
-		public string Street;
-
 		//Район города
 		[DataMember]
 		public string StreetDistrict;
-
-		//Номер дома
-		[DataMember]
-		public string Building;
-
-		//Тип помещения
-		[DataMember]
-		public string RoomType;
-
-		//Офис квартира
-		[DataMember]
-		public string Room;
 
 		//Широта
 		[DataMember]
@@ -82,13 +41,20 @@ namespace Android
 		[DataMember]
 		public string DeliveryPointComment;
 
-		//Контактное лицо
 		[DataMember]
-		public string Contact;
+		public string DPContact;
 
-		//Телефон
 		[DataMember]
-		public string Phone;
+		public string DPPhone;
+
+		[DataMember]
+		public List<string> CPPhones;
+
+		[DataMember]
+		public List<string> OrderItems;
+
+		[DataMember]
+		public List<string> OrderEquipment;
 
 		//Расписание доставки
 		[DataMember]
@@ -108,41 +74,50 @@ namespace Android
 		[DataMember]
 		public string Counterparty;
 
+		[DataMember]
+		public string Address;
+
 		public OrderDTO (Order order)
 		{
 			Id = order.Id;
 			Title = order.Title;
-			LocalityType = order.DeliveryPoint.LocalityType.ToString(); //FIXME
-			City = order.DeliveryPoint.City;
-			Housing = order.DeliveryPoint.Housing;
-			Letter = order.DeliveryPoint.Letter;
-			Structure = order.DeliveryPoint.Structure;
-			Placement = order.DeliveryPoint.Placement;
-			Floor = order.DeliveryPoint.Floor;
 			Region = order.DeliveryPoint.Region;
 			CityDistrict = order.DeliveryPoint.CityDistrict;
-			Street = order.DeliveryPoint.Street;
 			StreetDistrict = order.DeliveryPoint.StreetDistrict;
-			Building = order.DeliveryPoint.Building;
-			RoomType = order.DeliveryPoint.RoomType.ToString(); //FIXME
-			Room = order.DeliveryPoint.Room;
 			Latitude = order.DeliveryPoint.Latitude;
 			Longitude = order.DeliveryPoint.Longitude;
 			DeliveryPointComment = order.DeliveryPoint.Comment;
-			if (order.DeliveryPoint.Contact != null)
-			{
-				Contact = order.DeliveryPoint.Contact.FullName;
-			}
-			else 
-			{
-				Contact = "Отсутствует";
-			}
-			Phone = order.DeliveryPoint.Phone;
+			Address = order.DeliveryPoint.CompiledAddress;
 			DeliverySchedule = order.DeliverySchedule.DeliveryTime;
-			OrderStatus = order.OrderStatus.ToString(); //FIXME
+			OrderStatus = order.OrderStatus.GetEnumTitle();
 			RouteListItemStatus = "Тут будет статус"; //FIXME
 			OrderComment = order.Comment;
 			Counterparty = order.Client.FullName;
+
+			if (order.DeliveryPoint.Contact != null)
+			{
+				DPContact = order.DeliveryPoint.Contact.FullName;
+			}
+			else 
+			{
+				DPContact = "Контактное лицо не указано";
+			}
+
+			DPPhone = order.DeliveryPoint.Phone;
+			CPPhones= new List<string> ();
+			foreach (Phone phone in order.Client.Phones) {
+				CPPhones.Add (String.Format("{0}: {1}", phone.NumberType.Name, phone.Number));
+			}
+
+			OrderItems = new List<string> ();
+			foreach (OrderItem item in order.OrderItems) {
+				OrderItems.Add (String.Format ("{0}: {1} {2}", item.NomenclatureString, item.Count, item.Nomenclature.Unit == null ? String.Empty : item.Nomenclature.Unit.Name));
+			}
+
+			OrderEquipment = new List<string> ();
+			foreach (OrderEquipment equipment in order.OrderEquipments) {
+				OrderEquipment.Add (String.Format ("{0}: {1}", equipment.NameString, equipment.DirectionString));
+			}
 		}
 	}
 }
