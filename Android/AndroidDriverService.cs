@@ -9,6 +9,7 @@ using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using System.Globalization;
 
 
 namespace Android
@@ -166,10 +167,73 @@ namespace Android
 			return null;
 		}
 			
-		public void SendCoordinates (string authKey, TrackPointList TrackPointList)
+		public int? StartOrResumeTrack (string authKey, int routeListId)
 		{
-			Console.WriteLine ("{0}", authKey);
+			try
+			{
+				if (!CheckAuth (authKey))
+					return null;
+
+				var routeListUoW = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
+				var track = TrackRepository.GetTrackForRouteList(routeListUoW, routeListId);
+
+				if (track != null)
+					return track.Id;
+				var trackUoW = UnitOfWorkFactory.CreateWithNewRoot<Track>();
+				trackUoW.Root.RouteList = routeListUoW.Root;
+				trackUoW.Root.Driver = EmployeeRepository.GetDriverByAuthKey(routeListUoW, authKey);
+				trackUoW.Root.StartDate = DateTime.Now;
+				trackUoW.Save();
+
+				return trackUoW.Root.Id;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.StackTrace);
+			}
+			return null;
 		}
+
+		public bool SendCoordinates (string authKey, int trackId, TrackPointList TrackPointList)
+		{
+			var DecimalSeparatorFormat = new NumberFormatInfo { NumberDecimalSeparator = ".", NumberGroupSeparator = "," };
+			var CommaSeparatorFormat = new NumberFormatInfo { NumberDecimalSeparator = ",", NumberGroupSeparator = "." };
+			try
+			{
+				if (!CheckAuth (authKey))
+					return false;
+
+				var trackUoW = UnitOfWorkFactory.CreateForRoot<Track>(trackId);
+				if (trackUoW == null || trackUoW.Root == null)
+					return false;
+
+				foreach (TrackPoint tp in TrackPointList) {
+					var trackPoint = new Vodovoz.Domain.Logistic.TrackPoint();
+					Double Latitude, Longitude;
+					if (!Double.TryParse(tp.Latitude, NumberStyles.Float, DecimalSeparatorFormat, out Latitude) 
+						&& !Double.TryParse(tp.Latitude, NumberStyles.Float, CommaSeparatorFormat, out Latitude))
+						return false;
+					if (!Double.TryParse(tp.Longitude, NumberStyles.Float, DecimalSeparatorFormat, out Longitude) 
+						&& !Double.TryParse(tp.Longitude, NumberStyles.Float, CommaSeparatorFormat, out Longitude))
+						return false;
+					trackPoint.Latitude = Latitude;
+					trackPoint.Longitude = Longitude;
+					trackPoint.TimeStamp = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(long.Parse(tp.TimeStamp)).ToLocalTime();
+					trackPoint.Track = trackUoW.Root;
+					trackUoW.Root.TrackPoints.Add(trackPoint);
+				}
+				trackUoW.Save();
+
+				return true;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.StackTrace);
+			}
+			return false;
+		}
+
+
 		#endregion
 	}
 }

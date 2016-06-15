@@ -30,7 +30,11 @@ namespace Android
 
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/SendCoordinates", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
-		void SendCoordinates (string authKey, TrackPointList TrackPointList);
+		bool SendCoordinates (string authKey, int trackId, TrackPointList TrackPointList);
+
+		[OperationContract]
+		[WebInvoke (UriTemplate = "/StartOrResumeTrack", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
+		int? StartOrResumeTrack (string authKey, int routeListId);
 	}
 }
 
