@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Gamma.Utilities;
+using Vodovoz.Domain.Logistic;
 
 namespace Android
 {
@@ -28,13 +29,13 @@ namespace Android
 		[DataMember]
 		public string Address;
 
-		public ShortOrderDTO (Order order)
+		public ShortOrderDTO (RouteListItem item)
 		{
-			Id = order.Id;
-			DeliverySchedule = order.DeliverySchedule.DeliveryTime;
-			OrderStatus = order.OrderStatus.GetEnumTitle();
-			Counterparty = order.Client.FullName;
-			Address = order.DeliveryPoint.ShortAddress ?? String.Empty;
+			Id = item.Order.Id;
+			DeliverySchedule = item.Order.DeliverySchedule.DeliveryTime;
+			OrderStatus = item.Status.GetEnumTitle();
+			Counterparty = item.Order.Client.FullName;
+			Address = item.Order.DeliveryPoint.ShortAddress ?? String.Empty;
 		}
 	}
 }

@@ -5,6 +5,7 @@ using Vodovoz.Domain.Client;
 using Gamma.Utilities;
 using System.Collections.Generic;
 using QSContacts;
+using Vodovoz.Domain.Logistic;
 
 namespace Android
 {
@@ -61,9 +62,6 @@ namespace Android
 		public string DeliverySchedule;
 
 		[DataMember]
-		public string OrderStatus;
-
-		[DataMember]
 		public string RouteListItemStatus;
 
 		//Комментарий к заказу
@@ -77,45 +75,44 @@ namespace Android
 		[DataMember]
 		public string Address;
 
-		public OrderDTO (Order order)
+		public OrderDTO (RouteListItem item)
 		{
-			Id = order.Id;
-			Title = order.Title;
-			Region = order.DeliveryPoint.Region;
-			CityDistrict = order.DeliveryPoint.CityDistrict;
-			StreetDistrict = order.DeliveryPoint.StreetDistrict;
-			Latitude = order.DeliveryPoint.Latitude;
-			Longitude = order.DeliveryPoint.Longitude;
-			DeliveryPointComment = order.DeliveryPoint.Comment;
-			Address = order.DeliveryPoint.CompiledAddress;
-			DeliverySchedule = order.DeliverySchedule.DeliveryTime;
-			OrderStatus = order.OrderStatus.GetEnumTitle();
-			RouteListItemStatus = "Тут будет статус"; //FIXME
-			OrderComment = order.Comment;
-			Counterparty = order.Client.FullName;
+			Id = item.Order.Id;
+			Title = item.Order.Title;
+			Region = item.Order.DeliveryPoint.Region;
+			CityDistrict = item.Order.DeliveryPoint.CityDistrict;
+			StreetDistrict = item.Order.DeliveryPoint.StreetDistrict;
+			Latitude = item.Order.DeliveryPoint.Latitude;
+			Longitude = item.Order.DeliveryPoint.Longitude;
+			DeliveryPointComment = item.Order.DeliveryPoint.Comment;
+			Address = item.Order.DeliveryPoint.CompiledAddress;
+			DeliverySchedule = item.Order.DeliverySchedule.DeliveryTime;
+			RouteListItemStatus = item.Status.GetEnumTitle ();
+			OrderComment = item.Order.Comment;
+			Counterparty = item.Order.Client.FullName;
 
-			if (order.DeliveryPoint.Contact != null)
+			if (item.Order.DeliveryPoint.Contact != null)
 			{
-				DPContact = order.DeliveryPoint.Contact.FullName;
+				DPContact = item.Order.DeliveryPoint.Contact.FullName;
 			}
 			else 
 			{
 				DPContact = "Контактное лицо не указано";
 			}
 
-			DPPhone = order.DeliveryPoint.Phone;
+			DPPhone = item.Order.DeliveryPoint.Phone;
 			CPPhones= new List<string> ();
-			foreach (Phone phone in order.Client.Phones) {
+			foreach (Phone phone in item.Order.Client.Phones) {
 				CPPhones.Add (String.Format("{0}: {1}", phone.NumberType.Name, phone.Number));
 			}
 
 			OrderItems = new List<string> ();
-			foreach (OrderItem item in order.OrderItems) {
-				OrderItems.Add (String.Format ("{0}: {1} {2}", item.NomenclatureString, item.Count, item.Nomenclature.Unit == null ? String.Empty : item.Nomenclature.Unit.Name));
+			foreach (OrderItem orderItem in item.Order.OrderItems) {
+				OrderItems.Add (String.Format ("{0}: {1} {2}", orderItem.NomenclatureString, orderItem.Count, orderItem.Nomenclature.Unit == null ? String.Empty : orderItem.Nomenclature.Unit.Name));
 			}
 
 			OrderEquipment = new List<string> ();
-			foreach (OrderEquipment equipment in order.OrderEquipments) {
+			foreach (OrderEquipment equipment in item.Order.OrderEquipments) {
 				OrderEquipment.Add (String.Format ("{0}: {1}", equipment.NameString, equipment.DirectionString));
 			}
 		}

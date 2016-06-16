@@ -35,6 +35,10 @@ namespace Android
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/StartOrResumeTrack", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
 		int? StartOrResumeTrack (string authKey, int routeListId);
+
+		[OperationContract]
+		[WebInvoke (UriTemplate = "/ChangeOrderStatus", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
+		bool ChangeOrderStatus (string authKey, int orderId, string status);
 	}
 }
 

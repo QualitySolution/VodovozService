@@ -132,7 +132,7 @@ namespace Android
 				var orders = new List<ShortOrderDTO> ();
 				foreach (RouteListItem item in routeListUoW.Root.Addresses)
 				{
-					orders.Add(new ShortOrderDTO(item.Order));
+					orders.Add(new ShortOrderDTO(item));
 				}
 				return orders;
 			}
@@ -157,8 +157,8 @@ namespace Android
 				var orderUoW = UnitOfWorkFactory.CreateForRoot<Order> (orderId);
 				if (orderUoW == null || orderUoW.Root == null)
 					return null;
-
-				return new OrderDTO(orderUoW.Root);
+				var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
+				return new OrderDTO(routeListItem);
 			}
 			catch (Exception e)
 			{
@@ -233,7 +233,37 @@ namespace Android
 			return false;
 		}
 
+		public bool ChangeOrderStatus (string authKey, int orderId, string status) {
+			try
+			{
+				if (!CheckAuth (authKey))
+					return false;
 
+				var orderUoW = UnitOfWorkFactory.CreateForRoot<Order> (orderId);
+				if (orderUoW == null || orderUoW.Root == null)
+					return false;
+
+				var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
+				if (routeListItem == null)
+					return false;
+
+				switch (status) {
+				case "EnRoute": routeListItem.UpdateStatus(RouteListItemStatus.EnRoute); break;
+				case "Completed": routeListItem.UpdateStatus(RouteListItemStatus.Completed); break;
+				case "Canceled": routeListItem.UpdateStatus(RouteListItemStatus.Canceled); break;
+				case "Overdue": routeListItem.UpdateStatus(RouteListItemStatus.Overdue); break;
+				default: return false;
+				}
+				orderUoW.Save(routeListItem);
+				orderUoW.Commit();
+				return true;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.StackTrace);
+			}
+			return false;
+		}
 		#endregion
 	}
 }
