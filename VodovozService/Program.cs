@@ -12,25 +12,47 @@ using MySql.Data.MySqlClient;
 using QSProjectsLib;
 using QSOrmProject;
 using NLog;
+using Nini.Config;
 
 namespace VodovozService
 {
 	class Service
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger (); 
+		private static Logger logger = LogManager.GetCurrentClassLogger (); 
+		private static string ConfigFile = "/etc/vodovozservice.conf";
+		private static string server;
+		private static string port;
+		private static string user;
+		private static string pass;
+		private static string db;
+
 		[STAThread]
 		public static void Main (string[] args)
 		{
 			try {
+				IniConfigSource configFile = new IniConfigSource (ConfigFile);
+				configFile.Reload ();	
+				IConfig config = configFile.Configs ["General"];
+				server = config.GetString ("server");
+				port = config.GetString ("port", "3306");
+				user = config.GetString ("user");
+				pass = config.GetString ("password");
+				db = config.GetString ("database");
+			} catch (Exception ex) {
+				logger.Fatal (ex, "Ошибка чтения конфигурационного файла.");
+				return;
+			}
+
+			logger.Info (String.Format ("Создаем и запускаем службы..."));
+			try {
 				var conStrBuilder = new MySqlConnectionStringBuilder();
-				conStrBuilder.Server = "vod-srv.qsolution.ru";
-				conStrBuilder.Port = 3306;
-				conStrBuilder.Database = "Vodovoz";
-				conStrBuilder.UserID = "vad";
-				conStrBuilder.Password = "123";
+				conStrBuilder.Server = server;
+				conStrBuilder.Port = UInt32.Parse(port);
+				conStrBuilder.Database = db;
+				conStrBuilder.UserID = user;
+				conStrBuilder.Password = pass;
 
 				var connStr = conStrBuilder.GetConnectionString(true);
-				//QSMain.connectionDB = new MySqlConnection (connStr);
 				QSMain.ConnectionString = connStr;
 
 
@@ -45,9 +67,7 @@ namespace VodovozService
 				AndroidDriverHost.AddServiceEndpoint (
 					typeof(IAndroidDriverService), 
 					new BasicHttpBinding(),
-				//	"http://rs.qsolution.ru:9000/AndroidDriverService");
-				//	"http://vinogradov.sknt.ru:9000/AndroidDriverService");
-					"http://10.204.250.124:9000/AndroidDriverService");
+					"http://rs.qsolution.ru:9000/AndroidDriverService");
 				#if DEBUG
 				AndroidDriverHost.Description.Behaviors.Add (new PreFilter ());
 				#endif

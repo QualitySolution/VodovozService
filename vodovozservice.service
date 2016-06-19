@@ -1,0 +1,12 @@
+[Unit]
+Description=Quality Solution service server for Vodovoz.
+Requires=mysql.service
+After=mysql.service
+
+[Service]
+TimeoutStartSec=0
+ExecStart=/usr/bin/mono /opt/VodovozService/VodovozService.exe
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
