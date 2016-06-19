@@ -9,6 +9,10 @@ namespace Android
 	public interface IAndroidDriverService
 	{
 		[OperationContract]
+		[WebInvoke (UriTemplate = "/CheckAppCodeVersion", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
+		bool CheckAppCodeVersion (int versionCode);
+
+		[OperationContract]
 		[WebInvoke (UriTemplate = "/Auth", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
 		string Auth (string login, string password);
 
@@ -39,6 +43,14 @@ namespace Android
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/ChangeOrderStatus", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
 		bool ChangeOrderStatus (string authKey, int orderId, string status);
+
+		[OperationContract]
+		[WebInvoke (UriTemplate = "/EnablePushNotifications", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
+		bool EnablePushNotifications (string authKey, string token);
+
+		[OperationContract]
+		[WebInvoke (UriTemplate = "/DisablePushNotifications", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
+		bool DisablePushNotifications (string authKey);
 	}
 }
 

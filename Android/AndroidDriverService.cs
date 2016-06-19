@@ -16,8 +16,18 @@ namespace Android
 {
 	public class AndroidDriverService : IAndroidDriverService
 	{
-		
+		/// <summary>
+		/// Const value, equals to android code version on AndroidManifest.xml
+		/// Needed for version checking. Increment this value on each API change.
+		/// </summary>
+		private const int VERSION_CODE = 1;
+
 		#region IAndroidDriverService implementation
+
+		public bool CheckAppCodeVersion (int versionCode)
+		{
+			return versionCode == VERSION_CODE;
+		}
 
 		/// <summary>
 		/// Authenticating driver by login and password.
@@ -90,7 +100,7 @@ namespace Android
 		{
 			#if DEBUG
 			Console.WriteLine("GetRouteLists called with args:\nauthKey: {0}", authKey);
-#endif
+			#endif
 			try
 			{
 				var result = new List<RouteListDTO>();
@@ -263,6 +273,50 @@ namespace Android
 				Console.WriteLine(e.StackTrace);
 			}
 			return false;
+		}
+
+		public bool EnablePushNotifications (string authKey, string token)
+		{
+			try
+			{
+				var uow = UnitOfWorkFactory.CreateWithoutRoot();
+				if (!CheckAuth(authKey))
+					return false;
+				var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+				if (driver == null)
+					return false;
+				//driver.AndroidToken = token;
+				uow.Save(driver);
+				uow.Commit();
+				return true;
+			} 
+			catch (Exception e) 
+			{
+				Console.WriteLine (e.StackTrace);
+				return false;
+			}
+		}
+
+		public bool DisablePushNotifications (string authKey)
+		{
+			try
+			{
+				var uow = UnitOfWorkFactory.CreateWithoutRoot();
+				if (!CheckAuth(authKey))
+					return false;
+				var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+				if (driver == null)
+					return false;
+				//driver.AndroidToken = null;
+				uow.Save(driver);
+				uow.Commit();
+				return true;
+			} 
+			catch (Exception e) 
+			{
+				Console.WriteLine (e.StackTrace);
+				return false;
+			}
 		}
 		#endregion
 	}

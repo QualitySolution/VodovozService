@@ -26,7 +26,10 @@ namespace Android
 		{
 			Id = routeList.Id;
 			Status = routeList.Status.ToString(); //FIXME
-			Forwarder = routeList.Forwarder.FullName;
+			if (routeList.Forwarder != null)
+				Forwarder = routeList.Forwarder.FullName;
+			else
+				Forwarder = "";
 			Date = routeList.Date;
 			DeliveryShift = routeList.Shift.Name;
 		}
