@@ -26,9 +26,10 @@ namespace VodovozService
 		private static string pass;
 		private static string db;
 
-		[STAThread]
 		public static void Main (string[] args)
 		{
+			Console.ReadLine ();
+			Console.Write ("Читаем конфиг... ");
 			try {
 				IniConfigSource configFile = new IniConfigSource (ConfigFile);
 				configFile.Reload ();	
@@ -42,6 +43,7 @@ namespace VodovozService
 				logger.Fatal (ex, "Ошибка чтения конфигурационного файла.");
 				return;
 			}
+			Console.WriteLine ("Ок");
 
 			logger.Info (String.Format ("Создаем и запускаем службы..."));
 			try {

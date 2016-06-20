@@ -15,4 +15,4 @@ rsync -vizaP ./bin/Debug/ root@vod-srv.qsolution.ru:/opt/VodovozService
 ;;
 esac
 
-ssh root@saas.qsolution.ru "sudo systemctl start vodovozservice"
+ssh root@vod-srv.qsolution.ru "sudo systemctl start vodovozservice"
