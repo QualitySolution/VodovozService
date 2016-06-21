@@ -20,7 +20,7 @@ namespace Android
 		/// Const value, equals to android code version on AndroidManifest.xml
 		/// Needed for version checking. Increment this value on each API change.
 		/// </summary>
-		private const int VERSION_CODE = 1;
+		private const int VERSION_CODE = 2;
 
 		#region IAndroidDriverService implementation
 
@@ -243,7 +243,7 @@ namespace Android
 			return false;
 		}
 
-		public bool ChangeOrderStatus (string authKey, int orderId, string status) {
+		public bool ChangeOrderStatus (string authKey, int orderId, string status, int? bottlesReturned) {
 			try
 			{
 				if (!CheckAuth (authKey))
@@ -264,6 +264,8 @@ namespace Android
 				case "Overdue": routeListItem.UpdateStatus(RouteListItemStatus.Overdue); break;
 				default: return false;
 				}
+				routeListItem.DriverBottlesReturned = bottlesReturned;
+
 				orderUoW.Save(routeListItem);
 				orderUoW.Commit();
 				return true;

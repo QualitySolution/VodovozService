@@ -42,7 +42,7 @@ namespace Android
 
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/ChangeOrderStatus", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
-		bool ChangeOrderStatus (string authKey, int orderId, string status);
+		bool ChangeOrderStatus (string authKey, int orderId, string status, int? bottlesReturned);
 
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/EnablePushNotifications", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 

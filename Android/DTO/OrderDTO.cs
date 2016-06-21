@@ -75,6 +75,9 @@ namespace Android
 		[DataMember]
 		public string Address;
 
+		[DataMember]
+		public string BottlesReturn;
+
 		public OrderDTO (RouteListItem item)
 		{
 			Id = item.Order.Id;
@@ -90,6 +93,7 @@ namespace Android
 			RouteListItemStatus = item.Status.GetEnumTitle ();
 			OrderComment = item.Order.Comment;
 			Counterparty = item.Order.Client.FullName;
+			BottlesReturn = item.DriverBottlesReturned == null ? null :item.DriverBottlesReturned.ToString() ;
 
 			if (item.Order.DeliveryPoint.Contact != null)
 			{
