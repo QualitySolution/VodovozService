@@ -1,6 +1,7 @@
 ﻿using System;
 using Vodovoz.Domain.Logistic;
 using System.Runtime.Serialization;
+using Gamma.Utilities;
 
 namespace Android
 {
@@ -25,7 +26,7 @@ namespace Android
 		public RouteListDTO (RouteList routeList)
 		{
 			Id = routeList.Id;
-			Status = routeList.Status.ToString(); //FIXME
+			Status = routeList.Status.GetEnumTitle();
 			if (routeList.Forwarder != null)
 				Forwarder = routeList.Forwarder.FullName;
 			else

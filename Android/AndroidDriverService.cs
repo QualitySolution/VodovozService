@@ -287,7 +287,7 @@ namespace Android
 				var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
 				if (driver == null)
 					return false;
-				//driver.AndroidToken = token;
+				driver.AndroidToken = token;
 				uow.Save(driver);
 				uow.Commit();
 				return true;
@@ -309,7 +309,7 @@ namespace Android
 				var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
 				if (driver == null)
 					return false;
-				//driver.AndroidToken = null;
+				driver.AndroidToken = null;
 				uow.Save(driver);
 				uow.Commit();
 				return true;
