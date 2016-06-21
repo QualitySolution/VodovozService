@@ -28,8 +28,6 @@ namespace VodovozService
 
 		public static void Main (string[] args)
 		{
-			Console.ReadLine ();
-			Console.Write ("Читаем конфиг... ");
 			try {
 				IniConfigSource configFile = new IniConfigSource (ConfigFile);
 				configFile.Reload ();	
@@ -43,7 +41,6 @@ namespace VodovozService
 				logger.Fatal (ex, "Ошибка чтения конфигурационного файла.");
 				return;
 			}
-			Console.WriteLine ("Ок");
 
 			logger.Info (String.Format ("Создаем и запускаем службы..."));
 			try {
@@ -54,9 +51,7 @@ namespace VodovozService
 				conStrBuilder.UserID = user;
 				conStrBuilder.Password = pass;
 
-				var connStr = conStrBuilder.GetConnectionString(true);
-				QSMain.ConnectionString = connStr;
-
+				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
 
 				OrmMain.ConfigureOrm (QSMain.ConnectionString,
 					new System.Reflection.Assembly[] {
@@ -69,7 +64,7 @@ namespace VodovozService
 				AndroidDriverHost.AddServiceEndpoint (
 					typeof(IAndroidDriverService), 
 					new BasicHttpBinding(),
-					"http://rs.qsolution.ru:9000/AndroidDriverService");
+					"http://vod-srv.qsolution.ru:9000/AndroidDriverService");
 				#if DEBUG
 				AndroidDriverHost.Description.Behaviors.Add (new PreFilter ());
 				#endif
