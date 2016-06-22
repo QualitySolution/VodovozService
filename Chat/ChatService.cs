@@ -5,6 +5,7 @@ using Vodovoz.Domain.Chat;
 using ChatClass = Vodovoz.Domain.Chat.Chat;
 using Vodovoz.Repository.Chat;
 using Vodovoz.Domain.Employees;
+using System.Collections.Generic;
 
 namespace Chat
 {
@@ -38,6 +39,7 @@ namespace Chat
 				uow.Commit ();
 				return true;
 			} catch (Exception e) {
+				Console.WriteLine (e.StackTrace);
 				return false;
 			}
 		}
@@ -68,7 +70,31 @@ namespace Chat
 				FCMHelper.SendMessage (recipientUoW.Root.AndroidToken, senderUoW.Root.FullName, message);
 				return true;
 			} catch (Exception e) {
+				Console.WriteLine (e.StackTrace);
 				return false;
+			}
+		}
+
+		public List<MessageDTO> AndroidGetChatMessages (string authKey, int days)
+		{
+			try {
+				var uow = UnitOfWorkFactory.CreateWithoutRoot ();
+				var driver = EmployeeRepository.GetDriverByAuthKey (uow, authKey);
+				if (driver == null)
+					return null;
+
+				var chat = ChatRepository.GetChatForDriver (uow, driver);
+				if (chat == null)
+					return null;
+				var messages = new List<MessageDTO> ();
+				var chatMessages = ChatMessageRepository.GetChatMessagesForPeriod (uow, chat, days);
+				foreach (var m in chatMessages) {
+					messages.Add (new MessageDTO (m, driver));
+				}
+				return messages;
+			} catch (Exception e) {
+				Console.WriteLine (e.StackTrace);
+				return null;
 			}
 		}
 
