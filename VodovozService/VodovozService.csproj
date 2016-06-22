@@ -83,6 +83,10 @@
       <Project>{A236518F-E4D0-4CFF-B23F-769802B2821F}</Project>
       <Name>QSContacts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Chat\Chat.csproj">
+      <Project>{4E951BE3-3485-47E8-B7DF-5A098034A90E}</Project>
+      <Name>Chat</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

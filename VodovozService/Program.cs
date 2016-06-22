@@ -13,6 +13,7 @@ using QSProjectsLib;
 using QSOrmProject;
 using NLog;
 using Nini.Config;
+using Chat;
 
 namespace VodovozService
 {
@@ -25,6 +26,8 @@ namespace VodovozService
 		private static string user;
 		private static string pass;
 		private static string db;
+		private static string firebaseServerApiToken;
+		private static string firebaseSenderId;
 
 		public static void Main (string[] args)
 		{
@@ -37,6 +40,8 @@ namespace VodovozService
 				user = config.GetString ("user");
 				pass = config.GetString ("password");
 				db = config.GetString ("database");
+				firebaseServerApiToken = config.GetString ("server_api_token");
+				firebaseSenderId = config.GetString ("firebase_sender");
 			} catch (Exception ex) {
 				logger.Fatal (ex, "Ошибка чтения конфигурационного файла.");
 				return;
@@ -59,18 +64,33 @@ namespace VodovozService
 					System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 					System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain))
 				});
+
+				FCMHelper.Configure(firebaseServerApiToken, firebaseSenderId);
 					
+				ServiceHost ChatHost = new ServiceHost (typeof(ChatService));
 				ServiceHost AndroidDriverHost = new ServiceHost (typeof(AndroidDriverService));
+
+				ChatHost.AddServiceEndpoint (
+					typeof (IChatService),
+					new BasicHttpBinding(),
+					"http://vod-srv.qsolution.ru:9000/ChatService"
+				);
 				AndroidDriverHost.AddServiceEndpoint (
 					typeof(IAndroidDriverService), 
 					new BasicHttpBinding(),
-					"http://vod-srv.qsolution.ru:9000/AndroidDriverService");
+					"http://vod-srv.qsolution.ru:9000/AndroidDriverService"
+				);
+				
 				#if DEBUG
+				ChatHost.Description.Behaviors.Add (new PreFilter());
 				AndroidDriverHost.Description.Behaviors.Add (new PreFilter ());
 				#endif
 
-				logger.Info("Server started.");
+				ChatHost.Open();
 				AndroidDriverHost.Open();
+
+				logger.Info("Server started.");
+
 				UnixSignal[] signals = { 
 					new UnixSignal (Signum.SIGINT),
 					new UnixSignal (Signum.SIGHUP),
