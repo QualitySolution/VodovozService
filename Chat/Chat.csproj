@@ -41,6 +41,10 @@
     <Compile Include="ChatService.cs" />
     <Compile Include="FCMHelper.cs" />
     <Compile Include="DTO\MessageDTO.cs" />
+    <Compile Include="IChatCallbackService.cs" />
+    <Compile Include="IChatCallback.cs" />
+    <Compile Include="ChatCallbackService.cs" />
+    <Compile Include="CallbackSubscriber.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

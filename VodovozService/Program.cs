@@ -28,6 +28,10 @@ namespace VodovozService
 		private static string db;
 		private static string firebaseServerApiToken;
 		private static string firebaseSenderId;
+		private static string localAddress;
+		private static string servicePort;
+		private static string tcpServicePort;
+		private static string serviceHostName;
 
 		public static void Main (string[] args)
 		{
@@ -42,6 +46,10 @@ namespace VodovozService
 				db = config.GetString ("database");
 				firebaseServerApiToken = config.GetString ("server_api_token");
 				firebaseSenderId = config.GetString ("firebase_sender");
+				localAddress = config.GetString ("local_address");
+				servicePort = config.GetString ("service_port");
+				tcpServicePort = config.GetString ("tcp_service_port");
+				serviceHostName = config.GetString ("service_host_name");
 			} catch (Exception ex) {
 				logger.Fatal (ex, "Ошибка чтения конфигурационного файла.");
 				return;
@@ -67,25 +75,33 @@ namespace VodovozService
 
 				FCMHelper.Configure(firebaseServerApiToken, firebaseSenderId);
 					
+				ServiceHost ChatCallbackHost = new ServiceHost (typeof(ChatCallbackService));
 				ServiceHost ChatHost = new ServiceHost (typeof(ChatService));
 				ServiceHost AndroidDriverHost = new ServiceHost (typeof(AndroidDriverService));
 
+				ChatCallbackHost.AddServiceEndpoint (
+					typeof (IChatCallbackService),
+					new NetTcpBinding(),
+					String.Format("net.Tcp://{0}:{1}/ChatCallbackService", localAddress, tcpServicePort)
+				);
 				ChatHost.AddServiceEndpoint (
 					typeof (IChatService),
 					new BasicHttpBinding(),
-					"http://vod-srv.qsolution.ru:9000/ChatService"
+					String.Format("http://{0}:{1}/ChatService", serviceHostName, servicePort)
 				);
 				AndroidDriverHost.AddServiceEndpoint (
 					typeof(IAndroidDriverService), 
 					new BasicHttpBinding(),
-					"http://vod-srv.qsolution.ru:9000/AndroidDriverService"
+					String.Format("http://{0}:{1}/AndroidDriverService", serviceHostName, servicePort)
 				);
 				
 				#if DEBUG
+				ChatCallbackHost.Description.Behaviors.Add (new PreFilter());
 				ChatHost.Description.Behaviors.Add (new PreFilter());
 				AndroidDriverHost.Description.Behaviors.Add (new PreFilter ());
 				#endif
 
+				ChatCallbackHost.Open();
 				ChatHost.Open();
 				AndroidDriverHost.Open();
 
@@ -97,7 +113,8 @@ namespace VodovozService
 					new UnixSignal (Signum.SIGTERM)};
 				UnixSignal.WaitAny (signals);
 			} catch (Exception e) {
-				Console.Write (e.StackTrace);
+				Console.WriteLine (e.Message);
+				Console.WriteLine (e.StackTrace);
 			} finally {
 				if (Environment.OSVersion.Platform == PlatformID.Unix)
 					Thread.CurrentThread.Abort ();
@@ -105,9 +122,7 @@ namespace VodovozService
 			}
 		}
 	}
-
-
-
+		
 	public class PreFilter : IServiceBehavior
 	{
 		public void AddBindingParameters (ServiceDescription description, ServiceHostBase serviceHostBase, Collection<ServiceEndpoint> endpoints, BindingParameterCollection parameters)
