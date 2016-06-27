@@ -45,8 +45,8 @@
     <Compile Include="IChatCallback.cs" />
     <Compile Include="ChatCallbackService.cs" />
     <Compile Include="CallbackSubscriber.cs" />
-    <Compile Include="Observer\IChatCallbackObservable.cs" />
     <Compile Include="Observer\ChatCallbackObservable.cs" />
+    <Compile Include="Observer\IChatCallbackObserver.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
