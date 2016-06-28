@@ -75,15 +75,9 @@ namespace VodovozService
 
 				FCMHelper.Configure(firebaseServerApiToken, firebaseSenderId);
 					
-				ServiceHost ChatCallbackHost = new ServiceHost (typeof(ChatCallbackService));
 				ServiceHost ChatHost = new ServiceHost (typeof(ChatService));
 				ServiceHost AndroidDriverHost = new ServiceHost (typeof(AndroidDriverService));
 
-				ChatCallbackHost.AddServiceEndpoint (
-					typeof (IChatCallbackService),
-					new NetTcpBinding(),
-					String.Format("net.Tcp://{0}:{1}/ChatCallbackService", localAddress, tcpServicePort)
-				);
 				ChatHost.AddServiceEndpoint (
 					typeof (IChatService),
 					new BasicHttpBinding(),
@@ -96,12 +90,10 @@ namespace VodovozService
 				);
 				
 				#if DEBUG
-				ChatCallbackHost.Description.Behaviors.Add (new PreFilter());
 				ChatHost.Description.Behaviors.Add (new PreFilter());
 				AndroidDriverHost.Description.Behaviors.Add (new PreFilter ());
 				#endif
 
-				ChatCallbackHost.Open();
 				ChatHost.Open();
 				AndroidDriverHost.Open();
 

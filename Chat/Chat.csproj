@@ -41,10 +41,6 @@
     <Compile Include="ChatService.cs" />
     <Compile Include="FCMHelper.cs" />
     <Compile Include="DTO\MessageDTO.cs" />
-    <Compile Include="IChatCallbackService.cs" />
-    <Compile Include="IChatCallback.cs" />
-    <Compile Include="ChatCallbackService.cs" />
-    <Compile Include="CallbackSubscriber.cs" />
     <Compile Include="Observer\ChatCallbackObservable.cs" />
     <Compile Include="Observer\IChatCallbackObserver.cs" />
   </ItemGroup>
@@ -61,6 +57,10 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
       <Project>{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}</Project>
       <Name>QSBanks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
+      <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
+      <Name>QSProjectsLib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

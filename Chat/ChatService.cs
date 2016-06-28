@@ -37,7 +37,6 @@ namespace Chat
 				chat.Messages.Add (chatMessage);
 				uow.Save (chat);
 				uow.Commit ();
-				ChatCallbackService.NotifyChatUpdate(chat.Id);
 				return true;
 			} catch (Exception e) {
 				Console.WriteLine (e.StackTrace);
