@@ -9,19 +9,18 @@ using Vodovoz.Repository.Chat;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Chat;
+using GLib;
 
 namespace Chat
 {
 	public class ChatCallbackObservable
 	{
 		private static ChatCallbackObservable instance;
-		private const int REFRESH_INTERVAL = 30000;
-		private int refreshInterval = REFRESH_INTERVAL;
-
+		private const uint REFRESH_INTERVAL = 30000;
+		private uint refreshInterval = REFRESH_INTERVAL;
+		private uint timerId;
 		private IUnitOfWorkGeneric<Employee> employeeUoW;
 		private IList<IChatCallbackObserver> observers;
-		private TimerCallback callback;
-		private Timer timer;
 
 		private Dictionary<int, int> unreadedMessages;
 
@@ -47,8 +46,7 @@ namespace Chat
 			unreadedMessages = ChatMessageRepository.GetLastChatMessages(employeeUoW, employeeUoW.Root);
 
 			//Initiates new message check every 30 seconds.
-			callback = new TimerCallback(Refresh);
-			timer = new Timer(callback, null, 0, refreshInterval);
+			timerId = GLib.Timeout.Add(refreshInterval, new GLib.TimeoutHandler (refresh));
 		}
 
 		public void AddObserver(IChatCallbackObserver observer) 
@@ -58,8 +56,9 @@ namespace Chat
 				observers.Add(observer);
 				if (observer.RequestedRefreshInterval != null && observer.RequestedRefreshInterval < refreshInterval)
 				{
-					refreshInterval = (int)observer.RequestedRefreshInterval;
-					timer.Change(0, refreshInterval);
+					refreshInterval = (uint)observer.RequestedRefreshInterval;
+					GLib.Source.Remove(timerId);
+					timerId = GLib.Timeout.Add(refreshInterval, new GLib.TimeoutHandler (refresh));
 				}
 			}
 		}
@@ -69,17 +68,21 @@ namespace Chat
 			if (observers.Contains(observer))
 				observers.Remove(observer);
 
-			int interval = REFRESH_INTERVAL;
+			uint interval = REFRESH_INTERVAL;
 			foreach (var obs in observers)
 			{
 				if (obs.RequestedRefreshInterval != null && obs.RequestedRefreshInterval < interval)
-					interval = (int)obs.RequestedRefreshInterval;
+					interval = (uint)obs.RequestedRefreshInterval;
 			}
-			refreshInterval = interval;
-			timer.Change(0, refreshInterval);
+			if (refreshInterval != interval)
+			{
+				refreshInterval = interval;
+				GLib.Source.Remove(timerId);
+				timerId = GLib.Timeout.Add(refreshInterval, new GLib.TimeoutHandler (refresh));
+			}
 		}
 
-		private void Refresh(Object StateInfo)
+		private bool refresh()
 		{
 			var tempUnreadedMessages = ChatMessageRepository.GetLastChatMessages(employeeUoW, employeeUoW.Root);
 			foreach (var item in tempUnreadedMessages)
@@ -88,6 +91,7 @@ namespace Chat
 					NotifyChatUpdate(item.Key);
 			}
 			unreadedMessages = tempUnreadedMessages;
+			return true;
 		}
 			
 		public void NotifyChatUpdate(int chatId)
@@ -101,6 +105,21 @@ namespace Chat
 					continue;
 				}
 				if (observers[i].ChatId == null || observers[i].ChatId == chatId)
+					observers[i].HandleChatUpdate();
+			}
+		}
+
+		public void NotifyChatUpdate(int chatId, IChatCallbackObserver observer)
+		{
+			for (int i = 0; i < observers.Count; i++)
+			{
+				if (observers[i] == null)
+				{
+					observers.RemoveAt(i);
+					i--;
+					continue;
+				}
+				if (observers[i] != observer && (observers[i].ChatId == null || observers[i].ChatId == chatId))
 					observers[i].HandleChatUpdate();
 			}
 		}

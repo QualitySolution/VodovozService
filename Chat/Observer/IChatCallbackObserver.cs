@@ -16,7 +16,7 @@ namespace Chat
 		/// </summary>
 		/// <value>The requested refresh interval in milliseconds.
 		/// If <c>null</c> - current refresh interval will not be affected.</value>
-		int? RequestedRefreshInterval { get; }
+		uint? RequestedRefreshInterval { get; }
 
 		/// <summary>
 		/// Method to handle the chat update.
