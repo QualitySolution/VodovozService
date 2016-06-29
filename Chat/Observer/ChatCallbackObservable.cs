@@ -85,12 +85,12 @@ namespace Chat
 			foreach (var item in tempUnreadedMessages)
 			{
 				if (!unreadedMessages.ContainsKey(item.Key) || unreadedMessages[item.Key] != item.Value)
-					NotifyNewMessage(item.Key);
+					NotifyChatUpdate(item.Key);
 			}
 			unreadedMessages = tempUnreadedMessages;
 		}
 			
-		public void NotifyNewMessage(int chatId)
+		public void NotifyChatUpdate(int chatId)
 		{
 			for (int i = 0; i < observers.Count; i++)
 			{
