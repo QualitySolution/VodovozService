@@ -67,7 +67,7 @@ namespace Chat
 				senderUoW.Save (chat);
 				senderUoW.Commit ();
 
-				FCMHelper.SendMessage (recipientUoW.Root.AndroidToken, senderUoW.Root.FullName, message);
+				FCMHelper.SendMessage (recipientUoW.Root.AndroidToken, senderUoW.Root.ShortName, message);
 				return true;
 			} catch (Exception e) {
 				Console.WriteLine (e.StackTrace);
