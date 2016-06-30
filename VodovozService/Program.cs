@@ -81,6 +81,7 @@ namespace VodovozService
 				ChatHost.AddServiceEndpoint (
 					typeof (IChatService),
 					new BasicHttpBinding(),
+					//String.Format("http://{0}:{1}/ChatService", serviceHostName, servicePort)
 					String.Format("http://{0}:{1}/ChatService", serviceHostName, servicePort)
 				);
 				AndroidDriverHost.AddServiceEndpoint (
