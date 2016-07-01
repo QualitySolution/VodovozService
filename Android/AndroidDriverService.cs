@@ -320,6 +320,28 @@ namespace Android
 				return false;
 			}
 		}
+
+		public bool FinishRouteList (string authKey, int routeListId) {
+			try
+			{
+				if (!CheckAuth (authKey))
+					return false;
+
+				var routeListUoW = UnitOfWorkFactory.CreateForRoot<RouteList> (routeListId);
+
+				if (routeListUoW == null || routeListUoW.Root == null)
+					return false;
+
+				routeListUoW.Root.CompleteRoute();
+				routeListUoW.Save();
+				return true;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.StackTrace);
+			}
+			return false;
+		}
 		#endregion
 	}
 }

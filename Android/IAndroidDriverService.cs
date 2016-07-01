@@ -51,6 +51,10 @@ namespace Android
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/DisablePushNotifications", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
 		bool DisablePushNotifications (string authKey);
+
+		[OperationContract]
+		[WebInvoke (UriTemplate = "/FinishRouteList", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
+		bool FinishRouteList (string authKey, int routeListId);
 	}
 }
 
