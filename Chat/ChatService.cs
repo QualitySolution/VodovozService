@@ -138,6 +138,43 @@ namespace Chat
 			}
 		}
 
+		public bool SendDeliveryScheduleNotificationToDriver (int senderId, int routeListItemId) {
+			try {
+				var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee> (senderId);
+				var routeListItem = senderUoW.GetById<RouteListItem> (routeListItemId);
+				var driver = routeListItem.RouteList.Driver;
+
+				if (driver == null)
+					return false;
+
+				var chat = ChatRepository.GetChatForDriver (senderUoW, driver);
+				if (chat == null) {
+					chat = new ChatClass ();
+					chat.ChatType = ChatType.DriverAndLogists;
+					chat.Driver = driver;
+				}
+
+				ChatMessage chatMessage = new ChatMessage ();
+				chatMessage.Chat = chat;
+				chatMessage.DateTime = DateTime.Now;
+				chatMessage.Message = String.Format("У заказа №{0} из маршрутного листа №{1} было изменено время доставки на \"{2}\".",
+					routeListItem.Order.Id,
+					routeListItem.RouteList.Id,
+					routeListItem.Order.DeliverySchedule.DeliveryTime);
+				chatMessage.Sender = senderUoW.Root;
+
+				chat.Messages.Add (chatMessage);
+				senderUoW.Save (chat);
+				senderUoW.Commit ();
+				var message = String.Format("Изменение времени доставки заказа №{0}", routeListItem.Order.Id);
+
+				FCMHelper.SendOrderDeliveryScheduleChangeMessage (driver.AndroidToken, senderUoW.Root.ShortName, message);
+				return true;
+			} catch (Exception e) {
+				Console.WriteLine (e.StackTrace);
+				return false;
+			}
+		}
 		#endregion
 	}
 }

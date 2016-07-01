@@ -24,6 +24,10 @@ namespace Chat
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/SendOrderStatusNotificationToDriver", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
 		bool SendOrderStatusNotificationToDriver (int senderId, int routeListItemId);
+
+		[OperationContract]
+		[WebInvoke (UriTemplate = "/SendDeliveryScheduleNotificationToDriver", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
+		bool SendDeliveryScheduleNotificationToDriver (int senderId, int routeListItemId);
 	}
 }
 
