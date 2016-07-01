@@ -37,6 +37,24 @@ namespace Chat
 			}
 		}
 
+		public static void SendOrderStatusChangeMessage (string deviceId, string sender, string message)
+		{
+			try {
+				var data = new {
+					to = deviceId,
+					data = new {
+						notificationType = "orderStatusChange",
+						message = message,
+						sender = sender
+					}
+				};
+
+				sendRequest (data);
+			} catch (Exception e) {
+				Console.WriteLine ("{0}\n{1}", e.Message, e.StackTrace);
+			}
+		}
+
 		private static string sendRequest (object data)
 		{
 			try {

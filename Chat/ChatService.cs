@@ -6,6 +6,8 @@ using ChatClass = Vodovoz.Domain.Chat.Chat;
 using Vodovoz.Repository.Chat;
 using Vodovoz.Domain.Employees;
 using System.Collections.Generic;
+using Vodovoz.Domain.Logistic;
+using Gamma.Utilities;
 
 namespace Chat
 {
@@ -48,13 +50,13 @@ namespace Chat
 		{
 			try {
 				var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee> (senderId);
-				var recipientUoW = UnitOfWorkFactory.CreateForRoot<Employee> (recipientId);
+				var recipient = senderUoW.GetById<Employee> (recipientId);
 
-				var chat = ChatRepository.GetChatForDriver (senderUoW, recipientUoW.Root);
+				var chat = ChatRepository.GetChatForDriver (senderUoW, recipient);
 				if (chat == null) {
 					chat = new ChatClass ();
 					chat.ChatType = ChatType.DriverAndLogists;
-					chat.Driver = recipientUoW.Root;
+					chat.Driver = recipient;
 				}
 
 				ChatMessage chatMessage = new ChatMessage ();
@@ -67,7 +69,7 @@ namespace Chat
 				senderUoW.Save (chat);
 				senderUoW.Commit ();
 
-				FCMHelper.SendMessage (recipientUoW.Root.AndroidToken, senderUoW.Root.ShortName, message);
+				FCMHelper.SendMessage (recipient.AndroidToken, senderUoW.Root.ShortName, message);
 				return true;
 			} catch (Exception e) {
 				Console.WriteLine (e.StackTrace);
@@ -95,6 +97,44 @@ namespace Chat
 			} catch (Exception e) {
 				Console.WriteLine (e.StackTrace);
 				return null;
+			}
+		}
+
+		public bool SendOrderStatusNotificationToDriver (int senderId, int routeListItemId) {
+			try {
+				var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee> (senderId);
+				var routeListItem = senderUoW.GetById<RouteListItem> (routeListItemId);
+				var driver = routeListItem.RouteList.Driver;
+
+				if (driver == null)
+					return false;
+				
+				var chat = ChatRepository.GetChatForDriver (senderUoW, driver);
+				if (chat == null) {
+					chat = new ChatClass ();
+					chat.ChatType = ChatType.DriverAndLogists;
+					chat.Driver = driver;
+				}
+
+				ChatMessage chatMessage = new ChatMessage ();
+				chatMessage.Chat = chat;
+				chatMessage.DateTime = DateTime.Now;
+				chatMessage.Message = String.Format("Заказ №{0} из маршрутного листа №{1} был переведен в статус \"{2}\".",
+					routeListItem.Order.Id,
+					routeListItem.RouteList.Id,
+					routeListItem.Status.GetEnumTitle());
+				chatMessage.Sender = senderUoW.Root;
+
+				chat.Messages.Add (chatMessage);
+				senderUoW.Save (chat);
+				senderUoW.Commit ();
+				var message = String.Format("Изменение статуса заказа №{0}", routeListItem.Order.Id);
+
+				FCMHelper.SendOrderStatusChangeMessage (driver.AndroidToken, senderUoW.Root.ShortName, message);
+				return true;
+			} catch (Exception e) {
+				Console.WriteLine (e.StackTrace);
+				return false;
 			}
 		}
 
