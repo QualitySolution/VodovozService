@@ -11,11 +11,12 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using System.Globalization;
 
-
 namespace Android
 {
 	public class AndroidDriverService : IAndroidDriverService
 	{
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+
 		/// <summary>
 		/// Const value, equals to android code version on AndroidManifest.xml
 		/// Needed for version checking. Increment this value on each API change.
@@ -38,8 +39,8 @@ namespace Android
 		public string Auth (string login, string password)
 		{
 			#if DEBUG
-			Console.WriteLine("Auth called with args:\nlogin: {0}\npassword: {1}", login, password);
-#endif
+			logger.Debug("Auth called with args:\nlogin: {0}\npassword: {1}", login, password);
+			#endif
 			try
 			{
 				IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
@@ -64,7 +65,7 @@ namespace Android
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.StackTrace);
+				logger.Error(e);
 			}
 			return null;
 		}
@@ -77,7 +78,7 @@ namespace Android
 		public bool CheckAuth (string authKey)
 		{
 			#if DEBUG
-			Console.WriteLine("CheckAuth called with args:\nauthKey: {0}", authKey);
+			logger.Debug("CheckAuth called with args; authKey: {0}", authKey);
 			#endif
 			try {
 				IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
@@ -86,7 +87,7 @@ namespace Android
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.StackTrace);
+				logger.Error(e);
 			}
 			return false;
 		}
@@ -99,7 +100,7 @@ namespace Android
 		public List<RouteListDTO> GetRouteLists (string authKey)
 		{
 			#if DEBUG
-			Console.WriteLine("GetRouteLists called with args:\nauthKey: {0}", authKey);
+			logger.Debug("GetRouteLists called with args:\nauthKey: {0}", authKey);
 			#endif
 			try
 			{
@@ -118,7 +119,7 @@ namespace Android
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.StackTrace);
+				logger.Error(e);
 			}
 			return null;
 		}
@@ -126,7 +127,7 @@ namespace Android
 		public List<ShortOrderDTO> GetRouteListOrders (string authKey, int routeListId)
 		{
 			#if DEBUG
-			Console.WriteLine("GetRouteListOrders called with args:\nauthKey: {0}\nrouteListId: {1}", authKey, routeListId);
+			logger.Debug("GetRouteListOrders called with args:\nauthKey: {0}\nrouteListId: {1}", authKey, routeListId);
 			#endif
 
 			try
@@ -148,7 +149,7 @@ namespace Android
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.StackTrace);
+				logger.Error(e);
 			}
 			return null;
 		}
@@ -156,7 +157,7 @@ namespace Android
 		public OrderDTO GetOrderDetailed (string authKey, int orderId)
 		{
 			#if DEBUG
-			Console.WriteLine("GetOrderDetailed called with args:\nauthKey: {0}\norderId: {1}", authKey, orderId);
+			logger.Debug("GetOrderDetailed called with args:\nauthKey: {0}\norderId: {1}", authKey, orderId);
 			#endif
 
 			try
@@ -172,7 +173,7 @@ namespace Android
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.StackTrace);
+				logger.Error(e);
 			}
 			return null;
 		}
@@ -199,7 +200,7 @@ namespace Android
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.StackTrace);
+				logger.Error(e);
 			}
 			return null;
 		}
@@ -238,7 +239,7 @@ namespace Android
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.StackTrace);
+				logger.Error(e);
 			}
 			return false;
 		}
@@ -272,7 +273,7 @@ namespace Android
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.StackTrace);
+				logger.Error(e);
 			}
 			return false;
 		}
@@ -294,7 +295,7 @@ namespace Android
 			} 
 			catch (Exception e) 
 			{
-				Console.WriteLine (e.StackTrace);
+				logger.Error (e);
 				return false;
 			}
 		}
@@ -316,7 +317,7 @@ namespace Android
 			} 
 			catch (Exception e) 
 			{
-				Console.WriteLine (e.StackTrace);
+				logger.Error (e);
 				return false;
 			}
 		}
@@ -338,7 +339,7 @@ namespace Android
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.StackTrace);
+				logger.Error(e);
 			}
 			return false;
 		}

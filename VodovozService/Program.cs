@@ -81,7 +81,6 @@ namespace VodovozService
 				ChatHost.AddServiceEndpoint (
 					typeof (IChatService),
 					new BasicHttpBinding(),
-					//String.Format("http://{0}:{1}/ChatService", serviceHostName, servicePort)
 					String.Format("http://{0}:{1}/ChatService", serviceHostName, servicePort)
 				);
 				AndroidDriverHost.AddServiceEndpoint (
@@ -106,8 +105,7 @@ namespace VodovozService
 					new UnixSignal (Signum.SIGTERM)};
 				UnixSignal.WaitAny (signals);
 			} catch (Exception e) {
-				Console.WriteLine (e.Message);
-				Console.WriteLine (e.StackTrace);
+				logger.Fatal (e);
 			} finally {
 				if (Environment.OSVersion.Platform == PlatformID.Unix)
 					Thread.CurrentThread.Abort ();
@@ -136,6 +134,8 @@ namespace VodovozService
 
 	public class ConsoleMessageTracer: IDispatchMessageInspector
 	{
+		static Logger logger = LogManager.GetCurrentClassLogger ();
+
 		enum Action
 		{	
 			Send,
@@ -147,11 +147,11 @@ namespace VodovozService
 			Message msg = buffer.CreateMessage ();
 			try {
 				if (action == Action.Receive)
-					Console.WriteLine("\n\nReceived: {0}", msg);
+					logger.Debug("Received: {0}", msg);
 				else
-					Console.WriteLine ("\n\nSended: {0}", msg);
+					logger.Debug("Sended: {0}", msg);
 			} catch (Exception ex) {
-				Console.WriteLine ("Ошибка логгирования сообщения {0}.", ex.StackTrace);
+				logger.Error (ex, "Ошибка логгирования сообщения.");
 			}
 			return buffer.CreateMessage ();
 		}
