@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Client;
 using Gamma.Utilities;
 using System.Collections.Generic;
 using QSContacts;
@@ -82,7 +81,6 @@ namespace Android
 		{
 			Id = item.Order.Id;
 			Title = item.Order.Title;
-			Region = item.Order.DeliveryPoint.Region;
 			CityDistrict = item.Order.DeliveryPoint.CityDistrict;
 			StreetDistrict = item.Order.DeliveryPoint.StreetDistrict;
 			Latitude = item.Order.DeliveryPoint.Latitude;
@@ -95,13 +93,14 @@ namespace Android
 			Counterparty = item.Order.Client.FullName;
 			BottlesReturn = item.DriverBottlesReturned == null ? null :item.DriverBottlesReturned.ToString() ;
 
-			if (item.Order.DeliveryPoint.Contact != null)
+			if (item.Order.DeliveryPoint.Contacts.Count > 0)
 			{
-				DPContact = item.Order.DeliveryPoint.Contact.FullName;
+				//FIXME Сделать обработку нескольких контантных лиц.
+				DPContact = item.Order.DeliveryPoint.Contacts[0].FullName;
 			}
 			else 
 			{
-				DPContact = "Контактное лицо не указано";
+				DPContact = "Контактные лица не указаны";
 			}
 
 			DPPhone = item.Order.DeliveryPoint.Phone;
