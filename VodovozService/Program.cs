@@ -35,6 +35,7 @@ namespace VodovozService
 
 		public static void Main (string[] args)
 		{
+			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
 			try {
 				IniConfigSource configFile = new IniConfigSource (ConfigFile);
 				configFile.Reload ();	
@@ -111,6 +112,11 @@ namespace VodovozService
 					Thread.CurrentThread.Abort ();
 				Environment.Exit (0);
 			}
+		}
+
+		static void AppDomain_CurrentDomain_UnhandledException (object sender, UnhandledExceptionEventArgs e)
+		{
+			logger.Fatal((Exception)e.ExceptionObject, "UnhandledException");
 		}
 	}
 		
