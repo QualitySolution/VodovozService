@@ -230,8 +230,27 @@ namespace Android
 					trackPoint.Latitude = Latitude;
 					trackPoint.Longitude = Longitude;
 					trackPoint.TimeStamp = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(long.Parse(tp.TimeStamp)).ToLocalTime();
-					trackPoint.Track = trackUoW.Root;
-					trackUoW.Root.TrackPoints.Add(trackPoint);
+					var roundedDate = new DateTime(trackPoint.TimeStamp.Year, trackPoint.TimeStamp.Month, trackPoint.TimeStamp.Day, trackPoint.TimeStamp.Hour, trackPoint.TimeStamp.Minute, trackPoint.TimeStamp.Second);
+					var existPoint = trackUoW.Root.TrackPoints.FirstOrDefault(x => x.TimeStamp == roundedDate);
+					if(existPoint != null)
+					{
+						if(existPoint.Latitude == trackPoint.Latitude && existPoint.Longitude == trackPoint.Longitude)
+						{
+							logger.Warn("Координаты на время {0} для трека {1}, были получены повторно поэтому пропущены.", trackPoint.TimeStamp, existPoint.Track.Id);
+							continue;
+						}
+						else
+						{
+							logger.Warn($"Координаты на время {trackPoint.TimeStamp} для трека {existPoint.Track.Id}, были получены повторно и изменены " +
+								"lat: {existPoint.Latitude} -> {trackPoint.Latitude} log: {existPoint.Longitude} -> {trackPoint.Longitude}");
+							existPoint.Latitude = trackPoint.Latitude ;
+							existPoint.Longitude = trackPoint.Longitude ;
+						}	
+					}
+					{
+						trackPoint.Track = trackUoW.Root;
+						trackUoW.Root.TrackPoints.Add(trackPoint);
+					}
 				}
 				trackUoW.Save();
 
