@@ -242,7 +242,7 @@ namespace Android
 						else
 						{
 							logger.Warn($"Координаты на время {trackPoint.TimeStamp} для трека {existPoint.Track.Id}, были получены повторно и изменены " +
-								"lat: {existPoint.Latitude} -> {trackPoint.Latitude} log: {existPoint.Longitude} -> {trackPoint.Longitude}");
+								$"lat: {existPoint.Latitude} -> {trackPoint.Latitude} log: {existPoint.Longitude} -> {trackPoint.Longitude}");
 							existPoint.Latitude = trackPoint.Latitude ;
 							existPoint.Longitude = trackPoint.Longitude ;
 						}	
