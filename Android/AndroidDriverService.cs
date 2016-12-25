@@ -237,7 +237,6 @@ namespace Android
 						if(existPoint.Latitude == trackPoint.Latitude && existPoint.Longitude == trackPoint.Longitude)
 						{
 							logger.Warn("Координаты на время {0} для трека {1}, были получены повторно поэтому пропущены.", trackPoint.TimeStamp, existPoint.Track.Id);
-							continue;
 						}
 						else
 						{
@@ -245,8 +244,9 @@ namespace Android
 								$"lat: {existPoint.Latitude} -> {trackPoint.Latitude} log: {existPoint.Longitude} -> {trackPoint.Longitude}");
 							existPoint.Latitude = trackPoint.Latitude ;
 							existPoint.Longitude = trackPoint.Longitude ;
-						}	
+						}
 					}
+					else
 					{
 						trackPoint.Track = trackUoW.Root;
 						trackUoW.Root.TrackPoints.Add(trackPoint);
