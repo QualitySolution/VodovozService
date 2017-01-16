@@ -209,15 +209,16 @@ namespace Android
 		{
 			var DecimalSeparatorFormat = new NumberFormatInfo { NumberDecimalSeparator = ".", NumberGroupSeparator = "," };
 			var CommaSeparatorFormat = new NumberFormatInfo { NumberDecimalSeparator = ",", NumberGroupSeparator = "." };
+
+			if (!CheckAuth (authKey))
+				return false;
+
+			var trackUoW = UnitOfWorkFactory.CreateForRoot<Track>(trackId);
+			if (trackUoW == null || trackUoW.Root == null)
+				return false;
+
 			try
 			{
-				if (!CheckAuth (authKey))
-					return false;
-
-				var trackUoW = UnitOfWorkFactory.CreateForRoot<Track>(trackId);
-				if (trackUoW == null || trackUoW.Root == null)
-					return false;
-
 				foreach (TrackPoint tp in TrackPointList) {
 					var trackPoint = new Vodovoz.Domain.Logistic.TrackPoint();
 					Double Latitude, Longitude;
@@ -261,6 +262,12 @@ namespace Android
 				trackUoW.Save();
 
 				return true;
+			}
+			catch (NHibernate.NonUniqueObjectException ex)
+			{
+				logger.Error(ex);
+				logger.Info("Содержание списка координат:\n" 
+					+ String.Join("\n", trackUoW.Root.TrackPoints.Select(x => x.TimeStamp.ToLongTimeString())));
 			}
 			catch (Exception e)
 			{
