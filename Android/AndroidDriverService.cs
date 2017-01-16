@@ -223,10 +223,16 @@ namespace Android
 					Double Latitude, Longitude;
 					if (!Double.TryParse(tp.Latitude, NumberStyles.Float, DecimalSeparatorFormat, out Latitude) 
 						&& !Double.TryParse(tp.Latitude, NumberStyles.Float, CommaSeparatorFormat, out Latitude))
+					{
+						logger.Warn("Не получилось разобрать координату широты: {0}", tp.Latitude);
 						return false;
+					}
 					if (!Double.TryParse(tp.Longitude, NumberStyles.Float, DecimalSeparatorFormat, out Longitude) 
 						&& !Double.TryParse(tp.Longitude, NumberStyles.Float, CommaSeparatorFormat, out Longitude))
+					{
+						logger.Warn("Не получилось разобрать координату долготы: {0}", tp.Longitude);
 						return false;
+					}
 					trackPoint.Latitude = Latitude;
 					trackPoint.Longitude = Longitude;
 					trackPoint.TimeStamp = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(long.Parse(tp.TimeStamp)).ToLocalTime();
@@ -234,7 +240,7 @@ namespace Android
 					var existPoint = trackUoW.Root.TrackPoints.FirstOrDefault(x => x.TimeStamp == roundedDate);
 					if(existPoint != null)
 					{
-						if(existPoint.Latitude == trackPoint.Latitude && existPoint.Longitude == trackPoint.Longitude)
+						if(Math.Abs(existPoint.Latitude - trackPoint.Latitude) < 0.00000001 && Math.Abs(existPoint.Longitude - trackPoint.Longitude) < 0.00000001)
 						{
 							logger.Warn("Координаты на время {0} для трека {1}, были получены повторно поэтому пропущены.", trackPoint.TimeStamp, existPoint.Track.Id);
 						}
