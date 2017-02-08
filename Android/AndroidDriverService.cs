@@ -10,6 +10,8 @@ using Vodovoz.Repository.Logistics;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using System.Globalization;
+using System.ServiceModel.Channels;
+using System.ServiceModel;
 
 namespace Android
 {
@@ -207,6 +209,12 @@ namespace Android
 
 		public bool SendCoordinates (string authKey, int trackId, TrackPointList TrackPointList)
 		{
+			RemoteEndpointMessageProperty prop = (RemoteEndpointMessageProperty)OperationContext.Current.IncomingMessageProperties [RemoteEndpointMessageProperty.Name];
+			if (prop != null)
+				logger.Info("Получены координаты по треку {0} c ip{1}:{2}", trackId, prop.Address, prop.Port);
+
+			DateTime startOp = DateTime.Now;
+
 			var DecimalSeparatorFormat = new NumberFormatInfo { NumberDecimalSeparator = ".", NumberGroupSeparator = "," };
 			var CommaSeparatorFormat = new NumberFormatInfo { NumberDecimalSeparator = ",", NumberGroupSeparator = "." };
 
@@ -268,18 +276,18 @@ namespace Android
 					}
 				}
 				trackUoW.Save();
-
+				logger.Info("Закончена обработка координат для трека {0} за {1} сек.", trackId, (DateTime.Now - startOp).TotalSeconds);
 				return true;
 			}
 			catch (NHibernate.NonUniqueObjectException ex)
 			{
-				logger.Error(ex);
+				logger.Error(ex, "На обоработке трека {0}", trackId);
 				logger.Info("Содержание списка координат:\n" 
 					+ String.Join("\n", trackUoW.Root.TrackPoints.Select(x => x.TimeStamp.ToLongTimeString())));
 			}
 			catch (Exception e)
 			{
-				logger.Error(e);
+				logger.Error(e, "На обоработке трека {0}", trackId);
 			}
 			return false;
 		}
