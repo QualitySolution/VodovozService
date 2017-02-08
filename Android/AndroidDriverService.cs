@@ -219,6 +219,7 @@ namespace Android
 
 			try
 			{
+				Vodovoz.Domain.Logistic.TrackPoint lastTp = null;
 				foreach (TrackPoint tp in TrackPointList) {
 					var trackPoint = new Vodovoz.Domain.Logistic.TrackPoint();
 					Double Latitude, Longitude;
@@ -237,8 +238,15 @@ namespace Android
 					trackPoint.Latitude = Latitude;
 					trackPoint.Longitude = Longitude;
 					trackPoint.TimeStamp = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(long.Parse(tp.TimeStamp)).ToLocalTime();
-					var roundedDate = new DateTime(trackPoint.TimeStamp.Year, trackPoint.TimeStamp.Month, trackPoint.TimeStamp.Day, trackPoint.TimeStamp.Hour, trackPoint.TimeStamp.Minute, trackPoint.TimeStamp.Second);
-					var existPoint = trackUoW.Root.TrackPoints.FirstOrDefault(x => x.TimeStamp == roundedDate);
+					//Округляем время до секунд.
+					trackPoint.TimeStamp = new DateTime(trackPoint.TimeStamp.Year, trackPoint.TimeStamp.Month, trackPoint.TimeStamp.Day, trackPoint.TimeStamp.Hour, trackPoint.TimeStamp.Minute, trackPoint.TimeStamp.Second);
+					if(lastTp != null && lastTp.TimeStamp == trackPoint.TimeStamp)
+					{
+						logger.Warn("Для секунды {0} трека {1}, присутствует вторая пара координат, пропускаем что бы округлить трек с точностью не чаще раза в секунду.", trackPoint.TimeStamp, trackId);
+						continue;
+					}
+					lastTp = trackPoint;
+					var existPoint = trackUoW.Root.TrackPoints.FirstOrDefault(x => x.TimeStamp == trackPoint.TimeStamp);
 					if(existPoint != null)
 					{
 						if(Math.Abs(existPoint.Latitude - trackPoint.Latitude) < 0.00000001 && Math.Abs(existPoint.Longitude - trackPoint.Longitude) < 0.00000001)
