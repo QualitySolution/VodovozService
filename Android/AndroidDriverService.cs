@@ -23,7 +23,7 @@ namespace Android
 		/// Const value, equals to android code version on AndroidManifest.xml
 		/// Needed for version checking. Increment this value on each API change.
 		/// </summary>
-		private const int VERSION_CODE = 8;
+		private const int VERSION_CODE = 9;
 
 		#region IAndroidDriverService implementation
 
