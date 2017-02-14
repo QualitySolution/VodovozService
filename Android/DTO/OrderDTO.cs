@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Runtime.Serialization;
-using Vodovoz.Domain.Orders;
-using Gamma.Utilities;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using Gamma.Utilities;
 using QSContacts;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 
 namespace Android
 {
@@ -106,7 +106,7 @@ namespace Android
 			DPPhone = item.Order.DeliveryPoint.Phone;
 			CPPhones= new List<string> ();
 			foreach (Phone phone in item.Order.Client.Phones) {
-				CPPhones.Add (String.Format("{0}: {1}", phone.NumberType.Name, phone.Number));
+				CPPhones.Add (String.Format("{0}: {1}", phone.NumberType?.Name, phone.Number));
 			}
 
 			OrderItems = new List<string> ();

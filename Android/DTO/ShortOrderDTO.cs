@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Client;
 using Gamma.Utilities;
 using Vodovoz.Domain.Logistic;
 
