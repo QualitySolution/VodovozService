@@ -13,6 +13,8 @@ namespace Chat
 {
 	public class ChatService : IChatService
 	{
+		public static string UserNameOfServer = "Электронный друг";
+
 		#region IChatService implementation
 
 		public bool SendMessageToLogistician (string authKey, string message)
@@ -176,6 +178,41 @@ namespace Chat
 			}
 		}
 		#endregion
+
+		/// <summary>
+		/// Sends the server notification to driver.
+		/// ВНИМАНИЕ!!! Делает коммит UoW.
+		/// </summary>
+		public bool SendServerNotificationToDriver (IUnitOfWork uow, Employee driver, string message, string androidNotification) {
+			try {
+				if (driver == null)
+					return false;
+
+				var chat = ChatRepository.GetChatForDriver (uow, driver);
+				if (chat == null) {
+					chat = new ChatClass ();
+					chat.ChatType = ChatType.DriverAndLogists;
+					chat.Driver = driver;
+				}
+
+				ChatMessage chatMessage = new ChatMessage ();
+				chatMessage.Chat = chat;
+				chatMessage.DateTime = DateTime.Now;
+				chatMessage.Message = message;
+				chatMessage.IsServerNotification = true;
+
+				chat.Messages.Add (chatMessage);
+				uow.Save (chat);
+				uow.Commit ();
+
+				FCMHelper.SendOrderStatusChangeMessage (driver.AndroidToken, UserNameOfServer, androidNotification);
+				return true;
+			} catch (Exception e) {
+				Console.WriteLine (e.StackTrace);
+				return false;
+			}
+		}
+
 	}
 }
 
