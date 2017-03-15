@@ -50,6 +50,8 @@
     <Compile Include="DTO\OrderDTO.cs" />
     <Compile Include="DTO\ShortOrderDTO.cs" />
     <Compile Include="DTO\TrackPointDTO.cs" />
+    <Compile Include="TrackMaintainer.cs" />
+    <Compile Include="TracksService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
