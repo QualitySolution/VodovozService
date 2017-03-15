@@ -98,6 +98,11 @@ namespace VodovozService
 				ChatHost.Open();
 				AndroidDriverHost.Open();
 
+				//Запускаем таймеры рутины
+				var OrderRoutineTimer = new System.Timers.Timer(240000); //4 минуты
+				OrderRoutineTimer.Elapsed += OrderRoutineTimer_Elapsed;
+				OrderRoutineTimer.Start();
+
 				logger.Info("Server started.");
 
 				UnixSignal[] signals = { 
@@ -111,6 +116,17 @@ namespace VodovozService
 				if (Environment.OSVersion.Platform == PlatformID.Unix)
 					Thread.CurrentThread.Abort ();
 				Environment.Exit (0);
+			}
+		}
+
+		static void OrderRoutineTimer_Elapsed (object sender, System.Timers.ElapsedEventArgs e)
+		{
+			try{
+				BackgroundTask.OrderTimeIsRunningOut();
+			}
+			catch (Exception ex)
+			{
+				logger.Error(ex, "Исключение при выполение фоновой задачи.");
 			}
 		}
 

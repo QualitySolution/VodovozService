@@ -23,7 +23,7 @@ namespace Chat
 		public MessageDTO (ChatMessage item)
 		{
 			Message = item.Message;
-			Sender = item.Sender.ShortName;
+			Sender = item.IsServerNotification ? ChatService.UserNameOfServer : item.Sender.ShortName;
 			DateTime = item.DateTime;
 		}
 

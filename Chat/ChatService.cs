@@ -184,7 +184,7 @@ namespace Chat
 		/// Sends the server notification to driver.
 		/// ВНИМАНИЕ!!! Делает коммит UoW.
 		/// </summary>
-		public bool SendServerNotificationToDriver (IUnitOfWork uow, Employee driver, string message, string androidNotification) {
+		public static bool SendServerNotificationToDriver (IUnitOfWork uow, Employee driver, string message, string androidNotification) {
 			try {
 				if (driver == null)
 					return false;
