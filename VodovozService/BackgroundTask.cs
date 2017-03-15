@@ -50,10 +50,10 @@ namespace VodovozService
 				}
 				else if(address.Order.DeliverySchedule.To <= nowMinus30 && address.Notified30Minutes == false)
 				{
-					address.NotifiedTimeout = true;
+					address.Notified30Minutes = true;
 					UoW.Save(address);
 
-					var mes = String.Format("Крайний срок доставки {0} заказа №{1} по адресу {2} наступи менее чем через 30 минут.",
+					var mes = String.Format("Крайний срок доставки {0} заказа №{1} по адресу {2} наступит менее чем через 30 минут.",
 						address.Order.DeliverySchedule.Name,
 						address.Order.Id,
 						address.Order.DeliveryPoint.ShortAddress
