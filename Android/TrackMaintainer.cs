@@ -14,16 +14,20 @@ namespace Android
 
 		public bool IsBusy { get; private set;}
 
+		public DateTime LastActive { get; private set;}
+
 		public Track Track {get{ return uow.Root;}}
 
 		public TrackMaintainer(int trackId)
 		{
 			uow = UnitOfWorkFactory.CreateForRoot<Track>(trackId);
+			LastActive = DateTime.Now;
 		}
 
 		public bool SaveNewCoordinates(TrackPointList trackPointList)
 		{
 			IsBusy = true;
+			LastActive = DateTime.Now;
 			DateTime startOp = DateTime.Now;
 			var DecimalSeparatorFormat = new NumberFormatInfo { NumberDecimalSeparator = ".", NumberGroupSeparator = "," };
 			var CommaSeparatorFormat = new NumberFormatInfo { NumberDecimalSeparator = ",", NumberGroupSeparator = "." };

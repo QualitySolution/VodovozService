@@ -33,6 +33,7 @@ namespace VodovozService
 		private static string tcpServicePort;
 		private static string serviceHostName;
 		private static System.Timers.Timer OrderRoutineTimer;
+		private static System.Timers.Timer TrackRoutineTimer;
 
 		public static void Main (string[] args)
 		{
@@ -103,6 +104,9 @@ namespace VodovozService
 				OrderRoutineTimer = new System.Timers.Timer(120000); //2 минуты
 				OrderRoutineTimer.Elapsed += OrderRoutineTimer_Elapsed;
 				OrderRoutineTimer.Start();
+				TrackRoutineTimer = new System.Timers.Timer(30000); //30 секунд
+				TrackRoutineTimer.Elapsed += TrackRoutineTimer_Elapsed;
+				TrackRoutineTimer.Start();
 
 				logger.Info("Server started.");
 
@@ -118,6 +122,11 @@ namespace VodovozService
 					Thread.CurrentThread.Abort ();
 				Environment.Exit (0);
 			}
+		}
+
+		static void TrackRoutineTimer_Elapsed (object sender, System.Timers.ElapsedEventArgs e)
+		{
+			TracksService.RemoveOldWorkers();
 		}
 
 		static void OrderRoutineTimer_Elapsed (object sender, System.Timers.ElapsedEventArgs e)
