@@ -19,8 +19,7 @@ namespace VodovozService
 			var todayAddresses = Vodovoz.Repository.Logistics.RouteListItemRepository.GetRouteListItemAtDay(UoW, DateTime.Today, RouteListItemStatus.EnRoute);
 
 			var now = DateTime.Now.TimeOfDay;
-			var nowMinus30 = DateTime.Now.TimeOfDay.Subtract(new TimeSpan(0, 30, 0));
-			logger.Debug("Сейчас={0}, 30 минут назад={1}", now, nowMinus30);
+			var nowMinus30 = DateTime.Now.TimeOfDay.Add(new TimeSpan(0, 30, 0));
 			foreach(var address in todayAddresses)
 			{
 				if(address.Order.DeliverySchedule.To <= now)
