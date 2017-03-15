@@ -1,19 +1,19 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.ServiceModel;
-using System.Threading;
-using Android;
-using Mono.Unix;
-using Mono.Unix.Native;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
-using System.Collections.ObjectModel;
-using MySql.Data.MySqlClient;
-using QSProjectsLib;
-using QSOrmProject;
-using NLog;
-using Nini.Config;
+using System.Threading;
+using Android;
 using Chat;
+using Mono.Unix;
+using Mono.Unix.Native;
+using MySql.Data.MySqlClient;
+using Nini.Config;
+using NLog;
+using QSOrmProject;
+using QSProjectsLib;
 
 namespace VodovozService
 {
@@ -32,6 +32,7 @@ namespace VodovozService
 		private static string servicePort;
 		private static string tcpServicePort;
 		private static string serviceHostName;
+		private static System.Timers.Timer OrderRoutineTimer;
 
 		public static void Main (string[] args)
 		{
@@ -99,7 +100,7 @@ namespace VodovozService
 				AndroidDriverHost.Open();
 
 				//Запускаем таймеры рутины
-				var OrderRoutineTimer = new System.Timers.Timer(240000); //4 минуты
+				OrderRoutineTimer = new System.Timers.Timer(120000); //2 минуты
 				OrderRoutineTimer.Elapsed += OrderRoutineTimer_Elapsed;
 				OrderRoutineTimer.Start();
 
