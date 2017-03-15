@@ -13,6 +13,7 @@ namespace Chat
 {
 	public class ChatService : IChatService
 	{
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		public static string UserNameOfServer = "Электронный друг";
 
 		#region IChatService implementation
@@ -43,7 +44,7 @@ namespace Chat
 				uow.Commit ();
 				return true;
 			} catch (Exception e) {
-				Console.WriteLine (e.StackTrace);
+				logger.Error (e);
 				return false;
 			}
 		}
@@ -74,7 +75,7 @@ namespace Chat
 				FCMHelper.SendMessage (recipient.AndroidToken, senderUoW.Root.ShortName, message);
 				return true;
 			} catch (Exception e) {
-				Console.WriteLine (e.StackTrace);
+				logger.Error (e);
 				return false;
 			}
 		}
@@ -97,7 +98,7 @@ namespace Chat
 				}
 				return messages;
 			} catch (Exception e) {
-				Console.WriteLine (e.StackTrace);
+				logger.Error (e);
 				return null;
 			}
 		}
@@ -135,7 +136,7 @@ namespace Chat
 				FCMHelper.SendOrderStatusChangeMessage (driver.AndroidToken, senderUoW.Root.ShortName, message);
 				return true;
 			} catch (Exception e) {
-				Console.WriteLine (e.StackTrace);
+				logger.Error (e);
 				return false;
 			}
 		}
@@ -173,7 +174,7 @@ namespace Chat
 				FCMHelper.SendOrderDeliveryScheduleChangeMessage (driver.AndroidToken, senderUoW.Root.ShortName, message);
 				return true;
 			} catch (Exception e) {
-				Console.WriteLine (e.StackTrace);
+				logger.Error (e);
 				return false;
 			}
 		}
@@ -208,7 +209,7 @@ namespace Chat
 				FCMHelper.SendOrderStatusChangeMessage (driver.AndroidToken, UserNameOfServer, androidNotification);
 				return true;
 			} catch (Exception e) {
-				Console.WriteLine (e.StackTrace);
+				logger.Error (e);
 				return false;
 			}
 		}
