@@ -36,11 +36,11 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="NLog">
-      <HintPath>..\..\QSProjects\packages\NLog.4.4.1\lib\net40\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="NHibernate">
-      <HintPath>..\..\QSProjects\packages\NHibernate.4.0.4.4000\lib\net40\NHibernate.dll</HintPath>
+      <HintPath>..\..\QSProjects\packages\NHibernate.4.1.1.4000\lib\net40\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\..\QSProjects\packages\NLog.4.4.3\lib\net40\NLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
