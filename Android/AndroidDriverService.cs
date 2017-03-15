@@ -279,12 +279,6 @@ namespace Android
 				logger.Info("Закончена обработка координат для трека {0} за {1} сек.", trackId, (DateTime.Now - startOp).TotalSeconds);
 				return true;
 			}
-			catch (NHibernate.NonUniqueObjectException ex)
-			{
-				logger.Error(ex, "На обоработке трека {0}", trackId);
-				logger.Info("Содержание списка координат:\n" 
-					+ String.Join("\n", trackUoW.Root.TrackPoints.Select(x => x.TimeStamp.ToLongTimeString())));
-			}
 			catch (Exception e)
 			{
 				logger.Error(e, "На обоработке трека {0}", trackId);
