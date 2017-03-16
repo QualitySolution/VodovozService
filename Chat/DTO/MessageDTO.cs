@@ -29,7 +29,7 @@ namespace Chat
 
 		public MessageDTO (ChatMessage item, Employee driver) : this (item)
 		{
-			if (item.Sender.Id == driver.Id)
+			if (!item.IsServerNotification && item.Sender.Id == driver.Id)
 				Sender = String.Empty;
 		}
 	}
