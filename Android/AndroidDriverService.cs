@@ -9,7 +9,6 @@ using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using System.Globalization;
 using System.ServiceModel.Channels;
 using System.ServiceModel;
 
@@ -233,11 +232,17 @@ namespace Android
 				if (routeListItem == null)
 					return false;
 
+				if(routeListItem.Status == RouteListItemStatus.Transfered)
+				{
+					logger.Error("Попытка переключить статус у переданного адреса. address_id = {0}", routeListItem.Id);
+					return false;
+				}
+
 				switch (status) {
-				case "EnRoute": routeListItem.UpdateStatus(RouteListItemStatus.EnRoute); break;
-				case "Completed": routeListItem.UpdateStatus(RouteListItemStatus.Completed); break;
-				case "Canceled": routeListItem.UpdateStatus(RouteListItemStatus.Canceled); break;
-				case "Overdue": routeListItem.UpdateStatus(RouteListItemStatus.Overdue); break;
+					case "EnRoute": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.EnRoute); break;
+					case "Completed": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Completed); break;
+					case "Canceled": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Canceled); break;
+					case "Overdue": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Overdue); break;
 				default: return false;
 				}
 				routeListItem.DriverBottlesReturned = bottlesReturned;
