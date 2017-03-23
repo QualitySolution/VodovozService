@@ -715,4 +715,10 @@ Global
 		{769710D2-BF98-4120-9E07-67BD740CFA1D} = {4227FE61-2892-4DCD-8089-D1E7D81200D6}
 		{22FCCEC7-A025-43A8-A05F-EEB60A4AAF3C} = {4227FE61-2892-4DCD-8089-D1E7D81200D6}
 	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		Policies = $0
+		$0.DotNetNamingPolicy = $1
+		$1.DirectoryNamespaceAssociation = PrefixedHierarchical
+		$1.ResourceNamePolicy = MSBuild
+	EndGlobalSection
 EndGlobal
