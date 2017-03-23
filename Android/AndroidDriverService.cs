@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Security.Cryptography;
-using System.Linq;
-using System.Text;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.Text;
 using QSOrmProject;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Repository;
-using Vodovoz.Repository.Logistics;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using System.ServiceModel.Channels;
-using System.ServiceModel;
+using Vodovoz.Repository;
+using Vodovoz.Repository.Logistics;
 
 namespace Android
 {
@@ -22,13 +22,38 @@ namespace Android
 		/// Const value, equals to android code version on AndroidManifest.xml
 		/// Needed for version checking. Increment this value on each API change.
 		/// </summary>
-		private const int VERSION_CODE = 10;
+		private const int VERSION_CODE = 11;
 
 		#region IAndroidDriverService implementation
 
 		public bool CheckAppCodeVersion (int versionCode)
 		{
-			return versionCode == VERSION_CODE;
+			return false;
+			//return versionCode == VERSION_CODE;
+		}
+
+		public CheckVersionResultDTO CheckApplicationVersion(int versionCode, string appVersion)
+		{
+			var uow = UnitOfWorkFactory.CreateWithoutRoot();
+			var lastVersionParameter = uow.Session.Get<BaseParameter>("last_android_version");
+
+			if (lastVersionParameter == null)
+				return new CheckVersionResultDTO { Result = CheckVersionResultDTO.ResultType.Ok };
+
+			var result = new CheckVersionResultDTO();
+			result.DownloadUrl = "http://files.qsolution.ru/Vodovoz/VodovozDrivers.apk";
+			result.NewVersion = lastVersionParameter.StrValue;
+
+			var lastVersion = new Version(lastVersionParameter.StrValue);
+			var androidVersion = new Version(appVersion);
+
+			if (lastVersion > androidVersion)
+				result.Result = CheckVersionResultDTO.ResultType.CanUpdate;
+
+			if (VERSION_CODE > versionCode)
+				result.Result = CheckVersionResultDTO.ResultType.NeedUpdate;
+
+			return result;
 		}
 
 		/// <summary>

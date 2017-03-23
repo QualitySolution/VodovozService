@@ -1,10 +1,24 @@
 ﻿using System;
+using System.Runtime.Serialization;
+
 namespace Android
 {
-	public class CheckVersionResult
+	[DataContract]
+	public class CheckVersionResultDTO
 	{
-		public CheckVersionResult()
-		{
+		public enum ResultType{
+			Ok,
+			CanUpdate,
+			NeedUpdate
 		}
+
+		[DataMember]
+		public ResultType Result = ResultType.Ok;
+
+		[DataMember]
+		public string DownloadUrl;
+
+		[DataMember]
+		public string NewVersion;
 	}
 }

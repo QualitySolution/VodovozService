@@ -10,7 +10,12 @@ namespace Android
 	{
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/CheckAppCodeVersion", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
+		[Obsolete("Убрать после перехеода всех клиентов на API  v.11")]
 		bool CheckAppCodeVersion (int versionCode);
+
+		[OperationContract]
+		[WebInvoke(UriTemplate = "/CheckApplicationVersion", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+		CheckVersionResultDTO CheckApplicationVersion(int versionCode, string appVersion);
 
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/Auth", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
