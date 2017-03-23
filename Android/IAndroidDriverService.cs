@@ -15,7 +15,7 @@ namespace Android
 
 		[OperationContract]
 		[WebInvoke(UriTemplate = "/CheckApplicationVersion", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
-		CheckVersionResultDTO CheckApplicationVersion(int versionCode, string appVersion);
+		CheckVersionResultDTO CheckApplicationVersion(int versionCode);
 
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/Auth", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 

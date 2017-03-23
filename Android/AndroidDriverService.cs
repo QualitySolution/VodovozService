@@ -21,33 +21,32 @@ namespace Android
 		/// <summary>
 		/// Const value, equals to android code version on AndroidManifest.xml
 		/// Needed for version checking. Increment this value on each API change.
+		/// This is minimal version works with current API.
 		/// </summary>
 		private const int VERSION_CODE = 11;
 
 		#region IAndroidDriverService implementation
 
+		[Obsolete("Удалить после того как не останется клиентов на версии ниже 11.")]
 		public bool CheckAppCodeVersion (int versionCode)
 		{
 			return false;
-			//return versionCode == VERSION_CODE;
 		}
 
-		public CheckVersionResultDTO CheckApplicationVersion(int versionCode, string appVersion)
+		public CheckVersionResultDTO CheckApplicationVersion(int versionCode)
 		{
 			var uow = UnitOfWorkFactory.CreateWithoutRoot();
-			var lastVersionParameter = uow.Session.Get<BaseParameter>("last_android_version");
-
-			if (lastVersionParameter == null)
-				return new CheckVersionResultDTO { Result = CheckVersionResultDTO.ResultType.Ok };
+			var lastVersionParameter = uow.Session.Get<BaseParameter>("last_android_version_code");
+			var lastVersionNameParameter = uow.Session.Get<BaseParameter>("last_android_version_name");
 
 			var result = new CheckVersionResultDTO();
 			result.DownloadUrl = "http://files.qsolution.ru/Vodovoz/VodovozDrivers.apk";
-			result.NewVersion = lastVersionParameter.StrValue;
+			result.NewVersion = lastVersionNameParameter?.StrValue;
 
-			var lastVersion = new Version(lastVersionParameter.StrValue);
-			var androidVersion = new Version(appVersion);
+			int lastVersionCode = 0;
+			Int32.TryParse(lastVersionParameter?.StrValue, out lastVersionCode);
 
-			if (lastVersion > androidVersion)
+			if (lastVersionCode > versionCode)
 				result.Result = CheckVersionResultDTO.ResultType.CanUpdate;
 
 			if (VERSION_CODE > versionCode)
