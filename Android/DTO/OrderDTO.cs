@@ -81,19 +81,19 @@ namespace Android
 		{
 			Id = item.Order.Id;
 			Title = item.Order.Title;
-			CityDistrict = item.Order.DeliveryPoint.CityDistrict;
-			StreetDistrict = item.Order.DeliveryPoint.StreetDistrict;
-			Latitude = item.Order.DeliveryPoint.Latitude;
-			Longitude = item.Order.DeliveryPoint.Longitude;
-			DeliveryPointComment = item.Order.DeliveryPoint.Comment;
-			Address = item.Order.DeliveryPoint.CompiledAddress;
+			CityDistrict = item.Order.DeliveryPoint?.CityDistrict;
+			StreetDistrict = item.Order.DeliveryPoint?.StreetDistrict;
+			Latitude = item.Order.DeliveryPoint?.Latitude;
+			Longitude = item.Order.DeliveryPoint?.Longitude;
+			DeliveryPointComment = item.Order.DeliveryPoint?.Comment;
+			Address = item.Order.DeliveryPoint?.CompiledAddress;
 			DeliverySchedule = item.Order.DeliverySchedule.DeliveryTime;
 			RouteListItemStatus = item.Status.GetEnumTitle ();
 			OrderComment = item.Order.Comment;
 			Counterparty = item.Order.Client.FullName;
 			BottlesReturn = item.DriverBottlesReturned == null ? null :item.DriverBottlesReturned.ToString() ;
 
-			if (item.Order.DeliveryPoint.Contacts.Count > 0)
+			if (item.Order.DeliveryPoint != null && item.Order.DeliveryPoint.Contacts.Count > 0)
 			{
 				//FIXME Сделать обработку нескольких контантных лиц.
 				DPContact = item.Order.DeliveryPoint.Contacts[0].FullName;
@@ -103,7 +103,7 @@ namespace Android
 				DPContact = "Контактные лица не указаны";
 			}
 
-			DPPhone = item.Order.DeliveryPoint.Phone;
+			DPPhone = item.Order.DeliveryPoint?.Phone;
 			CPPhones= new List<string> ();
 			foreach (Phone phone in item.Order.Client.Phones) {
 				CPPhones.Add (String.Format("{0}: {1}", phone.NumberType?.Name, phone.Number));

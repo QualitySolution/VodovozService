@@ -33,13 +33,13 @@ namespace VodovozService
 					var mes = String.Format("Доставка заказа №{1} по адресу {2} просрочена! Время доставки было {0}.",
 						address.Order.DeliverySchedule.Name,
 						address.Order.Id,
-						address.Order.DeliveryPoint.ShortAddress
+						address.Order.DeliveryPoint?.ShortAddress
 					);
 
 					var notify = String.Format("Адрес {2} просрочен!",
 						address.Order.DeliverySchedule.Name,
 						address.Order.Id,
-						address.Order.DeliveryPoint.ShortAddress
+						address.Order.DeliveryPoint?.ShortAddress
 					);
 
 					Chat.ChatService.SendServerNotificationToDriver(UoW, address.RouteList.Driver, mes, notify);
@@ -55,12 +55,12 @@ namespace VodovozService
 					var mes = String.Format("Крайний срок доставки {0} заказа №{1} по адресу {2} наступит менее чем через 30 минут.",
 						address.Order.DeliverySchedule.Name,
 						address.Order.Id,
-						address.Order.DeliveryPoint.ShortAddress
+						address.Order.DeliveryPoint?.ShortAddress
 					);
 					var notify = String.Format("Осталось менее 30 минут для доставки по адресу {2}.",
 						address.Order.DeliverySchedule.Name,
 						address.Order.Id,
-						address.Order.DeliveryPoint.ShortAddress
+						address.Order.DeliveryPoint?.ShortAddress
 					);
 
 					Chat.ChatService.SendServerNotificationToDriver(UoW, address.RouteList.Driver, mes, notify);

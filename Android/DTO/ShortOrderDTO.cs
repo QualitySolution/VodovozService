@@ -33,7 +33,7 @@ namespace Android
 			DeliverySchedule = item.Order.DeliverySchedule.DeliveryTime;
 			OrderStatus = item.Status.GetEnumTitle();
 			Counterparty = item.Order.Client.FullName;
-			Address = item.Order.DeliveryPoint.ShortAddress ?? String.Empty;
+			Address = item.Order.DeliveryPoint?.ShortAddress ?? String.Empty;
 		}
 	}
 }
