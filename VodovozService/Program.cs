@@ -76,6 +76,8 @@ namespace VodovozService
 					System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain))
 				});
 
+				MainSupport.LoadBaseParameters ();
+
 				FCMHelper.Configure(firebaseServerApiToken, firebaseSenderId);
 					
 				ServiceHost ChatHost = new ServiceHost (typeof(ChatService));
