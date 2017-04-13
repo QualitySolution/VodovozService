@@ -14,6 +14,7 @@ using Nini.Config;
 using NLog;
 using QSOrmProject;
 using QSProjectsLib;
+using QSSupportLib;
 
 namespace VodovozService
 {
@@ -75,6 +76,7 @@ namespace VodovozService
 					System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 					System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain))
 				});
+
 
 				MainSupport.LoadBaseParameters ();
 
