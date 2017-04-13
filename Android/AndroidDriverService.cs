@@ -134,7 +134,7 @@ namespace Android
 				if (!CheckAuth(authKey))
 					return null;
 				var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
-				var routeLists = RouteListRepository.GetDriverRouteLists(uow, driver);
+				var routeLists = RouteListRepository.GetDriverRouteLists(uow, driver, RouteListStatus.EnRoute, DateTime.Today);
 
 				foreach (RouteList rl in routeLists)
 				{
