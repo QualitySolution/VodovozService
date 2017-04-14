@@ -47,6 +47,7 @@
     <Compile Include="DTO\MessageDTO.cs" />
     <Compile Include="Observer\ChatCallbackObservable.cs" />
     <Compile Include="Observer\IChatCallbackObserver.cs" />
+    <Compile Include="ChatMain.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
