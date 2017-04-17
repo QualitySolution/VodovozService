@@ -22,6 +22,12 @@ namespace VodovozService
 			var nowMinus30 = DateTime.Now.TimeOfDay.Add(new TimeSpan(0, 30, 0));
 			foreach(var address in todayAddresses)
 			{
+				if(address.Order.DeliverySchedule == null)
+				{
+					logger.Warn ("Заказ {0} не имеет времени доставки, пропускаем...", address.Order.Id);
+					continue;
+				}
+
 				if(address.Order.DeliverySchedule.To <= now)
 				{
 					if(address.NotifiedTimeout)

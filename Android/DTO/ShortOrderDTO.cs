@@ -30,10 +30,10 @@ namespace Android
 		public ShortOrderDTO (RouteListItem item)
 		{
 			Id = item.Order.Id;
-			DeliverySchedule = item.Order.DeliverySchedule.DeliveryTime;
+			DeliverySchedule = item.Order?.DeliverySchedule?.DeliveryTime;
 			OrderStatus = item.Status.GetEnumTitle();
-			Counterparty = item.Order.Client.FullName;
-			Address = item.Order.DeliveryPoint?.ShortAddress ?? String.Empty;
+			Counterparty = item.Order?.Client?.FullName;
+			Address = item.Order?.DeliveryPoint?.ShortAddress ?? String.Empty;
 		}
 	}
 }
