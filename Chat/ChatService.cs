@@ -122,6 +122,7 @@ namespace Chat
 				ChatMessage chatMessage = new ChatMessage ();
 				chatMessage.Chat = chat;
 				chatMessage.DateTime = DateTime.Now;
+				chatMessage.IsAutoCeated = true;
 				chatMessage.Message = String.Format("Заказ №{0} из маршрутного листа №{1} был переведен в статус \"{2}\".",
 					routeListItem.Order.Id,
 					routeListItem.RouteList.Id,
@@ -160,6 +161,7 @@ namespace Chat
 				ChatMessage chatMessage = new ChatMessage ();
 				chatMessage.Chat = chat;
 				chatMessage.DateTime = DateTime.Now;
+				chatMessage.IsAutoCeated = true;
 				chatMessage.Message = String.Format("У заказа №{0} из маршрутного листа №{1} было изменено время доставки на \"{2}\".",
 					routeListItem.Order.Id,
 					routeListItem.RouteList.Id,
@@ -201,6 +203,7 @@ namespace Chat
 				chatMessage.DateTime = DateTime.Now;
 				chatMessage.Message = message;
 				chatMessage.IsServerNotification = true;
+				chatMessage.IsAutoCeated = true;
 
 				chat.Messages.Add (chatMessage);
 				uow.Save (chat);
