@@ -32,9 +32,7 @@ namespace VodovozService
 		private static string db;
 		private static string firebaseServerApiToken;
 		private static string firebaseSenderId;
-		private static string localAddress;
 		private static string servicePort;
-		private static string tcpServicePort;
 		private static string serviceHostName;
 		private static System.Timers.Timer OrderRoutineTimer;
 		private static System.Timers.Timer TrackRoutineTimer;
@@ -53,9 +51,7 @@ namespace VodovozService
 				db = config.GetString ("database");
 				firebaseServerApiToken = config.GetString ("server_api_token");
 				firebaseSenderId = config.GetString ("firebase_sender");
-				localAddress = config.GetString ("local_address");
 				servicePort = config.GetString ("service_port");
-				tcpServicePort = config.GetString ("tcp_service_port");
 				serviceHostName = config.GetString ("service_host_name");
 
 				OsmService.ConfigureService (configFile);

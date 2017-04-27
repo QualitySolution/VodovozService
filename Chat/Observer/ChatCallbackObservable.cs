@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.ServiceModel;
-using System.Threading;
-using QSProjectsLib;
-using ChatClass = Vodovoz.Domain.Chat.Chat;
-using Vodovoz.Repository.Chat;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Chat;
-using GLib;
+using Vodovoz.Repository.Chat;
 
 namespace Chat
 {
