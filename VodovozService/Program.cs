@@ -99,6 +99,9 @@ namespace VodovozService
 					new BasicHttpBinding(),
 					String.Format("http://{0}:{1}/AndroidDriverService", serviceHostName, servicePort)
 				);
+
+				OsmWorker.ServiceHost = serviceHostName;
+				OsmWorker.ServicePort = Int32.Parse (servicePort);
 				OsmHost.AddServiceEndpoint (typeof (IOsmService), new WebHttpBinding (), OsmWorker.ServiceAddress);
 				
 				#if DEBUG
