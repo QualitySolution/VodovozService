@@ -4,6 +4,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
+using System.ServiceModel.Web;
 using System.Threading;
 using Android;
 using Chat;
@@ -13,8 +14,10 @@ using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog;
 using QSOrmProject;
+using QSOsm;
 using QSProjectsLib;
 using QSSupportLib;
+using WCFServer;
 
 namespace VodovozService
 {
@@ -54,10 +57,15 @@ namespace VodovozService
 				servicePort = config.GetString ("service_port");
 				tcpServicePort = config.GetString ("tcp_service_port");
 				serviceHostName = config.GetString ("service_host_name");
+
+				OsmService.ConfigureService (configFile);
+
 			} catch (Exception ex) {
 				logger.Fatal (ex, "Ошибка чтения конфигурационного файла.");
 				return;
 			}
+
+			WebServiceHost OsmHost = new WebServiceHost (typeof (OsmService));
 
 			logger.Info (String.Format ("Создаем и запускаем службы..."));
 			try {
@@ -95,14 +103,17 @@ namespace VodovozService
 					new BasicHttpBinding(),
 					String.Format("http://{0}:{1}/AndroidDriverService", serviceHostName, servicePort)
 				);
+				OsmHost.AddServiceEndpoint (typeof (IOsmService), new WebHttpBinding (), OsmWorker.ServiceAddress);
 				
 				#if DEBUG
 				ChatHost.Description.Behaviors.Add (new PreFilter());
 				AndroidDriverHost.Description.Behaviors.Add (new PreFilter ());
+				OsmHost.Description.Behaviors.Add (new PreFilter ());
 				#endif
 
 				ChatHost.Open();
 				AndroidDriverHost.Open();
+				OsmHost.Open ();
 
 				//Запускаем таймеры рутины
 				OrderRoutineTimer = new System.Timers.Timer(120000); //2 минуты
@@ -122,6 +133,9 @@ namespace VodovozService
 			} catch (Exception e) {
 				logger.Fatal (e);
 			} finally {
+				if (OsmHost.State == CommunicationState.Opened)
+					OsmHost.Close ();
+
 				if (Environment.OSVersion.Platform == PlatformID.Unix)
 					Thread.CurrentThread.Abort ();
 				Environment.Exit (0);
