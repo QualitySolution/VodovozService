@@ -53,6 +53,9 @@
     <Reference Include="NLog">
       <HintPath>..\..\QSProjects\packages\NLog.4.4.7\lib\net40\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="NHibernate.Spatial.MySQL">
+      <HintPath>..\..\Vodovoz\packages\NHibernate.Spatial.MySQL.4.1.1.4001\lib\net40-client\NHibernate.Spatial.MySQL.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -104,9 +107,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="hibernate.cfg.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

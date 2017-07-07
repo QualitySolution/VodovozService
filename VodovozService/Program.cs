@@ -73,14 +73,16 @@ namespace VodovozService
 				conStrBuilder.Password = pass;
 
 				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
+                var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+                                         .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
+					                     .ConnectionString(QSMain.ConnectionString);
 
-				OrmMain.ConfigureOrm (QSMain.ConnectionString,
+				OrmMain.ConfigureOrm (db_config,
 					new System.Reflection.Assembly[] {
 					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HMap.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 					System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain))
 				});
-
 
 				MainSupport.LoadBaseParameters ();
 
