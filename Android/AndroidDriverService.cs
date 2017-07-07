@@ -40,7 +40,7 @@ namespace Android
 			var lastVersionNameParameter = uow.Session.Get<BaseParameter>("last_android_version_name");
 
 			var result = new CheckVersionResultDTO();
-			result.DownloadUrl = "http://files.qsolution.ru/Vodovoz/VodovozDrivers.apk";
+			result.DownloadUrl = "market://details?id=ru.qsolution.vodovoz.driver";
 			result.NewVersion = lastVersionNameParameter?.StrValue;
 
 			int lastVersionCode = 0;
