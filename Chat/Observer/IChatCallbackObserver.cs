@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Chat
+namespace VodovozService.Chats
 {
 	public interface IChatCallbackObserver
 	{

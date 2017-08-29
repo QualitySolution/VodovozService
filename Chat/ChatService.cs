@@ -1,15 +1,15 @@
 ﻿using System;
 using QSOrmProject;
 using Vodovoz.Repository;
-using Vodovoz.Domain.Chat;
-using ChatClass = Vodovoz.Domain.Chat.Chat;
+using Vodovoz.Domain.Chats;
+using ChatClass = Vodovoz.Domain.Chats.Chat;
 using Vodovoz.Repository.Chat;
 using Vodovoz.Domain.Employees;
 using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;
 using Gamma.Utilities;
 
-namespace Chat
+namespace VodovozService.Chats
 {
 	public class ChatService : IChatService
 	{

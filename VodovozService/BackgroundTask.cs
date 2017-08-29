@@ -48,7 +48,7 @@ namespace VodovozService
 						address.Order.DeliveryPoint?.ShortAddress
 					);
 
-					Chat.ChatService.SendServerNotificationToDriver(UoW, address.RouteList.Driver, mes, notify);
+					Chats.ChatService.SendServerNotificationToDriver(UoW, address.RouteList.Driver, mes, notify);
 
 					messagesCount++;
 					continue;
@@ -69,7 +69,7 @@ namespace VodovozService
 						address.Order.DeliveryPoint?.ShortAddress
 					);
 
-					Chat.ChatService.SendServerNotificationToDriver(UoW, address.RouteList.Driver, mes, notify);
+					Chats.ChatService.SendServerNotificationToDriver(UoW, address.RouteList.Driver, mes, notify);
 
 					messagesCount++;
 				}

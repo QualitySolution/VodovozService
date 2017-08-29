@@ -7,7 +7,7 @@ using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Web;
 using System.Threading;
 using Android;
-using Chat;
+using VodovozService.Chats;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;

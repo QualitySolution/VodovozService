@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using Vodovoz.Domain.Chat;
+using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 
-namespace Chat
+namespace VodovozService.Chats
 {
 	[DataContract]
 	public class MessageDTO

@@ -1,5 +1,5 @@
 ﻿using System;
-namespace Chat
+namespace VodovozService.Chats
 {
 	public static class ChatMain
 	{

@@ -4,7 +4,7 @@ using System.ServiceModel.Web;
 using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;
 
-namespace Chat
+namespace VodovozService.Chats
 {
 	[ServiceContract]
 	public interface IChatService

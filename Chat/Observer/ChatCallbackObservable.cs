@@ -4,7 +4,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository.Chat;
 
-namespace Chat
+namespace VodovozService.Chats
 {
 	public class ChatCallbackObservable
 	{
