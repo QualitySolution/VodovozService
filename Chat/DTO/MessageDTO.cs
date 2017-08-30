@@ -23,7 +23,7 @@ namespace VodovozService.Chats
 		public MessageDTO (ChatMessage item)
 		{
 			Message = item.Message;
-			Sender = item.IsServerNotification ? ChatService.UserNameOfServer : item.Sender.ShortName;
+			Sender = item.IsServerNotification ? ChatService.UserNameOfServer : item.SenderName;
 			DateTime = item.DateTime;
 		}
 
