@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repository.Chat;
+using Vodovoz.Repository.Chats;
 
 namespace VodovozService.Chats
 {

@@ -3,7 +3,7 @@ using QSOrmProject;
 using Vodovoz.Repository;
 using Vodovoz.Domain.Chats;
 using ChatClass = Vodovoz.Domain.Chats.Chat;
-using Vodovoz.Repository.Chat;
+using Vodovoz.Repository.Chats;
 using Vodovoz.Domain.Employees;
 using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;
