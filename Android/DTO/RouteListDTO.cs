@@ -27,12 +27,9 @@ namespace Android
 		{
 			Id = routeList.Id;
 			Status = routeList.Status.GetEnumTitle();
-			if (routeList.Forwarder != null)
-				Forwarder = routeList.Forwarder.FullName;
-			else
-				Forwarder = "";
+			Forwarder = routeList.Forwarder?.FullName ?? String.Empty;
 			Date = routeList.Date;
-			DeliveryShift = routeList.Shift.Name;
+			DeliveryShift = routeList.Shift?.Name ?? String.Empty;
 		}
 	}
 }
