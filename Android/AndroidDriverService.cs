@@ -337,6 +337,12 @@ namespace Android
 				if (routeListUoW == null || routeListUoW.Root == null)
 					return false;
 
+				if (routeListUoW.Root.Addresses.Any(r => r.Status == RouteListItemStatus.EnRoute)){
+					logger.Error("Попытка закрыть маршрутный лист {0}", routeListUoW.Root.Id);
+					return false;
+				}
+					
+
 				routeListUoW.Root.CompleteRoute();
 				routeListUoW.Save();
 				return true;
