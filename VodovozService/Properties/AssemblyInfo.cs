@@ -7,10 +7,10 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle ("VodovozService")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("")]
+[assembly: AssemblyCompany ("Quality Solution")]
 [assembly: AssemblyProduct ("")]
-[assembly: AssemblyCopyright ("Andrei")]
-[assembly: AssemblyTrademark ("")]
+[assembly: AssemblyCopyright ("Quality Solution 2018")]
+[assembly: AssemblyTrademark ("Quality Solution")]
 [assembly: AssemblyCulture ("")]
 
 // The assembly version has the format "{Major}.{Minor}.{Build}.{Revision}".
