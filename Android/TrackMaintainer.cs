@@ -114,7 +114,6 @@ namespace Android
 
 			uow.Save();
 			logger.Info("Обработаны координаты для трека {0} за {1} сек.", Track.Id, (DateTime.Now - startOp).TotalSeconds);
-			IsBusy = false;
 			return true;
 		}
 
