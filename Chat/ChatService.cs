@@ -21,28 +21,31 @@ namespace VodovozService.Chats
 		public bool SendMessageToLogistician (string authKey, string message)
 		{
 			try {
-				var uow = UnitOfWorkFactory.CreateWithoutRoot ();
-				var driver = EmployeeRepository.GetDriverByAuthKey (uow, authKey);
-				if (driver == null)
-					return false;
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				{
+					var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+					if (driver == null)
+						return false;
 
-				var chat = ChatRepository.GetChatForDriver (uow, driver);
-				if (chat == null) {
-					chat = new ChatClass ();
-					chat.ChatType = ChatType.DriverAndLogists;
-					chat.Driver = driver;
+					var chat = ChatRepository.GetChatForDriver(uow, driver);
+					if (chat == null)
+					{
+						chat = new ChatClass();
+						chat.ChatType = ChatType.DriverAndLogists;
+						chat.Driver = driver;
+					}
+
+					ChatMessage chatMessage = new ChatMessage();
+					chatMessage.Chat = chat;
+					chatMessage.DateTime = DateTime.Now;
+					chatMessage.Message = message;
+					chatMessage.Sender = driver;
+
+					chat.Messages.Add(chatMessage);
+					uow.Save(chat);
+					uow.Commit();
+					return true;
 				}
-
-				ChatMessage chatMessage = new ChatMessage ();
-				chatMessage.Chat = chat;
-				chatMessage.DateTime = DateTime.Now;
-				chatMessage.Message = message;
-				chatMessage.Sender = driver;
-
-				chat.Messages.Add (chatMessage);
-				uow.Save (chat);
-				uow.Commit ();
-				return true;
 			} catch (Exception e) {
 				logger.Error (e);
 				return false;
@@ -51,29 +54,33 @@ namespace VodovozService.Chats
 
 		public bool SendMessageToDriver (int senderId, int recipientId, string message)
 		{
-			try {
-				var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee> (senderId);
-				var recipient = senderUoW.GetById<Employee> (recipientId);
+			try
+			{
+				using (var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee>(senderId))
+				{
+					var recipient = senderUoW.GetById<Employee>(recipientId);
 
-				var chat = ChatRepository.GetChatForDriver (senderUoW, recipient);
-				if (chat == null) {
-					chat = new ChatClass ();
-					chat.ChatType = ChatType.DriverAndLogists;
-					chat.Driver = recipient;
+					var chat = ChatRepository.GetChatForDriver(senderUoW, recipient);
+					if (chat == null)
+					{
+						chat = new ChatClass();
+						chat.ChatType = ChatType.DriverAndLogists;
+						chat.Driver = recipient;
+					}
+
+					ChatMessage chatMessage = new ChatMessage();
+					chatMessage.Chat = chat;
+					chatMessage.DateTime = DateTime.Now;
+					chatMessage.Message = message;
+					chatMessage.Sender = senderUoW.Root;
+
+					chat.Messages.Add(chatMessage);
+					senderUoW.Save(chat);
+					senderUoW.Commit();
+
+					FCMHelper.SendMessage(recipient.AndroidToken, senderUoW.Root.ShortName, message);
+					return true;
 				}
-
-				ChatMessage chatMessage = new ChatMessage ();
-				chatMessage.Chat = chat;
-				chatMessage.DateTime = DateTime.Now;
-				chatMessage.Message = message;
-				chatMessage.Sender = senderUoW.Root;
-
-				chat.Messages.Add (chatMessage);
-				senderUoW.Save (chat);
-				senderUoW.Commit ();
-
-				FCMHelper.SendMessage (recipient.AndroidToken, senderUoW.Root.ShortName, message);
-				return true;
 			} catch (Exception e) {
 				logger.Error (e);
 				return false;
@@ -83,20 +90,23 @@ namespace VodovozService.Chats
 		public List<MessageDTO> AndroidGetChatMessages (string authKey, int days)
 		{
 			try {
-				var uow = UnitOfWorkFactory.CreateWithoutRoot ();
-				var driver = EmployeeRepository.GetDriverByAuthKey (uow, authKey);
-				if (driver == null)
-					return null;
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				{
+					var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+					if (driver == null)
+						return null;
 
-				var chat = ChatRepository.GetChatForDriver (uow, driver);
-				if (chat == null)
-					return null;
-				var messages = new List<MessageDTO> ();
-				var chatMessages = ChatMessageRepository.GetChatMessagesForPeriod (uow, chat, days);
-				foreach (var m in chatMessages) {
-					messages.Add (new MessageDTO (m, driver));
+					var chat = ChatRepository.GetChatForDriver(uow, driver);
+					if (chat == null)
+						return null;
+					var messages = new List<MessageDTO>();
+					var chatMessages = ChatMessageRepository.GetChatMessagesForPeriod(uow, chat, days);
+					foreach (var m in chatMessages)
+					{
+						messages.Add(new MessageDTO(m, driver));
+					}
+					return messages;
 				}
-				return messages;
 			} catch (Exception e) {
 				logger.Error (e);
 				return null;
@@ -105,37 +115,40 @@ namespace VodovozService.Chats
 
 		public bool SendOrderStatusNotificationToDriver (int senderId, int routeListItemId) {
 			try {
-				var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee> (senderId);
-				var routeListItem = senderUoW.GetById<RouteListItem> (routeListItemId);
-				var driver = routeListItem.RouteList.Driver;
+				using (var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee>(senderId))
+				{
+					var routeListItem = senderUoW.GetById<RouteListItem>(routeListItemId);
+					var driver = routeListItem.RouteList.Driver;
 
-				if (driver == null)
-					return false;
-				
-				var chat = ChatRepository.GetChatForDriver (senderUoW, driver);
-				if (chat == null) {
-					chat = new ChatClass ();
-					chat.ChatType = ChatType.DriverAndLogists;
-					chat.Driver = driver;
+					if (driver == null)
+						return false;
+
+					var chat = ChatRepository.GetChatForDriver(senderUoW, driver);
+					if (chat == null)
+					{
+						chat = new ChatClass();
+						chat.ChatType = ChatType.DriverAndLogists;
+						chat.Driver = driver;
+					}
+
+					ChatMessage chatMessage = new ChatMessage();
+					chatMessage.Chat = chat;
+					chatMessage.DateTime = DateTime.Now;
+					chatMessage.IsAutoCeated = true;
+					chatMessage.Message = String.Format("Заказ №{0} из маршрутного листа №{1} был переведен в статус \"{2}\".",
+						routeListItem.Order.Id,
+						routeListItem.RouteList.Id,
+						routeListItem.Status.GetEnumTitle());
+					chatMessage.Sender = senderUoW.Root;
+
+					chat.Messages.Add(chatMessage);
+					senderUoW.Save(chat);
+					senderUoW.Commit();
+					var message = String.Format("Изменение статуса заказа №{0}", routeListItem.Order.Id);
+
+					FCMHelper.SendOrderStatusChangeMessage(driver.AndroidToken, senderUoW.Root.ShortName, message);
+					return true;
 				}
-
-				ChatMessage chatMessage = new ChatMessage ();
-				chatMessage.Chat = chat;
-				chatMessage.DateTime = DateTime.Now;
-				chatMessage.IsAutoCeated = true;
-				chatMessage.Message = String.Format("Заказ №{0} из маршрутного листа №{1} был переведен в статус \"{2}\".",
-					routeListItem.Order.Id,
-					routeListItem.RouteList.Id,
-					routeListItem.Status.GetEnumTitle());
-				chatMessage.Sender = senderUoW.Root;
-
-				chat.Messages.Add (chatMessage);
-				senderUoW.Save (chat);
-				senderUoW.Commit ();
-				var message = String.Format("Изменение статуса заказа №{0}", routeListItem.Order.Id);
-
-				FCMHelper.SendOrderStatusChangeMessage (driver.AndroidToken, senderUoW.Root.ShortName, message);
-				return true;
 			} catch (Exception e) {
 				logger.Error (e);
 				return false;
@@ -144,37 +157,40 @@ namespace VodovozService.Chats
 
 		public bool SendDeliveryScheduleNotificationToDriver (int senderId, int routeListItemId) {
 			try {
-				var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee> (senderId);
-				var routeListItem = senderUoW.GetById<RouteListItem> (routeListItemId);
-				var driver = routeListItem.RouteList.Driver;
+				using (var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee>(senderId))
+				{
+					var routeListItem = senderUoW.GetById<RouteListItem>(routeListItemId);
+					var driver = routeListItem.RouteList.Driver;
 
-				if (driver == null)
-					return false;
+					if (driver == null)
+						return false;
 
-				var chat = ChatRepository.GetChatForDriver (senderUoW, driver);
-				if (chat == null) {
-					chat = new ChatClass ();
-					chat.ChatType = ChatType.DriverAndLogists;
-					chat.Driver = driver;
+					var chat = ChatRepository.GetChatForDriver(senderUoW, driver);
+					if (chat == null)
+					{
+						chat = new ChatClass();
+						chat.ChatType = ChatType.DriverAndLogists;
+						chat.Driver = driver;
+					}
+
+					ChatMessage chatMessage = new ChatMessage();
+					chatMessage.Chat = chat;
+					chatMessage.DateTime = DateTime.Now;
+					chatMessage.IsAutoCeated = true;
+					chatMessage.Message = String.Format("У заказа №{0} из маршрутного листа №{1} было изменено время доставки на \"{2}\".",
+						routeListItem.Order.Id,
+						routeListItem.RouteList.Id,
+						routeListItem.Order.DeliverySchedule.DeliveryTime);
+					chatMessage.Sender = senderUoW.Root;
+
+					chat.Messages.Add(chatMessage);
+					senderUoW.Save(chat);
+					senderUoW.Commit();
+					var message = String.Format("Изменение времени доставки заказа №{0}", routeListItem.Order.Id);
+
+					FCMHelper.SendOrderDeliveryScheduleChangeMessage(driver.AndroidToken, senderUoW.Root.ShortName, message);
+					return true;
 				}
-
-				ChatMessage chatMessage = new ChatMessage ();
-				chatMessage.Chat = chat;
-				chatMessage.DateTime = DateTime.Now;
-				chatMessage.IsAutoCeated = true;
-				chatMessage.Message = String.Format("У заказа №{0} из маршрутного листа №{1} было изменено время доставки на \"{2}\".",
-					routeListItem.Order.Id,
-					routeListItem.RouteList.Id,
-					routeListItem.Order.DeliverySchedule.DeliveryTime);
-				chatMessage.Sender = senderUoW.Root;
-
-				chat.Messages.Add (chatMessage);
-				senderUoW.Save (chat);
-				senderUoW.Commit ();
-				var message = String.Format("Изменение времени доставки заказа №{0}", routeListItem.Order.Id);
-
-				FCMHelper.SendOrderDeliveryScheduleChangeMessage (driver.AndroidToken, senderUoW.Root.ShortName, message);
-				return true;
 			} catch (Exception e) {
 				logger.Error (e);
 				return false;
