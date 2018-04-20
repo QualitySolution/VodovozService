@@ -22,11 +22,6 @@ namespace Android
 					Maintainers.Add(worker);
 				}
 			}
-			if(worker.IsBusy)
-			{
-				logger.Warn("Пакет координат для трека {0} еще обрабатывается. Отменяем получение следующего.");
-				return false;
-			}
 
 			try
 			{
@@ -36,6 +31,7 @@ namespace Android
 			{
 				lock(Maintainers) 
 				{
+					worker.Close();
 					Maintainers.Remove(worker); //Убираем поломаный воркер
 				}
 				logger.Error(e, "На обработке трека {0}", trackId);
@@ -52,6 +48,7 @@ namespace Android
 					if(worker.LastActive < DateTime.Now.AddMinutes(-5))
 					{
 						logger.Info("Удаляем worker для трека №{0}.", worker.Track.Id);
+						worker.Close();
 						Maintainers.Remove(worker);
 					}
 				}
