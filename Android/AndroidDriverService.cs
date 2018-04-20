@@ -6,6 +6,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
 using QSOrmProject;
+using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -259,7 +260,8 @@ namespace Android
 		{
 			RemoteEndpointMessageProperty prop = (RemoteEndpointMessageProperty)OperationContext.Current.IncomingMessageProperties [RemoteEndpointMessageProperty.Name];
 			if (prop != null)
-				logger.Info("Получены координаты по треку {0} c ip{1}:{2}", trackId, prop.Address, prop.Port);
+				logger.Info(RusNumber.Case(TrackPointList.Count, "Получена {3} координата по треку", "Получено {3} координаты по треку", "Получено {3} координат по треку")
+				            + " {0} c ip{1}:{2}", trackId, prop.Address, prop.Port, TrackPointList.Count);
 
 			if (!CheckAuth (authKey))
 				return false;
