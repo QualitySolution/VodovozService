@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using Gamma.Utilities;
 using QSContacts;
@@ -103,7 +104,8 @@ namespace Android
 				DPContact = "Контактные лица не указаны";
 			}
 
-			DPPhone = item.Order.DeliveryPoint?.Phone;
+			//FIXME Чисто временное решение, так как необходимо обновлять Анройд клиент.
+			DPPhone = String.Join("\n", item.Order.DeliveryPoint.Phones.Select(x => x.LongText));
 			CPPhones= new List<string> ();
 			foreach (Phone phone in item.Order.Client.Phones) {
 				CPPhones.Add (String.Format("{0}: {1}", phone.NumberType?.Name, phone.Number));
