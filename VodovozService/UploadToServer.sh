@@ -7,7 +7,7 @@ read case;
 ssh root@vod-srv.qsolution.ru "systemctl stop vodovozservice"
 
 #Удаляем старый лог.
-ssh root@vod-srv.qsolution.ru "sudo rm /var/log/VodovozService/server.log"
+#ssh root@vod-srv.qsolution.ru "sudo rm /var/log/VodovozService/server.log"
 
 case $case in
     1)
