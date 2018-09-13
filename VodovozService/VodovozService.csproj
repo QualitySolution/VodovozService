@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{A96E202E-C111-4236-B21A-6B634BF371DD}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>VodovozService</RootNamespace>
+    <RootNamespace>Vodovoz</RootNamespace>
     <AssemblyName>VodovozService</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -56,11 +56,18 @@
     <Reference Include="NLog">
       <HintPath>..\..\QSProjects\packages\NLog.4.4.11\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Data.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BackgroundTask.cs" />
+    <Compile Include="MobileService\IMobileService.cs" />
+    <Compile Include="MobileService\DTO\NomenclatureDTO.cs" />
+    <Compile Include="MobileService\DTO\NomenclaturePriceDTO.cs" />
+    <Compile Include="MobileService\MobileService.cs" />
+    <Compile Include="MobileService\DTO\CatalogType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -110,5 +117,9 @@
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MobileService\" />
+    <Folder Include="MobileService\DTO\" />
   </ItemGroup>
 </Project>

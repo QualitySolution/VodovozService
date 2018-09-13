@@ -7,7 +7,6 @@ using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Web;
 using System.Threading;
 using Android;
-using VodovozService.Chats;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
@@ -17,6 +16,8 @@ using QSOrmProject;
 using QSOsm;
 using QSProjectsLib;
 using QSSupportLib;
+using Vodovoz.MobileService;
+using VodovozService.Chats;
 using WCFServer;
 
 namespace VodovozService
@@ -90,6 +91,7 @@ namespace VodovozService
 					
 				ServiceHost ChatHost = new ServiceHost (typeof(ChatService));
 				ServiceHost AndroidDriverHost = new ServiceHost (typeof(AndroidDriverService));
+				ServiceHost MobileHost = new WebServiceHost(typeof(MobileService));
 
 				ChatHost.AddServiceEndpoint (
 					typeof (IChatService),
@@ -102,6 +104,12 @@ namespace VodovozService
 					String.Format("http://{0}:{1}/AndroidDriverService", serviceHostName, servicePort)
 				);
 
+				MobileHost.AddServiceEndpoint(
+					typeof(IMobileService),
+					new WebHttpBinding(),
+					String.Format("http://{0}:{1}/Mobile", serviceHostName, servicePort)
+				);
+
 				OsmWorker.ServiceHost = serviceHostName;
 				OsmWorker.ServicePort = Int32.Parse (servicePort);
 				OsmHost.AddServiceEndpoint (typeof (IOsmService), new WebHttpBinding (), OsmWorker.ServiceAddress);
@@ -109,11 +117,13 @@ namespace VodovozService
 				#if DEBUG
 				ChatHost.Description.Behaviors.Add (new PreFilter());
 				AndroidDriverHost.Description.Behaviors.Add (new PreFilter ());
+				MobileHost.Description.Behaviors.Add(new PreFilter());
 				OsmHost.Description.Behaviors.Add (new PreFilter ());
 				#endif
 
 				ChatHost.Open();
 				AndroidDriverHost.Open();
+				MobileHost.Open();
 				OsmHost.Open ();
 
 				//Запускаем таймеры рутины
