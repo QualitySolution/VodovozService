@@ -53,9 +53,16 @@
     <Reference Include="NHibernate.Spatial.MySQL">
       <HintPath>..\..\Vodovoz\packages\NHibernate.Spatial.MySQL.4.1.1.4001\lib\net40-client\NHibernate.Spatial.MySQL.dll</HintPath>
     </Reference>
+    <Reference Include="System.IdentityModel" />
     <Reference Include="NLog">
-      <HintPath>..\..\QSProjects\packages\NLog.4.4.11\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.5.9\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Data.Linq" />
   </ItemGroup>
@@ -111,12 +118,21 @@
       <Project>{5CFB297D-4964-4CBD-9102-A5E795BE7B85}</Project>
       <Name>QSOsm</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSEmailSending\QSEmailSending.csproj">
+      <Project>{7AE4E4AA-B519-43CF-AACC-5856FAACDF0C}</Project>
+      <Name>QSEmailSending</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EmailService\EmailService.csproj">
+      <Project>{6E76A8A0-411C-4987-A77D-64B9571C7759}</Project>
+      <Name>EmailService</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="MobileService\" />

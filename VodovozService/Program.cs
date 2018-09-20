@@ -19,6 +19,7 @@ using QSSupportLib;
 using Vodovoz.MobileService;
 using VodovozService.Chats;
 using WCFServer;
+using EmailService;
 
 namespace VodovozService
 {
@@ -41,6 +42,7 @@ namespace VodovozService
 		public static void Main (string[] args)
 		{
 			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
+			AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 			try {
 				IniConfigSource configFile = new IniConfigSource (ConfigFile);
 				configFile.Reload ();	
@@ -82,7 +84,8 @@ namespace VodovozService
 					new System.Reflection.Assembly[] {
 					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
-					System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain))
+					System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain)),
+					System.Reflection.Assembly.GetAssembly (typeof(QSEmailSending.Email))
 				});
 
 				MainSupport.LoadBaseParameters ();
@@ -91,6 +94,8 @@ namespace VodovozService
 					
 				ServiceHost ChatHost = new ServiceHost (typeof(ChatService));
 				ServiceHost AndroidDriverHost = new ServiceHost (typeof(AndroidDriverService));
+				ServiceHost EmailSendingHost = new ServiceHost(typeof(EmailService.EmailService));
+				WebServiceHost MailjetEventsHost = new WebServiceHost(typeof(EmailService.EmailService));
 				ServiceHost MobileHost = new WebServiceHost(typeof(MobileService));
 
 				ChatHost.AddServiceEndpoint (
@@ -103,7 +108,16 @@ namespace VodovozService
 					new BasicHttpBinding(),
 					String.Format("http://{0}:{1}/AndroidDriverService", serviceHostName, servicePort)
 				);
-
+				EmailSendingHost.AddServiceEndpoint(
+					typeof(IEmailService),
+					new BasicHttpBinding(),
+					String.Format("http://{0}:{1}/EmailService", serviceHostName, servicePort)
+				);
+				MailjetEventsHost.AddServiceEndpoint(
+					typeof(IMailjetEventService),
+					new WebHttpBinding(),
+					String.Format("http://{0}:{1}/Mailjet", serviceHostName, servicePort)
+				);
 				MobileHost.AddServiceEndpoint(
 					typeof(IMobileService),
 					new WebHttpBinding(),
@@ -117,14 +131,18 @@ namespace VodovozService
 				#if DEBUG
 				ChatHost.Description.Behaviors.Add (new PreFilter());
 				AndroidDriverHost.Description.Behaviors.Add (new PreFilter ());
+				EmailSendingHost.Description.Behaviors.Add(new PreFilter());
+				MailjetEventsHost.Description.Behaviors.Add(new PreFilter());
 				MobileHost.Description.Behaviors.Add(new PreFilter());
 				OsmHost.Description.Behaviors.Add (new PreFilter ());
 				#endif
 
 				ChatHost.Open();
 				AndroidDriverHost.Open();
+				EmailSendingHost.Open();
+				MailjetEventsHost.Open();
 				MobileHost.Open();
-				OsmHost.Open ();
+				OsmHost.Open();
 
 				//Запускаем таймеры рутины
 				OrderRoutineTimer = new System.Timers.Timer(120000); //2 минуты
@@ -152,6 +170,12 @@ namespace VodovozService
 				Environment.Exit (0);
 			}
 		}
+
+		static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+		{
+			QSEmailSending.EmailManager.StopWorkers();
+		}
+
 
 		static void TrackRoutineTimer_Elapsed (object sender, System.Timers.ElapsedEventArgs e)
 		{
