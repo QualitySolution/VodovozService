@@ -1,12 +1,13 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.ServiceModel;
 using System.ServiceModel.Web;
-using System.Collections.Generic;
 using Vodovoz.MobileService.DTO;
 
 namespace Vodovoz.MobileService
 {
-	[ServiceContract]
+    [ServiceContract]
 	public interface IMobileService
 	{
 		[OperationContract]
@@ -14,6 +15,7 @@ namespace Vodovoz.MobileService
 		List<NomenclatureDTO> GetGoods(CatalogType type);
 
 		[OperationContract]
-		void GetImage(int id);
+		[WebGet(UriTemplate = "/Catalog/Images/{filename}", ResponseFormat = WebMessageFormat.Json)]
+		Stream GetImage(string filename);
 	}
 }

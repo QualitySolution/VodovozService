@@ -118,10 +118,12 @@ namespace VodovozService
 					new WebHttpBinding(),
 					String.Format("http://{0}:{1}/Mailjet", serviceHostName, servicePort)
 				);
+
+				MobileService.BaseUrl = String.Format("http://{0}:{1}/Mobile", serviceHostName, servicePort);
 				MobileHost.AddServiceEndpoint(
 					typeof(IMobileService),
 					new WebHttpBinding(),
-					String.Format("http://{0}:{1}/Mobile", serviceHostName, servicePort)
+					MobileService.BaseUrl
 				);
 
 				OsmWorker.ServiceHost = serviceHostName;

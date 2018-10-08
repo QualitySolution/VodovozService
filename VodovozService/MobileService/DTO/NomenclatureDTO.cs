@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.ServiceModel;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.MobileService.DTO
@@ -18,7 +19,22 @@ namespace Vodovoz.MobileService.DTO
 		public List<NomenclaturePriceDTO> Prices;
 
 		[DataMember]
-		public string Image;
+		public string Image {
+			get {
+				return Images.FirstOrDefault();
+			}
+			set { }
+		}
+
+		[DataMember]
+		public List<string> Images {
+			get {
+				return imagesIds.Select(x => MobileService.BaseUrl + $"/Catalog/Images/{x}.jpg").ToList();
+			}
+			set { }
+		}
+
+		public int[] imagesIds = new int[]{ };
 
 		public NomenclatureDTO(Nomenclature nomenclature)
 		{
