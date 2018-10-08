@@ -126,6 +126,10 @@
       <Project>{6E76A8A0-411C-4987-A77D-64B9571C7759}</Project>
       <Name>EmailService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\GammaBinding\GammaUtil\GammaUtil.csproj">
+      <Project>{1BF2A638-420D-456C-96A7-36873A0FB894}</Project>
+      <Name>GammaUtil</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

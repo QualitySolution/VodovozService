@@ -37,7 +37,9 @@ namespace Vodovoz.MobileService
 				var listDto = list.Select(n => new NomenclatureDTO(n)).ToList();
 
 				var imageIds = NomenclatureRepository.GetNomenclatureImagesIds(uow, list.Select(x => x.Id).ToArray());
-				listDto.ForEach(dto => dto.imagesIds = imageIds[dto.Id]);
+				listDto.Where(dto => imageIds.ContainsKey(dto.Id))
+					.ToList()
+					.ForEach(dto => dto.imagesIds = imageIds[dto.Id]);
 				return listDto;
 			}
 		}

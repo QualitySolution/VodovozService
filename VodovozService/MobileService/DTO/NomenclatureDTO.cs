@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
+using Gamma.Utilities;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.MobileService.DTO
@@ -27,6 +28,12 @@ namespace Vodovoz.MobileService.DTO
 		}
 
 		[DataMember]
+		public string CategoryName;
+
+		[DataMember]
+		public string CategoryId;
+
+		[DataMember]
 		public List<string> Images {
 			get {
 				return imagesIds.Select(x => MobileService.BaseUrl + $"/Catalog/Images/{x}.jpg").ToList();
@@ -41,6 +48,17 @@ namespace Vodovoz.MobileService.DTO
 			Id = nomenclature.Id;
 			Name = nomenclature.OfficialName;
 			Prices = nomenclature.NomenclaturePrice.Select(p => new NomenclaturePriceDTO(p)).ToList();
+
+			if(nomenclature.MobileCatalog == MobileCatalog.Water) {
+				CategoryName = MobileCatalog.Water.GetEnumTitle();
+				CategoryId = MobileCatalog.Water.ToString();
+			} else if(nomenclature.MobileCatalog != MobileCatalog.None) {
+				var title = nomenclature.MobileCatalog.GetEnumTitle();
+				CategoryName = title.Substring(title.IndexOf('.') + 1);
+				var categoryId = nomenclature.MobileCatalog.ToString();
+				CategoryId = categoryId.Substring(categoryId.IndexOf('_') + 1);
+			}
+
 		}
 	}
 }
