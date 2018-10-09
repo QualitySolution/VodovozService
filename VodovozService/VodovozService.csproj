@@ -55,7 +55,7 @@
     </Reference>
     <Reference Include="System.IdentityModel" />
     <Reference Include="NLog">
-      <HintPath>..\packages\NLog.4.5.9\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.5.10\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
