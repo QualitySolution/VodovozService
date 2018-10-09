@@ -96,7 +96,7 @@ namespace VodovozService
 				ServiceHost AndroidDriverHost = new ServiceHost (typeof(AndroidDriverService));
 				ServiceHost EmailSendingHost = new ServiceHost(typeof(EmailService.EmailService));
 				WebServiceHost MailjetEventsHost = new WebServiceHost(typeof(EmailService.EmailService));
-				ServiceHost MobileHost = new WebServiceHost(typeof(MobileService));
+				WebServiceHost MobileHost = new WebServiceHost(typeof(MobileService));
 
 				ChatHost.AddServiceEndpoint (
 					typeof (IChatService),
@@ -129,13 +129,17 @@ namespace VodovozService
 				OsmWorker.ServiceHost = serviceHostName;
 				OsmWorker.ServicePort = Int32.Parse (servicePort);
 				OsmHost.AddServiceEndpoint (typeof (IOsmService), new WebHttpBinding (), OsmWorker.ServiceAddress);
-				
+
+				//FIXME Тут добавлен без дебага, потому что без него не работает отдача изображений в потоке. Метод Stream GetImage(string filename)
+				// Просто не смог быстро разобраться. А конкретнее нужна строка reply = TraceMessage (reply.CreateBufferedCopy (int.MaxValue), Action.Send);
+				// видимо она как то обрабатывает сообщение.
+				MobileHost.Description.Behaviors.Add(new PreFilter());
+
 				#if DEBUG
 				ChatHost.Description.Behaviors.Add (new PreFilter());
 				AndroidDriverHost.Description.Behaviors.Add (new PreFilter ());
 				EmailSendingHost.Description.Behaviors.Add(new PreFilter());
 				MailjetEventsHost.Description.Behaviors.Add(new PreFilter());
-				MobileHost.Description.Behaviors.Add(new PreFilter());
 				OsmHost.Description.Behaviors.Add (new PreFilter ());
 				#endif
 

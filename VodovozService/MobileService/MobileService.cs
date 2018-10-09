@@ -72,10 +72,10 @@ namespace Vodovoz.MobileService
 				using(MemoryStream ms = new MemoryStream(image.Image)) {
 					WebOperationContext.Current.OutgoingResponse.ContentType = "image/jpeg";
 					WebOperationContext.Current.OutgoingResponse.Headers.Add("Content-disposition", $"inline; filename={id}.jpg");
+					ms.Position = 0;
 					return ms;
 				}
 			}
-			return null;
         }
 
 		Stream ReturnErrorInStream(string error)
