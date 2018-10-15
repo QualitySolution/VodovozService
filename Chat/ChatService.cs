@@ -1,13 +1,14 @@
 ﻿using System;
-using QSOrmProject;
-using Vodovoz.Repository;
-using Vodovoz.Domain.Chats;
-using ChatClass = Vodovoz.Domain.Chats.Chat;
-using Vodovoz.Repository.Chats;
-using Vodovoz.Domain.Employees;
 using System.Collections.Generic;
-using Vodovoz.Domain.Logistic;
 using Gamma.Utilities;
+using QS.DomainModel.UoW;
+using QSOrmProject;
+using Vodovoz.Domain.Chats;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Repository;
+using Vodovoz.Repository.Chats;
+using ChatClass = Vodovoz.Domain.Chats.Chat;
 
 namespace VodovozService.Chats
 {

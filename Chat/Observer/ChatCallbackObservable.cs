@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository.Chats;
