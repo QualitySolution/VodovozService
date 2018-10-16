@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using System.ServiceModel.Web;
-using QSEmailSending;
+using EmailService.Mailjet;
 
 namespace EmailService
 {

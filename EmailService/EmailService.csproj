@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>EmailService</RootNamespace>
     <AssemblyName>Email</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,9 +41,29 @@
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.ServiceModel.Web" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\QSProjects\packages\Newtonsoft.Json.10.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>..\..\Vodovoz\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\..\Vodovoz\packages\Iesi.Collections.4.0.4\lib\net461\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Remotion.Linq">
+      <HintPath>..\..\Vodovoz\packages\Remotion.Linq.2.1.2\lib\net45\Remotion.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="Remotion.Linq.EagerFetching">
+      <HintPath>..\..\Vodovoz\packages\Remotion.Linq.EagerFetching.2.1.0\lib\net45\Remotion.Linq.EagerFetching.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\Vodovoz\packages\NHibernate.5.1.3\lib\net461\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\Vodovoz\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Mailjet.Client">
+      <HintPath>..\..\Vodovoz\packages\Mailjet.Api.1.0.1\lib\net45\Mailjet.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -51,15 +71,42 @@
     <Compile Include="IEmailService.cs" />
     <Compile Include="EmailServiceSetting.cs" />
     <Compile Include="IMailjetEventService.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\QSProjects\QSEmailSending\QSEmailSending.csproj">
-      <Project>{7AE4E4AA-B519-43CF-AACC-5856FAACDF0C}</Project>
-      <Name>QSEmailSending</Name>
-    </ProjectReference>
+    <Compile Include="Mailjet\MailjetErrorInfo.cs" />
+    <Compile Include="Mailjet\MailjetEvent.cs" />
+    <Compile Include="Mailjet\MailjetMessage.cs" />
+    <Compile Include="Mailjet\MailjetMessageInfo.cs" />
+    <Compile Include="Email.cs" />
+    <Compile Include="EmailAttachment.cs" />
+    <Compile Include="EmailContact.cs" />
+    <Compile Include="EmailManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Mailjet\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Vodovoz\VodovozBusiness\VodovozBusiness.csproj">
+      <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
+      <Name>VodovozBusiness</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
+      <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
+      <Name>QS.Project</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
+      <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
+      <Name>QSOrmProject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSSupportLib\QSSupportLib.csproj">
+      <Project>{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}</Project>
+      <Name>QSSupportLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
+      <Project>{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}</Project>
+      <Name>QSBanks</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

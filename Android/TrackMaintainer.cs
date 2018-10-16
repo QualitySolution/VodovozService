@@ -4,6 +4,7 @@ using Vodovoz.Domain.Logistic;
 using System.Globalization;
 using System.Linq;
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 
 namespace Android
 {

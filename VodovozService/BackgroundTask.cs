@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using Vodovoz.Domain.Logistic;
+using QS.DomainModel.UoW;
 using System.Linq;
 
 namespace VodovozService

@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain;

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ServiceModel.Web;
-using QSEmailSending;
+using EmailService.Mailjet;
 
 namespace EmailService
 {

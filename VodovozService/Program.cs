@@ -85,7 +85,7 @@ namespace VodovozService
 					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 					System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain)),
-					System.Reflection.Assembly.GetAssembly (typeof(QSEmailSending.Email))
+					System.Reflection.Assembly.GetAssembly (typeof(EmailService.Email))
 				});
 
 				MainSupport.LoadBaseParameters ();
@@ -179,7 +179,7 @@ namespace VodovozService
 
 		static void CurrentDomain_ProcessExit(object sender, EventArgs e)
 		{
-			QSEmailSending.EmailManager.StopWorkers();
+			EmailService.EmailManager.StopWorkers();
 		}
 
 
