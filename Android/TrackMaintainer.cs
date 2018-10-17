@@ -1,10 +1,10 @@
 ﻿using System;
-using QSOrmProject;
-using Vodovoz.Domain.Logistic;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using QSOrmProject;
+using Vodovoz.Domain.Logistic;
 
 namespace Android
 {
