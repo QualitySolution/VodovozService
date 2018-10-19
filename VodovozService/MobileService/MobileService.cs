@@ -34,6 +34,15 @@ namespace Vodovoz.MobileService
 				                .ToArray();
 
 				var list = NomenclatureRepository.GetNomenclatureWithPriceForMobileApp(uow, types);
+				if(type == CatalogType.Water)
+					list = list.OrderByDescending(n => n.Weight)
+						.ThenBy(n => n.NomenclaturePrice.Any() ? n.NomenclaturePrice.Max(p => p.Price) : 0)
+						.ToList();
+				else
+					list = list.OrderBy(n => (int)n.MobileCatalog)
+						.ThenBy(n => n.NomenclaturePrice.Any() ? n.NomenclaturePrice.Max(p => p.Price) : 0)
+						.ToList();
+
 				var listDto = list.Select(n => new NomenclatureDTO(n)).ToList();
 
 				var imageIds = NomenclatureRepository.GetNomenclatureImagesIds(uow, list.Select(x => x.Id).ToArray());
