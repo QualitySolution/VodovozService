@@ -37,7 +37,11 @@ namespace Android
 		[WebInvoke (UriTemplate = "/GetOrderDetailed", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
 		OrderDTO GetOrderDetailed (string authKey, int orderId);
 
-		[OperationContract]
+	    [OperationContract]
+	    [WebInvoke(UriTemplate = "/GetOrderDetailed2", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+	    OrderDTO GetOrderDetailed2(string authKey, int orderId);
+
+        [OperationContract]
 		[WebInvoke (UriTemplate = "/SendCoordinates", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
 		bool SendCoordinates (string authKey, int trackId, TrackPointList TrackPointList);
 

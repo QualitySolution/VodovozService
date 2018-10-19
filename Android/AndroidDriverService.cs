@@ -224,8 +224,34 @@ namespace Android
 			}
 			return null;
 		}
-			
-		public int? StartOrResumeTrack (string authKey, int routeListId)
+
+	    public OrderDTO GetOrderDetailed2(string authKey, int orderId)
+	    {
+#if DEBUG
+	        logger.Debug("GetOrderDetailed2 called with args:\nauthKey: {0}\norderId: {1}", authKey, orderId);
+#endif
+
+	        try
+	        {
+	            if (!CheckAuth(authKey))
+	                return null;
+
+	            using (var orderUoW = UnitOfWorkFactory.CreateForRoot<Order>(orderId))
+	            {
+	                if (orderUoW == null || orderUoW.Root == null)
+	                    return null;
+	                var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
+	                return new OrderDTO(routeListItem);
+	            }
+	        }
+	        catch (Exception e)
+	        {
+	            logger.Error(e);
+	        }
+	        return null;
+	    }
+
+        public int? StartOrResumeTrack (string authKey, int routeListId)
 		{
 			try
 			{

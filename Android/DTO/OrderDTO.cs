@@ -48,7 +48,10 @@ namespace Android
 		[DataMember]
 		public string DPPhone;
 
-		[DataMember]
+	    [DataMember]
+	    public List<string> DPPhone2;
+
+        [DataMember]
 		public List<string> CPPhones;
 
 		[DataMember]
@@ -106,7 +109,14 @@ namespace Android
 
 			//FIXME Чисто временное решение, так как необходимо обновлять Анройд клиент.
 			DPPhone = String.Join("\n", item.Order.DeliveryPoint.Phones.Select(x => x.LongText));
-			CPPhones= new List<string> ();
+
+            DPPhone2 = new List<string> ();
+		    foreach (Phone phone in item.Order.DeliveryPoint.Phones)
+		    {
+		        DPPhone2.Add(String.Format("{0}: {1}", phone.NumberType?.Name, phone.Number));
+		    }
+
+            CPPhones = new List<string> ();
 			foreach (Phone phone in item.Order.Client.Phones) {
 				CPPhones.Add (String.Format("{0}: {1}", phone.NumberType?.Name, phone.Number));
 			}
