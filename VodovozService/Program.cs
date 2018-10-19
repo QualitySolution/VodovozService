@@ -7,6 +7,7 @@ using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Web;
 using System.Threading;
 using Android;
+using EmailService;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
@@ -19,7 +20,6 @@ using QSSupportLib;
 using Vodovoz.MobileService;
 using VodovozService.Chats;
 using WCFServer;
-using EmailService;
 
 namespace VodovozService
 {
@@ -45,7 +45,7 @@ namespace VodovozService
 			AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 			try {
 				IniConfigSource configFile = new IniConfigSource (ConfigFile);
-				configFile.Reload ();	
+				configFile.Reload();
 				IConfig config = configFile.Configs ["General"];
 				server = config.GetString ("server");
 				port = config.GetString ("port", "3306");
@@ -74,6 +74,7 @@ namespace VodovozService
 				conStrBuilder.Database = db;
 				conStrBuilder.UserID = user;
 				conStrBuilder.Password = pass;
+				conStrBuilder.SslMode = MySqlSslMode.None;
 
 				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
                 var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
@@ -85,7 +86,7 @@ namespace VodovozService
 					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 					System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain)),
-					System.Reflection.Assembly.GetAssembly (typeof(QSEmailSending.Email))
+					System.Reflection.Assembly.GetAssembly (typeof(EmailService.Email))
 				});
 
 				MainSupport.LoadBaseParameters ();
@@ -179,7 +180,7 @@ namespace VodovozService
 
 		static void CurrentDomain_ProcessExit(object sender, EventArgs e)
 		{
-			QSEmailSending.EmailManager.StopWorkers();
+			EmailService.EmailManager.StopWorkers();
 		}
 
 
