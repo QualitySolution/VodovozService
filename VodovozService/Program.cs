@@ -26,7 +26,7 @@ namespace VodovozService
 	class Service
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger (); 
-		private static string ConfigFile = "/home/oo/Projects/VodovozProject/VodovozService/vodovozservice.conf";
+		private static string ConfigFile = "/etc/vodovozservice.conf";
 		private static string server;
 		private static string port;
 		private static string user;
