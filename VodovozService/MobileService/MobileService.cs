@@ -6,14 +6,14 @@ using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
-using QSOrmProject;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.MobileService.DTO;
 using Vodovoz.Repository;
 
 namespace Vodovoz.MobileService
 {
-	#if DEBUG
+#if DEBUG
 	[ServiceBehavior(IncludeExceptionDetailInFaults = true)]
 	#endif
 	public class MobileService : IMobileService
