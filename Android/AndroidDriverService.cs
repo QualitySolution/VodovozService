@@ -339,6 +339,56 @@ namespace Android
 			return false;
 		}
 
+
+		public bool ChangeOrderStatus2(string authKey, int orderId, string status, string bottlesReturned)
+		{
+
+			logger.Debug("Change order status2:\n orderId: {0}\n status: {1}\n bottles: {2}", orderId, status, bottlesReturned);
+
+			try {
+				if(!CheckAuth(authKey))
+					return false;
+
+				using(var orderUoW = UnitOfWorkFactory.CreateForRoot<Order>(orderId)) {
+					if(orderUoW == null || orderUoW.Root == null)
+						return false;
+
+					var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
+					if(routeListItem == null)
+						return false;
+
+					if(routeListItem.Status == RouteListItemStatus.Transfered) {
+						logger.Error("Попытка переключить статус у переданного адреса. address_id = {0}", routeListItem.Id);
+						return false;
+					}
+
+					switch(status) {
+					case "EnRoute": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.EnRoute); break;
+					case "Completed": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Completed); break;
+					case "Canceled": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Canceled); break;
+					case "Overdue": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Overdue); break;
+					default: return false;
+					}
+
+					int bottles;
+					if(int.TryParse(bottlesReturned, out bottles)) {
+						routeListItem.DriverBottlesReturned = bottles;
+						logger.Debug("Changed! order status2:\n orderId: {0}\n status: {1}\n bottles: {2}", orderId, status, bottles);
+
+					}
+
+					orderUoW.Save(routeListItem);
+					orderUoW.Commit();
+					return true;
+				}
+			}
+			catch(Exception e) {
+				logger.Error(e);
+			}
+			return false;
+		}
+
+
 		public bool EnablePushNotifications (string authKey, string token)
 		{
 			try
