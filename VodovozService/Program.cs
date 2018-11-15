@@ -13,7 +13,7 @@ using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog;
-using QSOrmProject;
+using QS.Project.DB;
 using QSOsm;
 using QSProjectsLib;
 using QSSupportLib;
@@ -81,7 +81,7 @@ namespace VodovozService
                                          .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
 					                     .ConnectionString(QSMain.ConnectionString);
 
-				OrmMain.ConfigureOrm (db_config,
+				OrmConfig.ConfigureOrm (db_config,
 					new System.Reflection.Assembly[] {
 					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
