@@ -238,8 +238,11 @@ namespace VodovozService
 		{
 			Message msg = buffer.CreateMessage ();
 			try {
-				if (action == Action.Receive)
-					logger.Debug("Received: {0}", msg);
+				if (action == Action.Receive) {
+					logger.Info ("Received: {0}", msg.Headers.To.AbsoluteUri);
+					if(!msg.IsEmpty)
+						logger.Debug("Received Body: {0}", msg);
+				}
 				else
 					logger.Debug("Sended: {0}", msg);
 			} catch (Exception ex) {
