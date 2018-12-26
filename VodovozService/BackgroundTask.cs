@@ -3,6 +3,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
 using System.Linq;
+using Vodovoz.Tools.CommerceML;
 
 namespace VodovozService
 {
@@ -82,6 +83,14 @@ namespace VodovozService
 				(DateTime.Now - startTime).TotalSeconds,
 				messagesCount
 			);
+		}
+
+		public static void OnlineStoreCatalogSync()
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				var export = new Export(uow);
+				export.RunToSite();
+			}
 		}
 	}
 }

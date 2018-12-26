@@ -38,6 +38,7 @@ namespace VodovozService
 		private static string serviceHostName;
 		private static System.Timers.Timer OrderRoutineTimer;
 		private static System.Timers.Timer TrackRoutineTimer;
+		private static System.Timers.Timer OnlineStoreCatalogSyncTimer;
 
 		public static void Main (string[] args)
 		{
@@ -158,6 +159,9 @@ namespace VodovozService
 				TrackRoutineTimer = new System.Timers.Timer(30000); //30 секунд
 				TrackRoutineTimer.Elapsed += TrackRoutineTimer_Elapsed;
 				TrackRoutineTimer.Start();
+				OnlineStoreCatalogSyncTimer = new System.Timers.Timer(3600000); //1 час
+				OnlineStoreCatalogSyncTimer.Elapsed += OnlineStoreCatalogSyncTimer_Elapsed;
+				OnlineStoreCatalogSyncTimer.Start();
 
 				logger.Info("Server started.");
 
@@ -197,6 +201,29 @@ namespace VodovozService
 			catch (Exception ex)
 			{
 				logger.Error(ex, "Исключение при выполение фоновой задачи.");
+			}
+		}
+
+		private static bool onlineStoreSyncRunning = false;
+
+		static void OnlineStoreCatalogSyncTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+		{
+			if(onlineStoreSyncRunning)
+				return;
+
+			//Выполняем сихнронизацию только с 8 до 23.
+			if(DateTime.Now.Hour < 7 || DateTime.Now.Hour > 23)
+				return;
+
+			try {
+				onlineStoreSyncRunning = true;
+				BackgroundTask.OnlineStoreCatalogSync();
+			}
+			catch(Exception ex) {
+				logger.Error(ex, "Исключение при выполение фоновой задачи.");
+			}
+			finally {
+				onlineStoreSyncRunning = false;
 			}
 		}
 
