@@ -6,7 +6,6 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
@@ -31,7 +30,7 @@ namespace Android
 
 		public CheckVersionResultDTO CheckApplicationVersion(int versionCode)
 		{
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка текущей версии AndroidDriver"))
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot("[ADS]Проверка текущей версии приложения"))
 			{
 				var lastVersionParameter = uow.Session.Get<BaseParameter>("last_android_version_code");
 				var lastVersionNameParameter = uow.Session.Get<BaseParameter>("last_android_version_name");
@@ -66,7 +65,7 @@ namespace Android
 			#endif
 			try
 			{
-				using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot("[ADS]Авторизация пользователя"))
 				{
 					var employee = EmployeeRepository.GetDriverByAndroidLogin(uow, login);
 
@@ -107,7 +106,7 @@ namespace Android
 			logger.Debug("CheckAuth called with args; authKey: {0}", authKey);
 			#endif
 			try {
-				using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot("[ADS]Проверка авторизации пользователя"))
 				{
 					return CheckAuth(uow, authKey);
 				}
@@ -139,7 +138,7 @@ namespace Android
 			#endif
 			try
 			{
-				using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot("[ADS]Получение списка маршрутных листов"))
 				{
 					if (!CheckAuth(uow, authKey))
 						return null;
@@ -173,7 +172,7 @@ namespace Android
 				if (!CheckAuth (authKey))
 					return null;
 
-				using (var routeListUoW = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId))
+				using (var routeListUoW = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId, "[ADS]Получение списка заказов в МЛ"))
 				{
 					if (routeListUoW == null || routeListUoW.Root == null)
 						return null;
@@ -204,7 +203,7 @@ namespace Android
 				if (!CheckAuth (authKey))
 					return null;
 
-				using (var orderUoW = UnitOfWorkFactory.CreateForRoot<Order>(orderId))
+				using (var orderUoW = UnitOfWorkFactory.CreateForRoot<Order>(orderId, "[ADS]Детальная информация по заказу"))
 				{
 					if (orderUoW == null || orderUoW.Root == null)
 						return null;
@@ -230,7 +229,7 @@ namespace Android
 	            if (!CheckAuth(authKey))
 	                return null;
 
-	            using (var orderUoW = UnitOfWorkFactory.CreateForRoot<Order>(orderId))
+	            using (var orderUoW = UnitOfWorkFactory.CreateForRoot<Order>(orderId, "[ADS]v2 Детальная информация по заказу"))
 	            {
 	                if (orderUoW == null || orderUoW.Root == null)
 	                    return null;
@@ -249,7 +248,7 @@ namespace Android
 		{
 			try
 			{
-				using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot("[ADS]Старт записи трека"))
 				{
 					if (!CheckAuth(authKey))
 						return null;
@@ -296,7 +295,7 @@ namespace Android
 				if (!CheckAuth (authKey))
 					return false;
 
-				using (var orderUoW = UnitOfWorkFactory.CreateForRoot<Order>(orderId))
+				using(var orderUoW = UnitOfWorkFactory.CreateForRoot<Order>(orderId, $"[ADS]Изменение статуса заказа {orderId}"))
 				{
 					if (orderUoW == null || orderUoW.Root == null)
 						return false;
@@ -343,7 +342,7 @@ namespace Android
 				if(!CheckAuth(authKey))
 					return false;
 
-				using(var orderUoW = UnitOfWorkFactory.CreateForRoot<Order>(orderId)) {
+				using(var orderUoW = UnitOfWorkFactory.CreateForRoot<Order>(orderId, $"[ADS]v2 Изменение статуса заказа {orderId}")) {
 					if(orderUoW == null || orderUoW.Root == null)
 						return false;
 
@@ -387,7 +386,7 @@ namespace Android
 		{
 			try
 			{
-				using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ADS]Включение Push уведомлений"))
 				{
 					if (!CheckAuth(uow, authKey))
 						return false;
@@ -411,7 +410,7 @@ namespace Android
 		{
 			try
 			{
-				using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ADS]Отключение Push-уведомлений"))
 				{
 					if (!CheckAuth(uow, authKey))
 						return false;
@@ -434,7 +433,7 @@ namespace Android
 		public bool FinishRouteList (string authKey, int routeListId) {
 			try
 			{
-				using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ADS]Маршрутный лист {routeListId} завершен"))
 				{
 
 					if (!CheckAuth(uow, authKey))

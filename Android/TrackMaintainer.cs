@@ -24,7 +24,7 @@ namespace Android
 
 		public TrackMaintainer(int trackId)
 		{
-			uow = UnitOfWorkFactory.CreateForRoot<Track>(trackId);
+			uow = UnitOfWorkFactory.CreateForRoot<Track>(trackId, $"[ADS]Получение координат по треку {trackId}");
 			LastActive = DateTime.Now;
 		}
 

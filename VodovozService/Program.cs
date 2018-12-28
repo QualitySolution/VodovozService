@@ -87,10 +87,13 @@ namespace VodovozService
 					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 					System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain)),
-					System.Reflection.Assembly.GetAssembly (typeof(EmailService.Email))
+					System.Reflection.Assembly.GetAssembly (typeof(EmailService.Email)),
+					System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
+					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
 				});
 
 				MainSupport.LoadBaseParameters ();
+				QS.HistoryLog.HistoryMain.Enable();
 
 				FCMHelper.Configure(firebaseServerApiToken, firebaseSenderId);
 					

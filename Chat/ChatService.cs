@@ -22,7 +22,7 @@ namespace VodovozService.Chats
 		public bool SendMessageToLogistician (string authKey, string message)
 		{
 			try {
-				using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[CS]Отправка сообщения логисту"))
 				{
 					var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
 					if (driver == null)
@@ -57,7 +57,7 @@ namespace VodovozService.Chats
 		{
 			try
 			{
-				using (var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee>(senderId))
+				using (var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee>(senderId, $"[CS]Отправка сообщения водителю {recipientId}"))
 				{
 					var recipient = senderUoW.GetById<Employee>(recipientId);
 
@@ -91,7 +91,7 @@ namespace VodovozService.Chats
 		public List<MessageDTO> AndroidGetChatMessages (string authKey, int days)
 		{
 			try {
-				using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[CS]Получение сообщений чата"))
 				{
 					var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
 					if (driver == null)
@@ -116,7 +116,7 @@ namespace VodovozService.Chats
 
 		public bool SendOrderStatusNotificationToDriver (int senderId, int routeListItemId) {
 			try {
-				using (var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee>(senderId))
+				using (var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee>(senderId, $"[CS]Отправка сообщения о изменении статуса заказа"))
 				{
 					var routeListItem = senderUoW.GetById<RouteListItem>(routeListItemId);
 					var driver = routeListItem.RouteList.Driver;
@@ -158,7 +158,7 @@ namespace VodovozService.Chats
 
 		public bool SendDeliveryScheduleNotificationToDriver (int senderId, int routeListItemId) {
 			try {
-				using (var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee>(senderId))
+				using (var senderUoW = UnitOfWorkFactory.CreateForRoot<Employee>(senderId, $"[CS]Отправка сообщения о изменении времени заказа"))
 				{
 					var routeListItem = senderUoW.GetById<RouteListItem>(routeListItemId);
 					var driver = routeListItem.RouteList.Driver;

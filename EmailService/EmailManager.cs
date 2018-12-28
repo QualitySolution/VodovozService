@@ -8,7 +8,6 @@ using Mailjet.Client.Resources;
 using Newtonsoft.Json.Linq;
 using NLog;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSSupportLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -93,7 +92,7 @@ namespace EmailService
 		/// </summary>
 		static void SetErrorStatusWaitingToSendEmails()
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Установка статуса ошибки всем ожидающим")) {
 				logger.Debug("Загрузка из базы почты ожидающей отправки");
 				var waitingEmails = uow.Session.QueryOver<StoredEmail>()
 									   .Where(x => x.State == StoredEmailStates.WaitingToSend)
@@ -115,7 +114,7 @@ namespace EmailService
 			}
 
 			logger.Debug("{0} Запись в базу информации о письме", GetThreadInfo());
-			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<StoredEmail>()) {
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<StoredEmail>($"[ES]Добавление письма на отправку")) {
 				//Заполнение нового письма данными
 				uow.Root.Order = uow.GetById<Order>(email.Order);
 				uow.Root.DocumentType = email.OrderDocumentType;
@@ -167,7 +166,7 @@ namespace EmailService
 					continue;
 				}
 
-				using(var uow = UnitOfWorkFactory.CreateForRoot<StoredEmail>(email.StoredEmailId)) {
+				using(var uow = UnitOfWorkFactory.CreateForRoot<StoredEmail>(email.StoredEmailId, $"[ES]Задача отправки через Mailjet")) {
 
 					MailjetClient client = new MailjetClient(userId, userSecretKey) {
 						Version = ApiVersion.V3_1,
@@ -251,7 +250,7 @@ namespace EmailService
 			}
 
 			//Запись информации о письме в базу
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Обработка события Mailjet")) {
 				var emailAction = EmailRepository.GetStoredEmailByMessageId(uow, mailjetEvent.MessageID.ToString());
 				if(emailAction == null) {
 					int mailId;

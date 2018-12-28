@@ -26,7 +26,7 @@ namespace Vodovoz.MobileService
 
 		public List<NomenclatureDTO> GetGoods(CatalogType type)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[MB]Получение каталога товаров {type}"))
 			{
 				var types = Enum.GetValues(typeof(MobileCatalog))
 				                .Cast<MobileCatalog>()
@@ -69,7 +69,7 @@ namespace Vodovoz.MobileService
 				return ReturnErrorInStream($"Can't parse {number} as image id.");
 			}
 
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[MB]Получение картинки {id}"))
 			{
 				var image = uow.GetById<NomenclatureImage>(id);
 				if(image == null)

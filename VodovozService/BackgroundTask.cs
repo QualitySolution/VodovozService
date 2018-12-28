@@ -1,8 +1,6 @@
 ﻿using System;
-using QSOrmProject;
-using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
-using System.Linq;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Tools.CommerceML;
 
 namespace VodovozService
@@ -17,7 +15,7 @@ namespace VodovozService
 			var startTime = DateTime.Now;
 			int messagesCount = 0;
 
-			using (var UoW = UnitOfWorkFactory.CreateWithoutRoot())
+			using (var UoW = UnitOfWorkFactory.CreateWithoutRoot($"[BT]Сообщения о заказах срок доставки которых скоро наступит"))
 			{
 				var todayAddresses = Vodovoz.Repository.Logistics.RouteListItemRepository.GetRouteListItemAtDay(UoW, DateTime.Today, RouteListItemStatus.EnRoute);
 
@@ -87,7 +85,7 @@ namespace VodovozService
 
 		public static void OnlineStoreCatalogSync()
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[BT]Синхронизация каталога товаров с интернет магазином")) {
 				var export = new Export(uow);
 				export.RunToSite();
 			}

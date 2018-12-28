@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository.Chats;
 
@@ -36,7 +35,7 @@ namespace VodovozService.Chats
 		private ChatCallbackObservable (int employeeId)
 		{
 			observers = new List<IChatCallbackObserver>();
-			employeeUoW = UnitOfWorkFactory.CreateForRoot<Employee>(employeeId);
+			employeeUoW = UnitOfWorkFactory.CreateForRoot<Employee>(employeeId, $"[CS]Слежение за чатами");
 			unreadedMessages = ChatMessageRepository.GetLastChatMessages(employeeUoW, employeeUoW.Root);
 
 			//Initiates new message check every 30 seconds.
