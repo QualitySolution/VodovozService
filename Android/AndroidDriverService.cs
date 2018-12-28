@@ -29,15 +29,9 @@ namespace Android
 
 		#region IAndroidDriverService implementation
 
-		[Obsolete("Удалить после того как не останется клиентов на версии ниже 11.")]
-		public bool CheckAppCodeVersion (int versionCode)
-		{
-			return false;
-		}
-
 		public CheckVersionResultDTO CheckApplicationVersion(int versionCode)
 		{
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка текущей версии AndroidDriver"))
 			{
 				var lastVersionParameter = uow.Session.Get<BaseParameter>("last_android_version_code");
 				var lastVersionNameParameter = uow.Session.Get<BaseParameter>("last_android_version_name");

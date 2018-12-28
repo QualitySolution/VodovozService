@@ -9,11 +9,6 @@ namespace Android
 	public interface IAndroidDriverService
 	{
 		[OperationContract]
-		[WebInvoke (UriTemplate = "/CheckAppCodeVersion", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
-		[Obsolete("Убрать после перехеода всех клиентов на API  v.11")]
-		bool CheckAppCodeVersion (int versionCode);
-
-		[OperationContract]
 		[WebInvoke(UriTemplate = "/CheckApplicationVersion", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
 		CheckVersionResultDTO CheckApplicationVersion(int versionCode);
 
