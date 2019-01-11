@@ -165,9 +165,9 @@
       <Project>{6E76A8A0-411C-4987-A77D-64B9571C7759}</Project>
       <Name>EmailService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSHistoryLog\QSHistoryLog.csproj">
-      <Project>{1C3B49FC-372C-46F7-995F-EEB44474E2DE}</Project>
-      <Name>QSHistoryLog</Name>
+    <ProjectReference Include="..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
+      <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
+      <Name>QS.HistoryLog</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
