@@ -11,10 +11,10 @@ ssh root@vod-srv.qsolution.ru "systemctl stop vodovozservice"
 
 case $case in
     1)
-rsync -vizaP ./bin/Release/ root@vod-srv.qsolution.ru:/opt/VodovozService
+rsync -vizaP --delete ./bin/Release/ root@vod-srv.qsolution.ru:/opt/VodovozService
 ;;
     2)
-rsync -vizaP ./bin/Debug/ root@vod-srv.qsolution.ru:/opt/VodovozService
+rsync -vizaP --delete ./bin/Debug/ root@vod-srv.qsolution.ru:/opt/VodovozService
 ;;
 esac
 
