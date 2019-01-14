@@ -180,8 +180,8 @@ namespace EmailService
 						response = await client.PostAsync(request);
 					}
 					catch(Exception ex) {
-						logger.Error("{1} Не удалось отправить письмо: \n{0}", ex.Message, GetThreadInfo());
-						SaveErrorInfo(uow, ex.Message);
+						logger.Error("{1} Не удалось отправить письмо: \n{0}", ex, GetThreadInfo());
+						SaveErrorInfo(uow, ex.ToString());
 						continue;
 					}
 
