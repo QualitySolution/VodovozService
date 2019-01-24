@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Chats;
 using ChatClass = Vodovoz.Domain.Chats.Chat;
 
