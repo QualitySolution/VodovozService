@@ -10,7 +10,7 @@ using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 
 namespace Android
