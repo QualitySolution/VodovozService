@@ -15,7 +15,7 @@ namespace Vodovoz.MobileService
 {
 #if DEBUG
 	[ServiceBehavior(IncludeExceptionDetailInFaults = true)]
-	#endif
+#endif
 	public class MobileService : IMobileService
 	{
 		public static string BaseUrl;
@@ -26,12 +26,11 @@ namespace Vodovoz.MobileService
 
 		public List<NomenclatureDTO> GetGoods(CatalogType type)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[MB]Получение каталога товаров {type}"))
-			{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[MB]Получение каталога товаров {type}")) {
 				var types = Enum.GetValues(typeof(MobileCatalog))
-				                .Cast<MobileCatalog>()
-				                .Where(x => x.ToString().StartsWith(type.ToString()))
-				                .ToArray();
+								.Cast<MobileCatalog>()
+								.Where(x => x.ToString().StartsWith(type.ToString()))
+								.ToArray();
 
 				var list = NomenclatureRepository.GetNomenclatureWithPriceForMobileApp(uow, types);
 				if(type == CatalogType.Water)
@@ -54,7 +53,7 @@ namespace Vodovoz.MobileService
 		}
 
 		public Stream GetImage(string filename)
-		{		
+		{
 			if(!filename.EndsWith(".jpg")) {
 				WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.BadRequest;
 				return ReturnErrorInStream("Support only .jpg images.");
@@ -69,11 +68,9 @@ namespace Vodovoz.MobileService
 				return ReturnErrorInStream($"Can't parse {number} as image id.");
 			}
 
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[MB]Получение картинки {id}"))
-			{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[MB]Получение картинки {id}")) {
 				var image = uow.GetById<NomenclatureImage>(id);
-				if(image == null)
-			    {
+				if(image == null) {
 					WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
 					return ReturnErrorInStream($"Nomenclature Image with id:{id} not found");
 				}
@@ -85,7 +82,7 @@ namespace Vodovoz.MobileService
 					return ms;
 				}
 			}
-        }
+		}
 
 		Stream ReturnErrorInStream(string error)
 		{

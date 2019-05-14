@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.ServiceModel;
 using System.ServiceModel.Web;
@@ -7,7 +6,7 @@ using Vodovoz.MobileService.DTO;
 
 namespace Vodovoz.MobileService
 {
-    [ServiceContract]
+	[ServiceContract]
 	public interface IMobileService
 	{
 		[OperationContract]
