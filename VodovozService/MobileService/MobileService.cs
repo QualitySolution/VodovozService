@@ -6,8 +6,10 @@ using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
+using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Payments;
 using Vodovoz.MobileService.DTO;
 using Vodovoz.Repository;
 
@@ -18,7 +20,8 @@ namespace Vodovoz.MobileService
 #endif
 	public class MobileService : IMobileService
 	{
-		public static string BaseUrl;
+		static Logger logger = LogManager.GetCurrentClassLogger();
+		public static string BaseUrl { get; set; }
 
 		public MobileService()
 		{
@@ -88,6 +91,60 @@ namespace Vodovoz.MobileService
 		{
 			WebOperationContext.Current.OutgoingResponse.ContentType = "text/plain";
 			return new MemoryStream(Encoding.UTF8.GetBytes(error));
+		}
+
+		public int Order(MobileOrderDTO mobileOrder)
+		{
+			if(!IsMobileOrderDTOValid(mobileOrder))
+				return -1;
+
+			if(mobileOrder.OrderId > 0) {
+				//реализовать для изменения заказа
+				logger.Error(string.Format("[MB]Запрос на измение мобильного заказа '{0}'. Пока не реализованно.", mobileOrder.OrderId));
+				WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotImplemented;
+				return -1;
+			}
+			return SaveAndGetId(mobileOrder.Imei, mobileOrder.OrderSum);
+		}
+
+		bool IsMobileOrderDTOValid(MobileOrderDTO mobileOrder)
+		{
+			if(mobileOrder == null) {
+				logger.Error("[MB]Отсутсвует заказ");
+				return false;
+			}
+
+			var orderSumRub = mobileOrder.OrderSum;
+			var imei = mobileOrder.Imei;
+
+			if(orderSumRub <= 0) {
+				logger.Error(string.Format("[MB]Неправильная сумма заказа: \"{0}\"", orderSumRub));
+				return false;
+			}
+
+			if(imei.Length != 15 || !ulong.TryParse(imei, out ulong longImei)) {
+				logger.Error(string.Format("[MB]Неправильный IMEI: \"{0}\"", imei));
+				return false;
+			}
+			return true;
+		}
+
+		int SaveAndGetId(string imei, decimal orderSumRub)
+		{
+			int resId = -1;
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<OrderIdProviderForMobileApp>($"[MB]Регистрация заказа для '{imei}' на сумму '{orderSumRub}'")) {
+				uow.Root.Imei = imei;
+				uow.Root.OrderSum = orderSumRub;
+				try {
+					uow.Save();
+				}
+				catch(Exception ex) {
+					logger.Error(string.Format("[MB]Ошибка при сохранении: {0}", ex.Message));
+					throw ex;
+				}
+				resId = uow.Root.Id;
+			}
+			return resId;
 		}
 	}
 }

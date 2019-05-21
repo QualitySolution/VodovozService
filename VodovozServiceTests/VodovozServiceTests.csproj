@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MobileService\DTO\NomenclatureDTOTests.cs" />
+    <Compile Include="MobileService\MobileServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Vodovoz\VodovozBusiness\VodovozBusiness.csproj">

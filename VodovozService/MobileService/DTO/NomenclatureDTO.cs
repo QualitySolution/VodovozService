@@ -7,7 +7,7 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.MobileService.DTO
 {
 	[DataContract]
-	public class NomenclatureDTO 
+	public class NomenclatureDTO
 	{
 		[DataMember]
 		public int Id;
@@ -39,13 +39,16 @@ namespace Vodovoz.MobileService.DTO
 			set { }
 		}
 
-		public int[] imagesIds = new int[]{ };
+		public int[] imagesIds = new int[] { };
 
 		public NomenclatureDTO(Nomenclature nomenclature)
 		{
 			Id = nomenclature.Id;
 			Name = nomenclature.OfficialName;
-			Prices = nomenclature.NomenclaturePrice.Select(p => new NomenclaturePriceDTO(p)).ToList();
+			Prices = nomenclature.NomenclaturePrice
+								 .Select(p => new NomenclaturePriceDTO(p))
+								 .OrderBy(p => p.MinCount)
+								 .ToList();
 
 			if(nomenclature.MobileCatalog == MobileCatalog.Water) {
 				CategoryName = MobileCatalog.Water.GetEnumTitle();

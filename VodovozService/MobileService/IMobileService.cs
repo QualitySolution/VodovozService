@@ -10,11 +10,32 @@ namespace Vodovoz.MobileService
 	public interface IMobileService
 	{
 		[OperationContract]
-		[WebGet(UriTemplate = "/Catalog/{type}/", ResponseFormat = WebMessageFormat.Json)]
+		[
+			WebGet(
+				UriTemplate = "/Catalog/{type}/",
+				ResponseFormat = WebMessageFormat.Json
+			)
+		]
 		List<NomenclatureDTO> GetGoods(CatalogType type);
 
 		[OperationContract]
-		[WebGet(UriTemplate = "/Catalog/Images/{filename}", ResponseFormat = WebMessageFormat.Json)]
+		[
+			WebGet(
+				UriTemplate = "/Catalog/Images/{filename}",
+				ResponseFormat = WebMessageFormat.Json
+			)
+		]
 		Stream GetImage(string filename);
+
+		[OperationContract]
+		[
+			WebInvoke(
+				UriTemplate = "/Orders/New",
+				Method = "POST",
+				RequestFormat = WebMessageFormat.Json,
+				ResponseFormat = WebMessageFormat.Json
+			)
+		]
+		int Order(MobileOrderDTO ord);
 	}
 }

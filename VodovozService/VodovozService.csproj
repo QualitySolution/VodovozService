@@ -113,6 +113,7 @@
     <Compile Include="MobileService\DTO\NomenclaturePriceDTO.cs" />
     <Compile Include="MobileService\MobileService.cs" />
     <Compile Include="MobileService\DTO\CatalogType.cs" />
+    <Compile Include="MobileService\DTO\MobileOrderDTO.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
