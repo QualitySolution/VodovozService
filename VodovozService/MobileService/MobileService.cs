@@ -92,75 +92,56 @@ namespace Vodovoz.MobileService
 			return new MemoryStream(Encoding.UTF8.GetBytes(error));
 		}
 
-		public Func<MobileOrderDTO, int> OrderTestGap;
-		public int Order(MobileOrderDTO mobileOrder)
+		public Func<MobileOrderDTO, int> SaveAndGetIdTestGap;
+		int SaveAndGetId(MobileOrderDTO mobileOrder)
 		{
-			if(!IsMobileOrderDTOValid(mobileOrder)) {
-				logger.Error(string.Format("[MB]Не корректный DTO мобильного заказа."));
-				if(WebOperationContext.Current?.OutgoingResponse != null)
-					WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.InternalServerError;
-				return -1;
+			int resId = -1;
+
+			if(mobileOrder == null) {
+				logger.Error("[MB]Отсутсвует заказ");
+				return resId;
 			}
 
 			if(mobileOrder.OrderId > 0) {
 				//реализовать для изменения заказа
 				logger.Error(string.Format("[MB]Запрос на измение мобильного заказа '{0}'. Пока не реализованно.", mobileOrder.OrderId));
-				if(WebOperationContext.Current?.OutgoingResponse != null)
-					WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.NotImplemented;
-				return -1;
-			}
-
-			var res = OrderTestGap == null ? SaveAndGetId(mobileOrder) : OrderTestGap(mobileOrder);
-
-			if(res > 0) {
-				if(WebOperationContext.Current?.OutgoingResponse != null)
-					WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.OK;
-				return res;
-			}
-
-			logger.Error(string.Format("[MB]Не корректный DTO мобильного заказа."));
-			if(WebOperationContext.Current?.OutgoingResponse != null)
-				WebOperationContext.Current.OutgoingResponse.StatusCode = HttpStatusCode.InternalServerError;
-			return -1;
-		}
-
-		bool IsMobileOrderDTOValid(MobileOrderDTO mobileOrder)
-		{
-			if(mobileOrder == null) {
-				logger.Error("[MB]Отсутсвует заказ");
-				return false;
+				return resId;
 			}
 
 			if(!mobileOrder.IsOrderSumValid()) {
 				logger.Error(string.Format("[MB]Неправильная сумма заказа: \"{0}\"", mobileOrder.OrderSum));
-				return false;
+				return resId;
 			}
 
 			if(!mobileOrder.IsUuidValid()) {
 				logger.Error(string.Format("[MB]Неправильный Uuid: \"{0}\"", mobileOrder.UuidRaw));
-				return false;
+				return resId;
 			}
-			return true;
-		}
 
-		int SaveAndGetId(MobileOrderDTO mobileOrder)
-		{
-			int resId = -1;
-			if(mobileOrder.IsUuidValid() && mobileOrder.IsOrderSumValid()) {
-				using(var uow = UnitOfWorkFactory.CreateWithNewRoot<OrderIdProviderForMobileApp>($"[MB]Регистрация заказа для '{mobileOrder.GetUuid()}' на сумму '{mobileOrder.OrderSum}'")) {
-					uow.Root.Uuid = mobileOrder.GetUuid();
-					uow.Root.OrderSum = mobileOrder.OrderSum;
-					try {
-						uow.Save();
-					}
-					catch(Exception ex) {
-						logger.Error(string.Format("[MB]Ошибка при сохранении: {0}", ex.Message));
-						throw ex;
-					}
+			if(SaveAndGetIdTestGap != null)
+				return SaveAndGetIdTestGap(mobileOrder);
+
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<OrderIdProviderForMobileApp>($"[MB]Регистрация заказа для '{mobileOrder.GetUuid()}' на сумму '{mobileOrder.OrderSum}'")) {
+				uow.Root.Uuid = mobileOrder.GetUuid();
+				uow.Root.OrderSum = mobileOrder.OrderSum;
+				try {
+					uow.Save();
 					resId = uow.Root.Id;
+				}
+				catch(Exception ex) {
+					logger.Error(string.Format("[MB]Ошибка при сохранении: {0}", ex.Message));
+					throw ex;
 				}
 			}
 			return resId;
+		}
+
+		public CreateOrderResponseDTO Order(MobileOrderDTO ord)
+		{
+			var id = SaveAndGetId(ord);
+			if(WebOperationContext.Current?.OutgoingResponse != null)
+				WebOperationContext.Current.OutgoingResponse.StatusCode = id > 0 ? HttpStatusCode.OK : HttpStatusCode.InternalServerError;
+			return new CreateOrderResponseDTO(id, ord.UuidRaw);
 		}
 	}
 }

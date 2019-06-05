@@ -36,6 +36,6 @@ namespace Vodovoz.MobileService
 				ResponseFormat = WebMessageFormat.Json
 			)
 		]
-		int Order(MobileOrderDTO ord);
+		CreateOrderResponseDTO Order(MobileOrderDTO ord);
 	}
 }

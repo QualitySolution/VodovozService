@@ -114,6 +114,7 @@
     <Compile Include="MobileService\MobileService.cs" />
     <Compile Include="MobileService\DTO\CatalogType.cs" />
     <Compile Include="MobileService\DTO\MobileOrderDTO.cs" />
+    <Compile Include="MobileService\DTO\CreateOrderResponseDTO.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
