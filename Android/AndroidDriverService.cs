@@ -444,7 +444,12 @@ namespace Android
 					if (routeList == null)
 						return false;
 
-					if (routeList.Addresses.Any(r => r.Status == RouteListItemStatus.EnRoute))
+					if(routeList.Status != RouteListStatus.EnRoute) {
+						logger.Error("Отмена попытки завершить маршрутный лист №{0}, в статусе отличном от 'В Пути'", routeList.Id);
+						return false;
+					}
+
+					if(routeList.Addresses.Any(r => r.Status == RouteListItemStatus.EnRoute))
 					{
 						logger.Error("Была отменена попытка закрыть маршрутный лист {0}, с адресами в статусе 'В Пути'", routeList.Id);
 						return false;
