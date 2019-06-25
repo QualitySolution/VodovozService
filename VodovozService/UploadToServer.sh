@@ -11,9 +11,11 @@ ssh root@vod-srv.qsolution.ru -p2201 "systemctl stop vodovozservice"
 
 case $case in
     1)
+rm ./bin/Release/System.Net.Http.dll
 rsync -vizaP --delete -e "ssh -p 2201" ./bin/Release/ root@vod-srv.qsolution.ru:/opt/VodovozService
 ;;
     2)
+rm ./bin/Debug/System.Net.Http.dll
 rsync -vizaP --delete -e "ssh -p 2201" ./bin/Debug/ root@vod-srv.qsolution.ru:/opt/VodovozService
 ;;
 esac
