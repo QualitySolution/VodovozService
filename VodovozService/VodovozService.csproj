@@ -174,6 +174,10 @@
       <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
       <Name>QS.HistoryLog</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
+      <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
+      <Name>QS.Banks</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
