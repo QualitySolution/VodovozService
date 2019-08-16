@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using Gamma.Utilities;
-using QSContacts;
+using QS.Contacts;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 

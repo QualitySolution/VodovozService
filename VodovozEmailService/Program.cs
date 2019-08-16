@@ -77,7 +77,7 @@ namespace VodovozEmailService
 					new System.Reflection.Assembly[] {
 					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
-					System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain)),
+					System.Reflection.Assembly.GetAssembly (typeof(QS.Contacts.Phone)),
 					System.Reflection.Assembly.GetAssembly (typeof(EmailService.Email)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
