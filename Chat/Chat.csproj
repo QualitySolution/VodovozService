@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4E951BE3-3485-47E8-B7DF-5A098034A90E}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>VodovozService.Chat</RootNamespace>
+    <RootNamespace>Chat</RootNamespace>
     <AssemblyName>Chat</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
@@ -20,7 +20,6 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>

@@ -9,7 +9,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Chats;
 using ChatClass = Vodovoz.Domain.Chats.Chat;
 
-namespace VodovozService.Chats
+namespace Chats
 {
 	public class ChatService : IChatService
 	{

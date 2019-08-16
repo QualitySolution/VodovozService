@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 
-namespace VodovozService.Chats
+namespace Chats
 {
 	[DataContract]
 	public class MessageDTO

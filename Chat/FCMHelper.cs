@@ -4,7 +4,7 @@ using System.Web.Script.Serialization;
 using System.Text;
 using System.IO;
 
-namespace VodovozService.Chats
+namespace Chats
 {
 	public static class FCMHelper
 	{
