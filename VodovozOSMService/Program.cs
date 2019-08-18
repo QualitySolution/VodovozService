@@ -8,7 +8,6 @@ using System.ServiceModel.Web;
 using System.Threading;
 using Mono.Unix;
 using Mono.Unix.Native;
-using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog;
 using QSOsm;
@@ -51,31 +50,6 @@ namespace VodovozOSMService
 			WebServiceHost OsmHost = new WebServiceHost(typeof(OsmService));
 
 			try {
-				/*var conStrBuilder = new MySqlConnectionStringBuilder();
-				conStrBuilder.Server = server;
-				conStrBuilder.Port = UInt32.Parse(port);
-				conStrBuilder.Database = db;
-				conStrBuilder.UserID = user;
-				conStrBuilder.Password = pass;
-				conStrBuilder.SslMode = MySqlSslMode.None;*/
-
-				/*QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
-				var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-										 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-										 .ConnectionString(QSMain.ConnectionString);*/
-
-				/*OrmConfig.ConfigureOrm(db_config,
-					new System.Reflection.Assembly[] {
-					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
-					System.Reflection.Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
-					System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain)),
-					System.Reflection.Assembly.GetAssembly (typeof(EmailService.Email)),
-					System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
-					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
-				});*/
-
-				//MainSupport.LoadBaseParameters();
-
 				OsmWorker.ServiceHost = serviceHostName;
 				OsmWorker.ServicePort = Int32.Parse(servicePort);
 				OsmHost.AddServiceEndpoint(

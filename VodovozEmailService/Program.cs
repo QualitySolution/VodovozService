@@ -13,6 +13,7 @@ using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog;
 using QS.Project.DB;
+using QSProjectsLib;
 using QSSupportLib;
 
 namespace VodovozEmailService
@@ -68,16 +69,16 @@ namespace VodovozEmailService
 				conStrBuilder.Password = mysqlPassword;
 				conStrBuilder.SslMode = MySqlSslMode.None;
 
-				string connectionString = conStrBuilder.GetConnectionString(true);
+				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
 				var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 										 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-										 .ConnectionString(connectionString);
+										 .ConnectionString(QSMain.ConnectionString);
 
 				OrmConfig.ConfigureOrm(db_config,
 					new System.Reflection.Assembly[] {
 					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
-					System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain)),
+					System.Reflection.Assembly.GetAssembly (typeof(QS.Contacts.Phone)),
 					System.Reflection.Assembly.GetAssembly (typeof(EmailService.Email)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))

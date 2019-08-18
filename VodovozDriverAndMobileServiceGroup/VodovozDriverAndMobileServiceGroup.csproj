@@ -142,6 +142,10 @@
       <Project>{9444E255-BF6E-443D-9919-4EFCB4FAA58A}</Project>
       <Name>VodovozAndroidDriverService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj">
+      <Project>{B1DD034B-EC88-400C-9C6B-83CE68AB3541}</Project>
+      <Name>QS.Contacts</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

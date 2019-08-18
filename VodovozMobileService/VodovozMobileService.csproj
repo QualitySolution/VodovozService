@@ -152,6 +152,10 @@
       <Project>{A236518F-E4D0-4CFF-B23F-769802B2821F}</Project>
       <Name>QSContacts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj">
+      <Project>{B1DD034B-EC88-400C-9C6B-83CE68AB3541}</Project>
+      <Name>QS.Contacts</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DTO\" />
