@@ -26,7 +26,7 @@ mobileServiceName="vodovoz-mobile.service"
 osmServiceFolder="VodovozOSMService"
 osmServiceName="vodovoz-osm.service"
 
-serverAddress="admin@192.168.0.16"
+serverAddress="root@192.168.0.16"
 serverPort="22"
 
 
