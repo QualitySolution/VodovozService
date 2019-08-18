@@ -97,6 +97,7 @@
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="vodovoz-driver-service.conf" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Android\Android.csproj">

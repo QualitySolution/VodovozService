@@ -122,6 +122,7 @@
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="vodovoz-mobile-service.conf" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
