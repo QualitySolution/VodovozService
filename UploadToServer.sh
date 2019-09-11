@@ -32,8 +32,8 @@ serverPort="22"
 
 # ------ для объединенной службы водителей и мобильного приложения для старого сервера
 
-oldServerAddress="root@vod.qsolution.ru"
-oldServerPort="2201"
+oldServerAddress="root@192.168.0.7"
+oldServerPort="22"
 
 driverMobileGroupServiceFolder="VodovozDriverAndMobileServiceGroup"
 driverMobileGroupServiceName="vodovoz-driver-mobile-group.service"
@@ -62,6 +62,10 @@ function DeleteHttpDll {
 
 function CopyFiles {
 	rsync -vizaP --delete -e "ssh -p $serverPort" ./$1/bin/$buildFolderName/ $serverAddress:/opt/$1
+}
+
+function CopyFilesToOldServer {
+	rsync -vizaP --delete -e "ssh -p $oldServerPort" ./$1/bin/$buildFolderName/ $oldServerAddress:/opt/$1
 }
 
 function UpdateDriverService {
@@ -128,7 +132,7 @@ function UpdateDriverMobileGroupService {
 
 	echo "-- Copying $driverMobileGroupServiceName files"
 	DeleteHttpDll $driverMobileGroupServiceFolder
-	CopyFiles $driverMobileGroupServiceFolder
+	CopyFilesToOldServer $driverMobileGroupServiceFolder
 
 	echo "-- Starting $driverMobileGroupServiceName"
 	ssh $oldServerAddress -p$oldServerPort sudo systemctl start $driverMobileGroupServiceName
