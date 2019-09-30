@@ -12,7 +12,7 @@ namespace VodovozSalesReceiptsService.DTO
 		public SalesDocumentDTO() { }
 		public SalesDocumentDTO(Order order)
 		{
-			DocNum = Id = string.Concat("order_", order.Id);
+			DocNum = Id = string.Concat("vod_", order.Id);
 			Email = order.GetContact();
 			CashierName = order.Author.ShortName;
 			foreach(var item in order.OrderItems) {

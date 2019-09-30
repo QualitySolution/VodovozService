@@ -101,7 +101,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Contacts", "..\QSProject
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VodovozSalesReceiptsService", "VodovozSalesReceiptsService", "{2AC16C9A-197B-42A5-9F68-C9D913CEBC92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozSalesReceiptsService", "VodovozSalesReceiptsService2\VodovozSalesReceiptsService.csproj", "{F376C449-38BB-4B8B-AF44-752C6F6FA70A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozSalesReceiptsService", "VodovozSalesReceiptsService\VodovozSalesReceiptsService.csproj", "{F376C449-38BB-4B8B-AF44-752C6F6FA70A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
