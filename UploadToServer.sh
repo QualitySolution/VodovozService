@@ -26,8 +26,8 @@ mobileServiceName="vodovoz-mobile.service"
 osmServiceFolder="VodovozOSMService"
 osmServiceName="vodovoz-osm.service"
 
-serverAddress="root@192.168.0.16"
-serverPort="22"
+serverAddress="root@srv2.vod.qsolution.ru"
+serverPort="2203"
 
 
 # ------ для объединенной службы водителей и мобильного приложения для старого сервера
