@@ -8,6 +8,8 @@ using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
 using QSSupportLib;
+using SmsBlissSendService;
+using SmsSendInterface;
 
 namespace VodovozSmsInformerService
 {
@@ -24,8 +26,17 @@ namespace VodovozSmsInformerService
 		private static string mysqlPassword;
 		private static string mysqlDatabase;
 
+		//SmsService
+		private static string smsServiceLogin;
+		private static string smsServicePassword;
+
+		static NewClientSmsInformer newClientInformer;
+
 		public static void Main(string[] args)
 		{
+			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;;
+			AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;;
+
 			try {
 				IniConfigSource confFile = new IniConfigSource(configFile);
 				confFile.Reload();
@@ -36,6 +47,11 @@ namespace VodovozSmsInformerService
 				mysqlUser = mysqlConfig.GetString("mysql_user");
 				mysqlPassword = mysqlConfig.GetString("mysql_password");
 				mysqlDatabase = mysqlConfig.GetString("mysql_database");
+
+				IConfig smsConfig = confFile.Configs["SmsBliss"];
+				smsServiceLogin = smsConfig.GetString("sms_service_login");
+				smsServicePassword = smsConfig.GetString("sms_service_password");
+
 			}
 			catch(Exception ex) {
 				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
@@ -68,8 +84,9 @@ namespace VodovozSmsInformerService
 				MainSupport.LoadBaseParameters();
 				QS.HistoryLog.HistoryMain.Enable();
 
-
-
+				ISmsSender smsSender = new SmsBlissSendController(smsServiceLogin, smsServicePassword);
+				newClientInformer = new NewClientSmsInformer(smsSender);
+				newClientInformer.Start();
 
 				UnixSignal[] signals = {
 					new UnixSignal (Signum.SIGINT),
@@ -85,6 +102,16 @@ namespace VodovozSmsInformerService
 					Thread.CurrentThread.Abort();
 				Environment.Exit(0);
 			}
+		}
+
+		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+		{
+			logger.Fatal((Exception)e.ExceptionObject, "UnhandledException");
+		}
+
+		static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+		{
+			newClientInformer?.Stop();
 		}
 	}
 }
