@@ -9,7 +9,7 @@ namespace SmsSendInterface
 		/// <summary>
 		/// Номер мобильного телефона на который будет отправлено сообщение
 		/// </summary>
-		int MobilePhoneNumber { get; }
+		string MobilePhoneNumber { get; }
 
 		/// <summary>
 		/// Идентификатор сообщения на стороне клиента

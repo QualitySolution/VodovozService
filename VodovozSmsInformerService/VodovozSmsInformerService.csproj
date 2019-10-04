@@ -109,6 +109,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="vodovoz-smsinformer-service.conf" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

@@ -31,9 +31,6 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="SmsBlissAPI">
-      <HintPath>..\..\packages\SmsBliss.API.1.0.0\lib\net461\SmsBlissAPI.dll</HintPath>
-    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
@@ -62,6 +59,10 @@
     <ProjectReference Include="..\SmsSendInterface\SmsSendInterface.csproj">
       <Project>{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85}</Project>
       <Name>SmsSendInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\SmsBlissAPI\SmsBlissAPI\SmsBlissAPI.csproj">
+      <Project>{C62CFA6B-72A6-4C15-ADB4-5559789765D0}</Project>
+      <Name>SmsBlissAPI</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

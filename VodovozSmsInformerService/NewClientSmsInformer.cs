@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SmsBlissSendService;
 using System.Timers;
+using NLog;
 
 namespace VodovozSmsInformerService
 {
@@ -14,9 +15,12 @@ namespace VodovozSmsInformerService
 	/// </summary>
 	public class NewClientSmsInformer
 	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
 		private readonly ISmsSender smsSender;
 		private Timer timer;
 		private bool sendingInProgress = false;
+		private const int refreshInterval = 60000;
 
 		public NewClientSmsInformer(ISmsSender smsSender)
 		{
@@ -25,9 +29,10 @@ namespace VodovozSmsInformerService
 
 		public void Start()
 		{
-			timer = new Timer(60000);
+			timer = new Timer(refreshInterval);
 			timer.Elapsed += Timer_Elapsed;
 			timer.Start();
+			logger.Info($"Отправка смс уведомлений запущена. Проверка новых уведомлений каждые {refreshInterval/1000} сек.");
 		}
 
 		public void Stop()
@@ -35,6 +40,7 @@ namespace VodovozSmsInformerService
 			timer?.Stop();
 			timer?.Dispose();
 			timer = null;
+			logger.Info($"Отправка смс уведомлений остановлена.");
 		}
 
 		private void Timer_Elapsed(object sender, ElapsedEventArgs e)
@@ -44,7 +50,12 @@ namespace VodovozSmsInformerService
 
 		private void CloseExpiredNotifications(IUnitOfWork uow, IEnumerable<NewClientSmsNotification> notifications)
 		{
-			var expiredNotifications = notifications.Where(x => x.Status == SmsNotificationStatus.New).Where(x => x.ExpiredTime <= DateTime.Now);
+			var expiredNotifications = notifications.Where(x => x.Status == SmsNotificationStatus.New)
+				//проверка даты без времени
+				.Where(x => x.ExpiredTime < DateTime.Today);
+			if(expiredNotifications.Any()) {
+				logger.Info($"Были закрыты без отправки следующие просроченные уведомления: {string.Join(", ", expiredNotifications.Select(x => x.Id))}");
+			}
 			foreach(var expiredNotification in expiredNotifications) {
 				expiredNotification.Status = SmsNotificationStatus.SendExpired;
 				uow.Save(expiredNotification);
@@ -53,7 +64,9 @@ namespace VodovozSmsInformerService
 
 		private void SendNewNotifications()
 		{
+			logger.Debug($"Новый вызов отправки смс уведомлений");
 			if(sendingInProgress) {
+				logger.Debug($"Вывоз новой отправки до завершения предыдущей!");
 				return;
 			}
 			sendingInProgress = true;
@@ -62,7 +75,9 @@ namespace VodovozSmsInformerService
 					var newNotifications = uow.Session.QueryOver<NewClientSmsNotification>()
 						.Where(x => x.Status == SmsNotificationStatus.New)
 						.List();
-
+					if(!newNotifications.Any()) {
+						return;
+					}
 					//закрытие просроченных уведомлений
 					CloseExpiredNotifications(uow, newNotifications);
 					newNotifications = newNotifications.Where(x => x.Status == SmsNotificationStatus.New).ToList();
@@ -81,27 +96,34 @@ namespace VodovozSmsInformerService
 
 		private void SendNotification(NewClientSmsNotification notification)
 		{
-			SmsMessage smsMessage = new SmsMessage(notification.MobilePhone, notification.Id.ToString(), notification.MessageText);
-			var result = smsSender.SendSms(smsMessage);
+			try {
+				SmsMessage smsMessage = new SmsMessage(notification.MobilePhone, notification.Id.ToString(), notification.MessageText);
+				var result = smsSender.SendSms(smsMessage);
+				logger.Info($"Отправлено уведомление. Тел.: {smsMessage.MobilePhoneNumber}, результат: {result.Status}");
 
-			notification.ServerMessageId = result.ServerId;
-			notification.Status = result.Status == SmsSentStatus.Accepted ? SmsNotificationStatus.Accepted : SmsNotificationStatus.Error;
-			switch(result.Status) {
-			case SmsSentStatus.InvalidMobilePhone:
-				notification.ErrorDescription = $"Неверно заполнен номер мобильного телефона. ({notification.MobilePhone})";
-				break;
-			case SmsSentStatus.TextIsEmpty:
-				notification.ErrorDescription = $"Не заполнен текст сообщения";
-				break;
-			case SmsSentStatus.SenderAddressInvalid:
-				notification.ErrorDescription = $"Неверное имя отправителя";
-				break;
-			case SmsSentStatus.NotEnoughBalance:
-				notification.ErrorDescription = $"Недостаточно средств на счете";
-				break;
-			case SmsSentStatus.UnknownError:
-				notification.ErrorDescription = $"{result.Description}";
-				break;
+				notification.ServerMessageId = result.ServerId;
+				notification.Status = result.Status == SmsSentStatus.Accepted ? SmsNotificationStatus.Accepted : SmsNotificationStatus.Error;
+				switch(result.Status) {
+				case SmsSentStatus.InvalidMobilePhone:
+					notification.ErrorDescription = $"Неверно заполнен номер мобильного телефона. ({notification.MobilePhone})";
+					break;
+				case SmsSentStatus.TextIsEmpty:
+					notification.ErrorDescription = $"Не заполнен текст сообщения";
+					break;
+				case SmsSentStatus.SenderAddressInvalid:
+					notification.ErrorDescription = $"Неверное имя отправителя";
+					break;
+				case SmsSentStatus.NotEnoughBalance:
+					notification.ErrorDescription = $"Недостаточно средств на счете";
+					break;
+				case SmsSentStatus.UnknownError:
+					notification.ErrorDescription = $"{result.Description}";
+					break;
+				}
+			}
+			catch(Exception ex) {
+				notification.ErrorDescription = $"Ошибка при отправке смс сообщения. {ex.Message}";
+				logger.Error(ex);
 			}
 		}
 	}

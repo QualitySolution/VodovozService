@@ -31,7 +31,7 @@ namespace SmsBlissSendService
 				return new SmsBlissSentResult(SmsSentStatus.InvalidMobilePhone) { Description = "Сообщение не было отправлено, не корректная длина номера телефона" };
 			}
 
-			string phone = smsMessage.MobilePhoneNumber.ToString();
+			string phone = smsMessage.MobilePhoneNumber;
 			Message message = new Message(smsMessage.LocalId, phone, smsMessage.MessageText);
 
 			var response = smsBlissClient.SendMessages(new[] { message }, showBillingDetails: true);
@@ -50,7 +50,7 @@ namespace SmsBlissSendService
 				return new SmsBlissSentResult(SmsSentStatus.InvalidMobilePhone) { Description = "Сообщение не было отправлено, не корректная длина номера телефона" };
 			}
 
-			string phone = smsMessage.MobilePhoneNumber.ToString();
+			string phone = smsMessage.MobilePhoneNumber;
 			Message message = new Message(smsMessage.LocalId, phone, smsMessage.MessageText);
 
 			var response = await smsBlissClient.SendMessagesAsync(new[] { message }, showBillingDetails: true);
@@ -67,15 +67,11 @@ namespace SmsBlissSendService
 
 		#endregion ISmsBalanceNotifier implementation
 
-		protected virtual bool ValidateMobilePhoneNumberLength(int phone)
+		protected virtual bool ValidateMobilePhoneNumberLength(string phone)
 		{
-			if(phone < 0) {
-				return false;
-			}
+			int phoneLegth = phone.Length;
 
-			int phoneLegth = phone.ToString().Length;
-
-			if(phoneLegth < 10 || phoneLegth > 11) {
+			if(phoneLegth != 12) {
 				return false;
 			}
 

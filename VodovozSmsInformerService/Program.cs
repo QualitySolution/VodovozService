@@ -48,7 +48,7 @@ namespace VodovozSmsInformerService
 				mysqlPassword = mysqlConfig.GetString("mysql_password");
 				mysqlDatabase = mysqlConfig.GetString("mysql_database");
 
-				IConfig smsConfig = confFile.Configs["SmsBliss"];
+				IConfig smsConfig = confFile.Configs["SmsService"];
 				smsServiceLogin = smsConfig.GetString("sms_service_login");
 				smsServicePassword = smsConfig.GetString("sms_service_password");
 
