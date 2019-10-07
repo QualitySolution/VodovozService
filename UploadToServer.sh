@@ -5,7 +5,8 @@ echo "1) Driver"
 echo "2) Email"
 echo "3) Mobile"
 echo "4) OSM"
-echo "5) Old server DriverMobileGroup"
+echo "5) SmsInformer"
+echo "6) Old server DriverMobileGroup"
 echo "Можно вызывать вместе, например Driver+Email=12"
 read service;
 
@@ -25,6 +26,9 @@ mobileServiceName="vodovoz-mobile.service"
 
 osmServiceFolder="VodovozOSMService"
 osmServiceName="vodovoz-osm.service"
+
+smsServiceFolder="VodovozSmsInformerService"
+smsServiceName="vodovoz-smsinformer.service"
 
 serverAddress="root@srv2.vod.qsolution.ru"
 serverPort="2203"
@@ -124,6 +128,20 @@ function UpdateOSMService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $osmServiceName
 }
 
+function UpdateSMSInformerService {
+	printf "\nОбновление службы SMS информирования\n"
+
+	echo "-- Stoping $smsServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl stop $smsServiceName
+
+	echo "-- Copying $smsServiceName files"
+	DeleteHttpDll $smsServiceFolder
+	CopyFiles $smsServiceFolder
+
+	echo "-- Starting $smsServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl start $smsServiceName
+}
+
 function UpdateDriverMobileGroupService {
 	printf "\nОбновление службы для водителей и мобильного приложения на старом сервере\n"
 
@@ -152,6 +170,9 @@ case $service in
 		UpdateOSMService
 	;;&
 	*5*)
+		UpdateSMSInformerService
+	;;&
+	*6*)
 		UpdateDriverMobileGroupService
 	;;
 esac
