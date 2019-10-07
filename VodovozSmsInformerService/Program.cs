@@ -10,6 +10,7 @@ using QSProjectsLib;
 using QSSupportLib;
 using SmsBlissSendService;
 using SmsSendInterface;
+using Vodovoz.Core.DataService;
 
 namespace VodovozSmsInformerService
 {
@@ -84,9 +85,13 @@ namespace VodovozSmsInformerService
 				MainSupport.LoadBaseParameters();
 				QS.HistoryLog.HistoryMain.Enable();
 
-				ISmsSender smsSender = new SmsBlissSendController(smsServiceLogin, smsServicePassword);
+				SmsBlissSendController smsSender = new SmsBlissSendController(smsServiceLogin, smsServicePassword);
 				newClientInformer = new NewClientSmsInformer(smsSender);
 				newClientInformer.Start();
+
+				BaseParametersProvider parametersProvider = new BaseParametersProvider();
+				LowBalanceNotifier lowBalanceNotifier = new LowBalanceNotifier(smsSender, smsSender, parametersProvider);
+				lowBalanceNotifier.Start();
 
 				UnixSignal[] signals = {
 					new UnixSignal (Signum.SIGINT),

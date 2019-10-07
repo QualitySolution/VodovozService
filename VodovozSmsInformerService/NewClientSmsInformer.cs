@@ -89,6 +89,9 @@ namespace VodovozSmsInformerService
 					uow.Commit();
 				}
 			}
+			catch(Exception ex) {
+				logger.Fatal(ex);
+			}
 			finally {
 				sendingInProgress = false;
 			}

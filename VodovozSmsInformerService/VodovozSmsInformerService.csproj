@@ -109,6 +109,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NewClientSmsInformer.cs" />
+    <Compile Include="LowBalanceNotifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

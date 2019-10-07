@@ -3,8 +3,8 @@ namespace SmsSendInterface
 {
 	public class SmsBalanceEventArgs : EventArgs
 	{
-		BalanceType BalanceType { get; }
-		decimal Balance { get; }
+		public BalanceType BalanceType { get; }
+		public decimal Balance { get; }
 
 		public SmsBalanceEventArgs(BalanceType balanceType, decimal balance)
 		{
