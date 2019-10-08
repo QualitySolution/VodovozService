@@ -27,7 +27,6 @@ namespace VodovozSalesReceiptsService
 		public static void Main(string[] args)
 		{
 			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
-			AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
 			logger.Info("Чтение конфигурационного файла...");
 			IConfig kassaConfig;
@@ -61,7 +60,6 @@ namespace VodovozSalesReceiptsService
 
 				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
 				var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-												//.Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
 												.ConnectionString(QSMain.ConnectionString);
 
 				OrmConfig.ConfigureOrm(
@@ -88,7 +86,8 @@ namespace VodovozSalesReceiptsService
 				UnixSignal[] signals = {
 					new UnixSignal (Signum.SIGINT),
 					new UnixSignal (Signum.SIGHUP),
-					new UnixSignal (Signum.SIGTERM)};
+					new UnixSignal (Signum.SIGTERM)
+				};
 				UnixSignal.WaitAny(signals);
 			}
 			catch(Exception e) {
@@ -99,11 +98,6 @@ namespace VodovozSalesReceiptsService
 					Thread.CurrentThread.Abort();
 				Environment.Exit(0);
 			}
-		}
-
-		static void CurrentDomain_ProcessExit(object sender, EventArgs e)
-		{
-			//EmailManager.StopWorkers();
 		}
 
 		static void AppDomain_CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

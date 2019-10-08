@@ -56,6 +56,7 @@ namespace VodovozSalesReceiptsService
 			logger.Info("Подготовка документа к отправке на сервер фискализации...");
 
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot("[Fisk] Получение списка подходящих новых заказов и не отправленных чеков...")) {
+				int sent = 0;
 				var orderIds = GetShippedOrderIds(uow);
 				foreach(var oId in orderIds) {
 					var o = uow.GetById<Order>(oId);
@@ -70,6 +71,8 @@ namespace VodovozSalesReceiptsService
 						await SendSalesDocumentAsync(preparedReceipt, new SalesDocumentDTO(o));
 						uow.Save(preparedReceipt);
 						uow.Commit();
+						if(preparedReceipt.Sent)
+							sent++;
 						continue;
 					}
 
@@ -78,53 +81,13 @@ namespace VodovozSalesReceiptsService
 						await SendSalesDocumentAsync(receipt, new SalesDocumentDTO(o));
 						uow.Save(receipt);
 						uow.Commit();
+						if(preparedReceipt.Sent)
+							sent++;
 						continue;
 					}
+					logger.Info(string.Format("Отправлено {0} из {1}", sent, orderIds.Length));
 				}
 			}
-
-			/*var doc = new SalesDocumentDTO {
-				Id = "order000010",
-				DocNum = "order000010",
-				Email = "+79217893945",
-				PrintReceipt = true,
-				CashierName = "opopve?"
-				,
-				TaxMode = null
-			};
-			doc.InventPositions = new List<InventPositionDTO> {
-				new InventPositionDTO {
-					Name = "NomenTest01",
-					PriceWithoutDiscount = 0.15m,
-					Quantity = 2,
-					DiscSum = .2m,
-					Vat = VAT.Vat20
-				},
-				new InventPositionDTO {
-					Name = "NomenTest02",
-					PriceWithoutDiscount = 0.1m,
-					Quantity = 1,
-					DiscSum = .1m,
-					Vat = VAT.No
-				}
-			};
-			doc.MoneyPositions = new List<MoneyPositionDTO> {
-				new MoneyPositionDTO(.1m)
-			};*/
-
-
-			/*throw new Exception();
-
-			logger.Info("Отправка документа на сервер фискализации...");
-			var httpCode = await PostSalesDocumentAsync(doc);
-			switch(httpCode) {
-				case HttpStatusCode.OK:
-					logger.Info("Документ успешно отправлен на сервер фискализации.");
-					break;
-				default:
-					logger.Warn(string.Format("Документ не был отправлен на сервер фискализации. Http код - {0} ({1}).", (int)httpCode, httpCode));
-					break;
-			}*/
 		}
 
 		static async Task SendSalesDocumentAsync(CashReceipt preparedReceipt, SalesDocumentDTO doc)
@@ -144,6 +107,7 @@ namespace VodovozSalesReceiptsService
 				}
 				preparedReceipt.HttpCode = (int)httpCode;
 			} else {
+				logger.Warn("Документ не валиден и не был отправлен на сервер фискализации (-1).");
 				preparedReceipt.HttpCode = -1;
 				preparedReceipt.Sent = false;
 			}
@@ -156,20 +120,11 @@ namespace VodovozSalesReceiptsService
 											   .GetShippeIdsStartingFromDate(
 													uow,
 													Vodovoz.Domain.Client.PaymentType.cash,
-													DateTime.Today.AddDays(-1)
+													DateTime.Today.AddDays(-3)
 												);
 
 			return orderIds;
 		}
-
-		//static IEnumerable<CashReceipt> GetNotSentReceipts(IUnitOfWork uow)
-		//{
-		//	var result = uow.Session.QueryOver<CashReceipt>()
-		//					.Where(r => !r.Sent)
-		//					.List()
-		//					;
-		//	return result;
-		//}
 
 		static async Task<FinscalizatorStatusResponseDTO> GetSatusAsync(string path)
 		{
