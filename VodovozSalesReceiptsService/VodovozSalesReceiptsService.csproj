@@ -99,6 +99,7 @@
     <None Include="packages.config" />
     <None Include="vodovoz-sales-receipts-service.conf" />
     <None Include="Docs\API автоматической фискализации чеков интернет-магазинов %28ver.1.4%29.pdf" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DTO\" />

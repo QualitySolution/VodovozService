@@ -57,12 +57,11 @@ namespace VodovozSalesReceiptsService
 			logger.Info("Подготовка документа к отправке на сервер фискализации...");
 
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot("[Fisk] Получение списка подходящих новых заказов и не отправленных чеков...")) {
-				int sent = 0;
+				int sent = 0, sentBefore = 0;
 				var orderIds = GetShippedOrderIds(uow);
 				if(!orderIds.Any())
 					logger.Info("Нет документов для отправки.");
 				foreach(var oId in orderIds) {
-					int sentBefore = 0;
 					var o = uow.GetById<Order>(oId);
 					var preparedReceipt = uow.Session.QueryOver<CashReceipt>()
 											 .Where(r => r.Order.Id == oId)
@@ -70,8 +69,10 @@ namespace VodovozSalesReceiptsService
 											 .List()
 											 .FirstOrDefault()
 											 ;
-					if(preparedReceipt != null && preparedReceipt.Sent)
+					if(preparedReceipt != null && preparedReceipt.Sent) {
 						sentBefore++;
+						continue;
+					}
 
 					if(preparedReceipt != null && !preparedReceipt.Sent) {
 						await SendSalesDocumentAsync(preparedReceipt, new SalesDocumentDTO(o));
@@ -93,21 +94,22 @@ namespace VodovozSalesReceiptsService
 					}
 					logger.Info(
 						string.Format(
-							"{0} {1} {2} из {3}.{4}",
+							"{0} {1} {2} из {3}.",
 							NumberToTextRus.Case(sent, "Отправлен", "Отправлено", "Отправлено"),
 							sent,
 							NumberToTextRus.Case(sent, "документ", "документа", "документов"),
-							orderIds.Length,
-							sentBefore > 0 ?
-								string.Format(
-									" {0} {1} ранее.",
-									sentBefore,
-									NumberToTextRus.Case(sentBefore, "документ отправлен", "документа отправлено", "документов отправлено")
-								) :
-								string.Empty
+							orderIds.Length
 						)
 					);
 				}
+				if(sentBefore > 0)
+					logger.Info(
+						string.Format(
+							"{0} {1} ранее.",
+							sentBefore,
+							NumberToTextRus.Case(sentBefore, "документ отправлен", "документа отправлено", "документов отправлено")
+						)
+					);
 			}
 		}
 
