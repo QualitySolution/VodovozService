@@ -5,7 +5,9 @@ echo "1) Driver"
 echo "2) Email"
 echo "3) Mobile"
 echo "4) OSM"
-echo "5) Old server DriverMobileGroup"
+echo "5) SmsInformer"
+echo "6) ModulKassa (SalesReceipts)"
+echo "0) Old server DriverMobileGroup"
 echo "Можно вызывать вместе, например Driver+Email=12"
 read service;
 
@@ -26,8 +28,14 @@ mobileServiceName="vodovoz-mobile.service"
 osmServiceFolder="VodovozOSMService"
 osmServiceName="vodovoz-osm.service"
 
-serverAddress="root@192.168.0.16"
-serverPort="22"
+smsServiceFolder="VodovozSmsInformerService"
+smsServiceName="vodovoz-smsinformer.service"
+
+kassaServiceFolder="VodovozSalesReceiptsService"
+kassaServiceName="vodovoz-sales-receipts.service"
+
+serverAddress="root@srv2.vod.qsolution.ru"
+serverPort="2203"
 
 
 # ------ для объединенной службы водителей и мобильного приложения для старого сервера
@@ -124,6 +132,34 @@ function UpdateOSMService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $osmServiceName
 }
 
+function UpdateSMSInformerService {
+	printf "\nОбновление службы SMS информирования\n"
+
+	echo "-- Stoping $smsServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl stop $smsServiceName
+
+	echo "-- Copying $smsServiceName files"
+	DeleteHttpDll $smsServiceFolder
+	CopyFiles $smsServiceFolder
+
+	echo "-- Starting $smsServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl start $smsServiceName
+}
+
+function UpdateSalesReceiptsService {
+	printf "\nОбновление службы управления кассовым апаратом\n"
+
+	echo "-- Stoping $kassaServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl stop $kassaServiceName
+
+	echo "-- Copying $kassaServiceName files"
+	DeleteHttpDll $kassaServiceFolder
+	CopyFiles $kassaServiceFolder
+
+	echo "-- Starting $kassaServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl start $kassaServiceName
+}
+
 function UpdateDriverMobileGroupService {
 	printf "\nОбновление службы для водителей и мобильного приложения на старом сервере\n"
 
@@ -152,6 +188,12 @@ case $service in
 		UpdateOSMService
 	;;&
 	*5*)
+		UpdateSMSInformerService
+	;;&
+	*6*)
+		UpdateSalesReceiptsService
+	;;&
+	*0*)
 		UpdateDriverMobileGroupService
 	;;
 esac

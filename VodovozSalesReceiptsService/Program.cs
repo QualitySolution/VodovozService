@@ -14,8 +14,7 @@ namespace VodovozSalesReceiptsService
 	class Service
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
-		//static readonly string configFile = "/etc/vodovoz-receipts-service.conf";
-		static readonly string configFile = "/home/oo/Dropbox/vodovoz-receipts-service.conf";
+		static readonly string configFile = "/etc/vodovoz-sales-receipts-service.conf";
 
 		//Mysql
 		static string mysqlServerHostName;

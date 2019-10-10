@@ -87,7 +87,7 @@ namespace VodovozSalesReceiptsService.DTO
 		}
 
 		[DataMember]
-		string taxMode;// = "ENVD";
+		string taxMode = "ENVD";
 		public string TaxMode {
 			get => taxMode;
 			set => taxMode = value;
