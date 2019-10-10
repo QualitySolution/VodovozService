@@ -15,8 +15,9 @@ namespace VodovozSalesReceiptsService.DTO
 			DocNum = Id = string.Concat("vod_", order.Id);
 			Email = order.GetContact();
 			CashierName = order.Author.ShortName;
+			InventPositions = new List<InventPositionDTO>();
 			foreach(var item in order.OrderItems) {
-				InventPositions = new List<InventPositionDTO> {
+				InventPositions.Add(
 					new InventPositionDTO {
 						Name = item.Nomenclature.OfficialName,
 						PriceWithoutDiscount = item.Price,
@@ -24,7 +25,7 @@ namespace VodovozSalesReceiptsService.DTO
 						DiscSum = item.DiscountMoney,
 						Vat = item.Nomenclature.VAT
 					}
-				};
+				);
 			}
 			MoneyPositions = new List<MoneyPositionDTO> {
 				new MoneyPositionDTO(order.OrderItems.Sum(i => i.Price * i.Count - i.DiscountMoney))

@@ -59,8 +59,11 @@ namespace VodovozSalesReceiptsService
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot("[Fisk] Получение списка подходящих новых заказов и не отправленных чеков...")) {
 				int sent = 0, sentBefore = 0;
 				var orderIds = GetShippedOrderIds(uow);
-				if(!orderIds.Any())
+				if(!orderIds.Any()) {
 					logger.Info("Нет документов для отправки.");
+					return;
+				}
+
 				foreach(var oId in orderIds) {
 					var o = uow.GetById<Order>(oId);
 					var preparedReceipt = uow.Session.QueryOver<CashReceipt>()
@@ -78,36 +81,40 @@ namespace VodovozSalesReceiptsService
 						await SendSalesDocumentAsync(preparedReceipt, new SalesDocumentDTO(o));
 						uow.Save(preparedReceipt);
 						uow.Commit();
-						if(preparedReceipt.Sent)
+						if(preparedReceipt.Sent) {
+							logger.Info(string.Format("Чек для заказа \"№{0}\" переотправлен", oId));
 							sent++;
+						}
 						continue;
 					}
 
 					if(preparedReceipt == null) {
-						var receipt = new CashReceipt { Order = o };
-						await SendSalesDocumentAsync(receipt, new SalesDocumentDTO(o));
-						uow.Save(receipt);
+						var newReceipt = new CashReceipt { Order = o };
+						await SendSalesDocumentAsync(newReceipt, new SalesDocumentDTO(o));
+						uow.Save(newReceipt);
 						uow.Commit();
-						if(preparedReceipt.Sent)
+						if(newReceipt.Sent) {
+							logger.Info(string.Format("Чек для заказа \"№{0}\" отправлен", oId));
 							sent++;
+						}
 						continue;
 					}
-					logger.Info(
-						string.Format(
-							"{0} {1} {2} из {3}.",
-							NumberToTextRus.Case(sent, "Отправлен", "Отправлено", "Отправлено"),
-							sent,
-							NumberToTextRus.Case(sent, "документ", "документа", "документов"),
-							orderIds.Length
-						)
-					);
 				}
+				logger.Info(
+					string.Format(
+						"За текущую сессию {0} {1} {2} из {3}.",
+						NumberToTextRus.Case(sent, "был отправлен", "было отправлено", "было отправлено"),
+						sent,
+						NumberToTextRus.Case(sent, "чек", "чека", "чеков"),
+						orderIds.Length
+					)
+				);
 				if(sentBefore > 0)
 					logger.Info(
 						string.Format(
 							"{0} {1} ранее.",
 							sentBefore,
-							NumberToTextRus.Case(sentBefore, "документ отправлен", "документа отправлено", "документов отправлено")
+							NumberToTextRus.Case(sentBefore, "документ был отправлен", "документа было отправлено", "документов было отправлено")
 						)
 					);
 			}
