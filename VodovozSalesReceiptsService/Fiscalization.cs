@@ -130,7 +130,7 @@ namespace VodovozSalesReceiptsService
 						string.Format(
 							"{0} {1}.",
 							notValid,
-							NumberToTextRus.Case(sentBefore, "документ не валиден", "документа не валидно", "документов не валидно")
+							NumberToTextRus.Case(notValid, "документ не валиден", "документа не валидно", "документов не валидно")
 						)
 					);
 				logger.Info("\n");
