@@ -54,10 +54,10 @@ namespace VodovozSalesReceiptsService
 				return;
 			}
 
-			logger.Info("Подготовка документа к отправке на сервер фискализации...");
+			logger.Info("Подготовка документов к отправке на сервер фискализации...");
 
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot("[Fisk] Получение списка подходящих новых заказов и не отправленных чеков...")) {
-				int sent = 0, sentBefore = 0;
+				int sent = 0, sentBefore = 0, notValid = 0;
 				var orderIds = GetShippedOrderIds(uow);
 				if(!orderIds.Any()) {
 					logger.Info("Нет документов для отправки.");
@@ -65,7 +65,6 @@ namespace VodovozSalesReceiptsService
 				}
 
 				foreach(var oId in orderIds) {
-					var o = uow.GetById<Order>(oId);
 					var preparedReceipt = uow.Session.QueryOver<CashReceipt>()
 											 .Where(r => r.Order.Id == oId)
 											 .Take(1)
@@ -77,7 +76,15 @@ namespace VodovozSalesReceiptsService
 						continue;
 					}
 
+					var o = uow.GetById<Order>(oId);
+					var doc = new SalesDocumentDTO(o);
+					if(!doc.IsValid) {
+						notValid++;
+						continue;
+					}
+
 					if(preparedReceipt != null && !preparedReceipt.Sent) {
+						logger.Info(string.Format("Подготовка документа \"№{0}\" к переотправке...", oId));
 						await SendSalesDocumentAsync(preparedReceipt, new SalesDocumentDTO(o));
 						uow.Save(preparedReceipt);
 						uow.Commit();
@@ -90,6 +97,7 @@ namespace VodovozSalesReceiptsService
 
 					if(preparedReceipt == null) {
 						var newReceipt = new CashReceipt { Order = o };
+						logger.Info(string.Format("Подготовка документа \"№{0}\" к отправке...", oId));
 						await SendSalesDocumentAsync(newReceipt, new SalesDocumentDTO(o));
 						uow.Save(newReceipt);
 						uow.Commit();
@@ -106,7 +114,7 @@ namespace VodovozSalesReceiptsService
 						NumberToTextRus.Case(sent, "был отправлен", "было отправлено", "было отправлено"),
 						sent,
 						NumberToTextRus.Case(sent, "чек", "чека", "чеков"),
-						orderIds.Length
+						orderIds.Length - notValid - sentBefore
 					)
 				);
 				if(sentBefore > 0)
@@ -117,6 +125,15 @@ namespace VodovozSalesReceiptsService
 							NumberToTextRus.Case(sentBefore, "документ был отправлен", "документа было отправлено", "документов было отправлено")
 						)
 					);
+				if(notValid > 0)
+					logger.Info(
+						string.Format(
+							"{0} {1}.",
+							notValid,
+							NumberToTextRus.Case(sentBefore, "документ не валиден", "документа не валидно", "документов не валидно")
+						)
+					);
+				logger.Info("\n");
 			}
 		}
 
