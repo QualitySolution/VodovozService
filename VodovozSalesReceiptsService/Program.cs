@@ -59,7 +59,10 @@ namespace VodovozSalesReceiptsService
 
 				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
 				var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-												.ConnectionString(QSMain.ConnectionString);
+												.ConnectionString(QSMain.ConnectionString)
+												//.ShowSql()
+												//.FormatSql()
+												;
 
 				OrmConfig.ConfigureOrm(
 					db_config,

@@ -9,7 +9,6 @@ namespace VodovozSalesReceiptsService.DTO
 	[DataContract]
 	public class SalesDocumentDTO
 	{
-		public SalesDocumentDTO() { }
 		public SalesDocumentDTO(Order order)
 		{
 			DocNum = Id = string.Concat("vod_", order.Id);
@@ -116,7 +115,7 @@ namespace VodovozSalesReceiptsService.DTO
 					&& InventPositions != null
 					&& MoneyPositions != null
 					&& InventPositions.Any()
-					&& MoneyPositions.Any();
+					&& MoneyPositions.Sum(x => x.Sum) > 0;
 			}
 		}
 	}

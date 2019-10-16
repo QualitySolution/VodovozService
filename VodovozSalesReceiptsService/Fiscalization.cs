@@ -55,86 +55,85 @@ namespace VodovozSalesReceiptsService
 			}
 
 			logger.Info("Подготовка документов к отправке на сервер фискализации...");
+			int sent = 0, sentBefore = 0, notValid = 0, receiptsToSend = 0;
+			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot("[Fisk] Получение подходящих заказов и чеков (если они есть)...")) {
+				var ordersAndReceiptNodes = GetReceiptsForOrders(uow);
+				var withoutReceipts = ordersAndReceiptNodes.Where(r => r.ReceiptId == null);
+				var withNotSentReceipts = ordersAndReceiptNodes.Where(r => r.ReceiptId.HasValue && r.WasSent != true);
+				receiptsToSend = withoutReceipts.Count() + withNotSentReceipts.Count();
 
-			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot("[Fisk] Получение списка подходящих новых заказов и не отправленных чеков...")) {
-				int sent = 0, sentBefore = 0, notValid = 0;
-				var orderIds = GetShippedOrderIds(uow);
-				if(!orderIds.Any()) {
+				if(receiptsToSend <= 0) {
 					logger.Info("Нет документов для отправки.");
 					return;
 				}
 
-				foreach(var oId in orderIds) {
-					var preparedReceipt = uow.Session.QueryOver<CashReceipt>()
-											 .Where(r => r.Order.Id == oId)
-											 .Take(1)
-											 .List()
-											 .FirstOrDefault()
-											 ;
-					if(preparedReceipt != null && preparedReceipt.Sent) {
-						sentBefore++;
-						continue;
-					}
-
-					var o = uow.GetById<Order>(oId);
-					var doc = new SalesDocumentDTO(o);
-					if(!doc.IsValid) {
-						notValid++;
-						continue;
-					}
-
-					if(preparedReceipt != null && !preparedReceipt.Sent) {
-						logger.Info(string.Format("Подготовка документа \"№{0}\" к переотправке...", oId));
-						await SendSalesDocumentAsync(preparedReceipt, new SalesDocumentDTO(o));
-						uow.Save(preparedReceipt);
-						uow.Commit();
-						if(preparedReceipt.Sent) {
-							logger.Info(string.Format("Чек для заказа \"№{0}\" переотправлен", oId));
-							sent++;
-						}
-						continue;
-					}
-
-					if(preparedReceipt == null) {
+				if(withoutReceipts.Any()) {
+					var ordersWithoutReceipts = uow.GetById<Order>(withoutReceipts.Select(n => n.OrderId));
+					foreach(var o in ordersWithoutReceipts) {
+						logger.Info(string.Format("Подготовка документа \"№{0}\" к отправке...", o.Id));
 						var newReceipt = new CashReceipt { Order = o };
-						logger.Info(string.Format("Подготовка документа \"№{0}\" к отправке...", oId));
-						await SendSalesDocumentAsync(newReceipt, new SalesDocumentDTO(o));
+						var doc = new SalesDocumentDTO(o);
+						if(!doc.IsValid)
+							notValid++;
+						await SendSalesDocumentAsync(newReceipt, doc);
 						uow.Save(newReceipt);
-						uow.Commit();
 						if(newReceipt.Sent) {
-							logger.Info(string.Format("Чек для заказа \"№{0}\" отправлен", oId));
+							logger.Info(string.Format("Чек для заказа \"№{0}\" отправлен", o.Id));
 							sent++;
 						}
 						continue;
 					}
 				}
+
+				if(withNotSentReceipts.Any()) {
+					var ordersWithNotSentReceipts = uow.GetById<Order>(withNotSentReceipts.Select(n => n.OrderId));
+					var notSentReceipts = uow.GetById<CashReceipt>(withNotSentReceipts.Select(n => n.ReceiptId.Value));
+					foreach(var r in notSentReceipts) {
+						if(r.Sent) {
+							sentBefore++;
+							continue;
+						}
+						logger.Info(string.Format("Подготовка документа \"№{0}\" к переотправке...", r.Order.Id));
+						var doc = new SalesDocumentDTO(r.Order);
+						if(!doc.IsValid)
+							notValid++;
+						await SendSalesDocumentAsync(r, doc);
+						uow.Save(r);
+						if(r.Sent) {
+							logger.Info(string.Format("Чек для заказа \"№{0}\" переотправлен", r.Order.Id));
+							sent++;
+						}
+						continue;
+					}
+				}
+				uow.Commit();
+			}
+
+			logger.Info(
+				string.Format(
+					"За текущую сессию {0} {1} {2} из {3}.",
+					NumberToTextRus.Case(sent, "был отправлен", "было отправлено", "было отправлено"),
+					sent,
+					NumberToTextRus.Case(sent, "чек", "чека", "чеков"),
+					receiptsToSend
+				)
+			);
+			if(sentBefore > 0)
 				logger.Info(
 					string.Format(
-						"За текущую сессию {0} {1} {2} из {3}.",
-						NumberToTextRus.Case(sent, "был отправлен", "было отправлено", "было отправлено"),
-						sent,
-						NumberToTextRus.Case(sent, "чек", "чека", "чеков"),
-						orderIds.Length - notValid - sentBefore
+						"{0} {1} ранее.",
+						sentBefore,
+						NumberToTextRus.Case(sentBefore, "документ был отправлен", "документа было отправлено", "документов было отправлено")
 					)
 				);
-				if(sentBefore > 0)
-					logger.Info(
-						string.Format(
-							"{0} {1} ранее.",
-							sentBefore,
-							NumberToTextRus.Case(sentBefore, "документ был отправлен", "документа было отправлено", "документов было отправлено")
-						)
-					);
-				if(notValid > 0)
-					logger.Info(
-						string.Format(
-							"{0} {1}.",
-							notValid,
-							NumberToTextRus.Case(notValid, "документ не валиден", "документа не валидно", "документов не валидно")
-						)
-					);
-				logger.Info("\n");
-			}
+			if(notValid > 0)
+				logger.Info(
+					string.Format(
+						"{0} {1}.",
+						notValid,
+						NumberToTextRus.Case(notValid, "документ не валиден", "документа не валидно", "документов не валидно")
+					)
+				);
 		}
 
 		static async Task SendSalesDocumentAsync(CashReceipt preparedReceipt, SalesDocumentDTO doc)
@@ -154,17 +153,17 @@ namespace VodovozSalesReceiptsService
 				}
 				preparedReceipt.HttpCode = (int)httpCode;
 			} else {
-				logger.Warn("Документ не валиден и не был отправлен на сервер фискализации (-1).");
+				logger.Warn(string.Format("Документ \"{0}\" не валиден и не был отправлен на сервер фискализации (-1).", doc.DocNum));
 				preparedReceipt.HttpCode = -1;
 				preparedReceipt.Sent = false;
 			}
 		}
 
-		static int[] GetShippedOrderIds(IUnitOfWork uow)
+		static ReceiptForOrderNode[] GetReceiptsForOrders(IUnitOfWork uow)
 		{
-			int[] orderIds = null;
+			ReceiptForOrderNode[] orderIds = null;
 			orderIds = OrderSingletonRepository.GetInstance()
-											   .GetShippeIdsStartingFromDate(
+											   .GetShippedOrdersWithReceiptsForDates(
 													uow,
 													Vodovoz.Domain.Client.PaymentType.cash,
 													DateTime.Today.AddDays(-3)
