@@ -100,6 +100,7 @@
     <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
@@ -110,12 +111,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeliveryRulesServiceStarter.cs" />
+    <Compile Include="DeliveryTerms.cs" />
+    <Compile Include="DTO\DeliveryRulesDTO.cs" />
+    <Compile Include="IDeliveryTerms.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="vodovoz-delivery-rules-api.conf" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
@@ -142,6 +148,11 @@
       <Project>{9df71899-3ce4-48f4-b3c3-0b21b15037b1}</Project>
       <Name>QSSupportLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Vodovoz\VodovozBusiness\VodovozBusiness.csproj">
+      <Project>{022dd59d-0eee-420f-9750-eb275772f56a}</Project>
+      <Name>VodovozBusiness</Name>
+    </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
