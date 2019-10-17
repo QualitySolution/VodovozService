@@ -30,7 +30,7 @@ namespace VodovozDeliveryTermsService
     class Program
     {
         private static Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        private static string configFile = "vodovoz-rules-service.conf";
+        private static string configFile = "/etc/vodovoz-rules-service.conf";
 
         //Mysql
         private static string mysqlServerHostName;
