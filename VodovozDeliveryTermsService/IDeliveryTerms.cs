@@ -8,12 +8,13 @@ using System.Threading.Tasks;
 
 namespace VodovozDeliveryTermsService
 {
+    [ServiceContract]
     interface IDeliveryTerms
     {
         [OperationContract]
         [
             WebGet(
-                UriTemplate = "/api/deliverypoint?latitude={latitude}&longitude={longitude}",
+                UriTemplate = "/deliverypoint?latitude={latitude}&longitude={longitude}",
                 ResponseFormat = WebMessageFormat.Json
             )
         ]
