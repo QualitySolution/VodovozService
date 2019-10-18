@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Net;
 using Newtonsoft.Json;
+using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
-using VodovozDeliveryTermsService;
 using VodovozDeliveryTermsService.DTO;
 
-namespace VodovozDeliveryTermsAPI.Models
+namespace VodovozDeliveryTermsService
 {
     public class DeliveryTerms: IDeliveryTerms
     {
-        public virtual DeliveryPoint DeliveryPoint { get; set; } = new DeliveryPoint();
+        static Logger logger = LogManager.GetCurrentClassLogger();
+        public virtual DeliveryPoint DeliveryPointObj { get; set; } = new DeliveryPoint();
         public static string BaseUrl { get; set; }
 
         public DeliveryTerms()
@@ -22,28 +21,51 @@ namespace VodovozDeliveryTermsAPI.Models
 
         public string GetRulesByDistrict(decimal latitude, decimal longitude)
         {
-            var rules = new DeliveryRulesDTO();
+            var rules = new DeliveryRulesDTO() ;
+            logger.Debug($"получены координаты {latitude} - {longitude}");
+
+            try
+            {
+                var templat = (decimal) latitude;
+                var templong = (decimal)longitude;
+            }
+            catch (Exception e)
+            {
+                logger.Debug($"получены неправильные координаты");
+                return "not found";
+            }
 
             using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение правил доставки "))
             {
-
-                DeliveryPoint.SetСoordinates(latitude, longitude, uow);
-                var district = DeliveryPoint.District;
-
-                if (district != null)
+                logger.Debug($"получаем район");
+                try
                 {
-                    rules.minBottles = district?.MinBottles;
-                    rules.deliveryPrice = district.ScheduleRestrictedDistrictRuleItems.Count > 0
-                        ? district.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPrice
-                        : -1;
-                    rules.deliveryRule = district.ScheduleRestrictedDistrictRuleItems.Count > 0
-                        ? district.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPriceRule.ToString()
-                        : "-1";
-                   
-                }
-            }
+                    DeliveryPointObj.SetСoordinates(latitude, longitude, uow);
+                    logger.Debug($"получен DeliveryPoint");
+                    var district = DeliveryPointObj.District;
 
-            return JsonConvert.SerializeObject(rules);
+                    if (district != null)
+                    {
+                        logger.Debug($"район получен {district.DistrictName}");
+                        rules.minBottles = district?.MinBottles;
+                        rules.deliveryPrice = district.ScheduleRestrictedDistrictRuleItems.Count > 0
+                            ? district.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPrice
+                            : -1;
+                        rules.deliveryRule = district.ScheduleRestrictedDistrictRuleItems.Count > 0
+                            ? district.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPriceRule.ToString()
+                            : "-1";
+                        //return JsonConvert.SerializeObject(rules);
+                        return $"{rules.minBottles}+{rules.deliveryRule}+{rules.deliveryPrice}";
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.Error(e);
+                }
+                
+            }
+            logger.Debug($"район не обслуживается");
+            return "not found";
         }
     }
 }
