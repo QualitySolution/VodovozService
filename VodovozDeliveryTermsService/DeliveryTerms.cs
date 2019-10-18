@@ -24,7 +24,7 @@ namespace VodovozDeliveryTermsAPI.Models
         {
             var rules = new DeliveryRulesDTO();
 
-            using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[MB]Получение  "))
+            using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение правил доставки "))
             {
 
                 DeliveryPoint.SetСoordinates(latitude, longitude, uow);
