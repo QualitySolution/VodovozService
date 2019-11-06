@@ -27,6 +27,8 @@ namespace EmailService
 		static BlockingCollection<Email> emailsQueue = new BlockingCollection<Email>();
 		static BlockingCollection<MailjetEvent> unsavedEventsQueue = new BlockingCollection<MailjetEvent>();
 		static bool IsInitialized => !(string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(userSecretKey));
+		static int workerTasksCreatedCounter = 0;
+
 
 		static EmailManager()
 		{
@@ -34,12 +36,20 @@ namespace EmailService
 			Task.Run(() => SetErrorStatusWaitingToSendEmails());
 
 			//Запуск воркеров по отправке писем
-			Task.Run(() => ProcessEmailMailjet(), cancellationToken.Token);
-			Task.Run(() => ProcessEmailMailjet(), cancellationToken.Token);
-			Task.Run(() => ProcessEmailMailjet(), cancellationToken.Token);
+			StartNewWorker();
+			StartNewWorker();
+			StartNewWorker();
 
 			//Запуск воркера по пересохранению ошибочных событий
 			Task.Run(() => ResaveEventWork());
+		}
+
+		private static void StartNewWorker()
+		{
+			workerTasksCreatedCounter++;
+			logger.Info("Запуск новой задачи по отправке писем");
+			Task workerTask = Task.Factory.StartNew(() => ProcessEmailMailjet(), cancellationToken.Token);
+			workerTask.ContinueWith((task) => StartNewWorker(), TaskContinuationOptions.OnlyOnFaulted);
 		}
 
 		public static void StopWorkers()
@@ -188,54 +198,59 @@ namespace EmailService
 					MailjetMessage[] messages = response.GetData().ToObject<MailjetMessage[]>();
 
 					logger.Debug("{1} Получен ответ: Code {0}", response.StatusCode, GetThreadInfo());
-					if(response.IsSuccessStatusCode) {
-						uow.Root.State = StoredEmailStates.SendingComplete;
-						foreach(var message in messages) {
-							if(message.CustomID == uow.Root.Id.ToString()) {
-								foreach(var messageTo in message.To) {
-									if(messageTo.Email == email.Recipient.EmailAddress) {
-										uow.Root.ExternalId = messageTo.MessageID.ToString();
+					try {
+						if(response.IsSuccessStatusCode) {
+							uow.Root.State = StoredEmailStates.SendingComplete;
+							foreach(var message in messages) {
+								if(message.CustomID == uow.Root.Id.ToString()) {
+									foreach(var messageTo in message.To) {
+										if(messageTo.Email == email.Recipient.EmailAddress) {
+											uow.Root.ExternalId = messageTo.MessageID.ToString();
+										}
 									}
 								}
 							}
-						}
-						uow.Save();
-						logger.Debug(response.GetData());
-					} else {
-						switch(response.StatusCode) {
+							uow.Save();
+							logger.Debug(response.GetData());
+						} else {
+							switch(response.StatusCode) {
 
-						//Unauthorized
-						//Incorrect Api Key / API Secret Key or API key may be expired.
-						case 401:
-							Init();
-							if(email.SendAttemptsCount >= MaxSendAttemptsCount) {
+							//Unauthorized
+							//Incorrect Api Key / API Secret Key or API key may be expired.
+							case 401:
+								Init();
+								if(email.SendAttemptsCount >= MaxSendAttemptsCount) {
+									SaveErrorInfo(uow, GetErrors(messages));
+								} else {
+									emailsQueue.Add(email);
+								}
+								break;
+
+							//Too Many Requests
+							//Reach the maximum number of calls allowed per minute.
+							case 429:
+								if(email.SendAttemptsCount >= MaxSendAttemptsCount) {
+									SaveErrorInfo(uow, GetErrors(messages));
+								} else {
+									emailsQueue.Add(email);
+								}
+								break;
+
+							//Internal Server Error
+							case 500:
+								SaveErrorInfo(uow, string.Format("Внутренняя ошибка сервера Mailjet: {0}", GetErrors(messages)));
+								break;
+							default:
 								SaveErrorInfo(uow, GetErrors(messages));
-							} else {
-								emailsQueue.Add(email);
+								break;
 							}
-							break;
 
-						//Too Many Requests
-						//Reach the maximum number of calls allowed per minute.
-						case 429:
-							if(email.SendAttemptsCount >= MaxSendAttemptsCount) {
-								SaveErrorInfo(uow, GetErrors(messages));
-							} else {
-								emailsQueue.Add(email);
-							}
-							break;
-
-						//Internal Server Error
-						case 500:
-							SaveErrorInfo(uow, string.Format("Внутренняя ошибка сервера Mailjet: {0}", GetErrors(messages)));
-							break;
-						default:
-							SaveErrorInfo(uow, GetErrors(messages));
-							break;
+							logger.Debug(response.GetData());
+							logger.Debug("{1} ErrorMessage: {0}\n", response.GetErrorMessage(), GetThreadInfo());
 						}
-
-						logger.Debug(response.GetData());
-						logger.Debug("{1} ErrorMessage: {0}\n", response.GetErrorMessage(), GetThreadInfo());
+					}
+					catch(Exception ex) {
+						logger.Error(ex, "При обработке ответа на отправку письма возникла ошибка.\n");
 					}
 				}
 			}
