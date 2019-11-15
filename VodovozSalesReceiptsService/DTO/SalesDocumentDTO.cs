@@ -11,6 +11,7 @@ namespace VodovozSalesReceiptsService.DTO
 	{
 		public SalesDocumentDTO(Order order)
 		{
+			CheckoutDateTime = (order.TimeDelivered ?? DateTime.Now).ToString("O");
 			DocNum = Id = string.Concat("vod_", order.Id);
 			Email = order.GetContact();
 			CashierName = order.Author.ShortName;
@@ -49,7 +50,11 @@ namespace VodovozSalesReceiptsService.DTO
 		readonly string docType = "SALE";
 
 		[DataMember(IsRequired = true)]
-		readonly string checkoutDateTime = DateTime.Now.ToString("O");
+		string checkoutDateTime;			// Дата/время доставки заказа
+		public string CheckoutDateTime {
+			get => checkoutDateTime;
+			set => checkoutDateTime = value;
+		}
 
 		[DataMember(IsRequired = true)]
 		string email;
