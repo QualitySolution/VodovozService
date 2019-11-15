@@ -5,6 +5,7 @@ using SmsBlissAPI;
 using SmsBlissAPI.Model;
 using System.Linq;
 using NLog;
+using System.Globalization;
 
 namespace SmsBlissSendService
 {
@@ -104,7 +105,8 @@ namespace SmsBlissSendService
 						balanceType = SmsSendInterface.BalanceType.SmsCounts;
 						break;
 					}
-					if(!decimal.TryParse(item.BalanceValue, out decimal balance)) {
+
+					if(!decimal.TryParse(item.BalanceValue, NumberStyles.Number, CultureInfo.CreateSpecificCulture("en-US"), out decimal balance)) {
 						logger.Warn($"Невозможно преобразовать значение баланса из \"{item.BalanceValue}\" в число");
 						continue;
 					}
