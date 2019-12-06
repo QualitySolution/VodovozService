@@ -7,6 +7,7 @@ using System.Linq;
 using SmsBlissSendService;
 using System.Timers;
 using NLog;
+using Vodovoz.EntityRepositories.SmsNotifications;
 
 namespace VodovozSmsInformerService
 {
@@ -18,13 +19,15 @@ namespace VodovozSmsInformerService
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private readonly ISmsSender smsSender;
+		private readonly ISmsNotificationRepository smsNotificationRepository;
 		private Timer timer;
 		private bool sendingInProgress = false;
 		private const int refreshInterval = 60000;
 
-		public NewClientSmsInformer(ISmsSender smsSender)
+		public NewClientSmsInformer(ISmsSender smsSender, ISmsNotificationRepository smsNotificationRepository)
 		{
 			this.smsSender = smsSender ?? throw new ArgumentNullException(nameof(smsSender));
+			this.smsNotificationRepository = smsNotificationRepository ?? throw new ArgumentNullException(nameof(smsNotificationRepository));
 		}
 
 		public void Start()
@@ -32,7 +35,7 @@ namespace VodovozSmsInformerService
 			timer = new Timer(refreshInterval);
 			timer.Elapsed += Timer_Elapsed;
 			timer.Start();
-			logger.Info($"Отправка смс уведомлений запущена. Проверка новых уведомлений каждые {refreshInterval/1000} сек.");
+			logger.Info($"Запущена отправка смс уведомлений. Проверка новых уведомлений каждые {refreshInterval/1000} сек.");
 		}
 
 		public void Stop()
@@ -40,7 +43,7 @@ namespace VodovozSmsInformerService
 			timer?.Stop();
 			timer?.Dispose();
 			timer = null;
-			logger.Info($"Отправка смс уведомлений остановлена.");
+			logger.Info($"Остановлена отправка смс уведомлений.");
 		}
 
 		private void Timer_Elapsed(object sender, ElapsedEventArgs e)
@@ -72,9 +75,7 @@ namespace VodovozSmsInformerService
 			sendingInProgress = true;
 			try {
 				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-					var newNotifications = uow.Session.QueryOver<NewClientSmsNotification>()
-						.Where(x => x.Status == SmsNotificationStatus.New)
-						.List();
+					var newNotifications = smsNotificationRepository.GetUnsendedNewClientSmsNotifications(uow);
 					if(!newNotifications.Any()) {
 						return;
 					}

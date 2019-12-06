@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ServiceModel;
+using System.ServiceModel.Web;
 using System.Threading;
 using Mono.Unix;
 using Mono.Unix.Native;
@@ -9,8 +11,8 @@ using QS.Project.DB;
 using QSProjectsLib;
 using QSSupportLib;
 using SmsBlissSendService;
-using SmsSendInterface;
 using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.SmsNotifications;
 
 namespace VodovozSmsInformerService
 {
@@ -19,6 +21,10 @@ namespace VodovozSmsInformerService
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private static readonly string configFile = "/etc/vodovoz-smsinformer-service.conf";
+
+		//Service
+		private static string serviceHostName;
+		private static string servicePort;
 
 		//Mysql
 		private static string mysqlServerHostName;
@@ -41,6 +47,10 @@ namespace VodovozSmsInformerService
 			try {
 				IniConfigSource confFile = new IniConfigSource(configFile);
 				confFile.Reload();
+
+				IConfig serviceConfig = confFile.Configs["Service"];
+				serviceHostName = serviceConfig.GetString("service_host_name");
+				servicePort = serviceConfig.GetString("service_port");
 
 				IConfig mysqlConfig = confFile.Configs["Mysql"];
 				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
@@ -85,13 +95,28 @@ namespace VodovozSmsInformerService
 				MainSupport.LoadBaseParameters();
 				QS.HistoryLog.HistoryMain.Enable();
 
+				ISmsNotificationRepository smsNotificationRepository = new SmsNotificationRepository();
+
 				SmsBlissSendController smsSender = new SmsBlissSendController(smsServiceLogin, smsServicePassword);
-				newClientInformer = new NewClientSmsInformer(smsSender);
+				newClientInformer = new NewClientSmsInformer(smsSender, smsNotificationRepository);
 				newClientInformer.Start();
 
 				BaseParametersProvider parametersProvider = new BaseParametersProvider();
 				LowBalanceNotifier lowBalanceNotifier = new LowBalanceNotifier(smsSender, smsSender, parametersProvider);
 				lowBalanceNotifier.Start();
+
+				SmsInformerInstanceProvider serviceStatusInstanceProvider = new SmsInformerInstanceProvider(
+					smsNotificationRepository, 
+					new BaseParametersProvider()
+				);
+				WebServiceHost smsInformerStatus = new SmsInformerServiceHost(serviceStatusInstanceProvider);
+				smsInformerStatus.AddServiceEndpoint(
+					typeof(ISmsInformerService),
+					new WebHttpBinding(),
+					String.Format("http://{0}:{1}/SmsInformer", serviceHostName, servicePort)
+				);
+				smsInformerStatus.Open();
+				logger.Info("Запущена служба мониторинга отправки смс уведомлений");
 
 				UnixSignal[] signals = {
 					new UnixSignal (Signum.SIGINT),
