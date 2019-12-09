@@ -1,16 +1,19 @@
 ﻿using System;
 using System.ServiceModel.Web;
 using EmailService.Mailjet;
+using Vodovoz.Services;
 
 namespace EmailService
 {
-	public class EmailService : IEmailService, IMailjetEventService
+	public class EmailService : IEmailService, IMailjetEventService, IEmailServiceWeb
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IEmailServiceSettings emailServiceSettings;
 
-		public EmailService()
+		public EmailService(IEmailServiceSettings emailServiceSettings)
 		{
 			EmailManager.Init();
+			this.emailServiceSettings = emailServiceSettings ?? throw new ArgumentNullException(nameof(emailServiceSettings));
 		}
 
 		public void PostEvent(MailjetEvent content)
@@ -24,6 +27,15 @@ namespace EmailService
 		public Tuple<bool, string> SendEmail(Email mail)
 		{
 			return EmailManager.AddEmail(mail);
+		}
+
+		public bool ServiceStatus()
+		{
+			int emailsInQueue = EmailManager.GetEmailsInQueue();
+			if(emailsInQueue > emailServiceSettings.MaxEmailsInQueueForWorkingService) {
+				return false;
+			}
+			return true;
 		}
 	}
 }

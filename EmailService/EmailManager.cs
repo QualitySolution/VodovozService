@@ -65,6 +65,11 @@ namespace EmailService
 			SetLoginSetting(MainSupport.BaseParameters.All[mailjetUserName], MainSupport.BaseParameters.All[mailjetSecretName]);
 		}
 
+		public static int GetEmailsInQueue()
+		{
+			return emailsQueue.Count;
+		}
+
 		public static void AddEvent(MailjetEvent mailjetEvent)
 		{
 			Task.Run(() => {

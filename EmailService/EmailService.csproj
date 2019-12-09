@@ -79,6 +79,7 @@
     <Compile Include="EmailAttachment.cs" />
     <Compile Include="EmailContact.cs" />
     <Compile Include="EmailManager.cs" />
+    <Compile Include="IEmailServiceWeb.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Mailjet\" />

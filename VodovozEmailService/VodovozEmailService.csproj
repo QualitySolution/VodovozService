@@ -105,6 +105,9 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="EmailServiceHost.cs" />
+    <Compile Include="EmailInstanceProvider.cs" />
+    <Compile Include="EmailServiceBehavior.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

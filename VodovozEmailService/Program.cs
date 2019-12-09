@@ -15,6 +15,7 @@ using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
 using QSSupportLib;
+using Vodovoz.Core.DataService;
 
 namespace VodovozEmailService
 {
@@ -27,6 +28,7 @@ namespace VodovozEmailService
 		//Service
 		private static string serviceHostName;
 		private static string servicePort;
+		private static string serviceWebPort;
 
 		//Mysql
 		private static string mysqlServerHostName;
@@ -46,6 +48,7 @@ namespace VodovozEmailService
 				IConfig serviceConfig = confFile.Configs["Service"];
 				serviceHostName = serviceConfig.GetString("service_host_name");
 				servicePort = serviceConfig.GetString("service_port");
+				serviceWebPort = serviceConfig.GetString("service_web_port");
 
 				IConfig mysqlConfig = confFile.Configs["Mysql"];
 				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
@@ -87,14 +90,25 @@ namespace VodovozEmailService
 				MainSupport.LoadBaseParameters();
 				QS.HistoryLog.HistoryMain.Enable();
 
-				ServiceHost EmailSendingHost = new ServiceHost(typeof(EmailService.EmailService));
+				EmailInstanceProvider emailInstanceProvider = new EmailInstanceProvider(new BaseParametersProvider());
+
+				ServiceHost EmailSendingHost = new EmailServiceHost(emailInstanceProvider);
 				WebServiceHost MailjetEventsHost = new WebServiceHost(typeof(EmailService.EmailService));
+
+				ServiceEndpoint webEndPoint = EmailSendingHost.AddServiceEndpoint(
+					typeof(IEmailServiceWeb),
+					new WebHttpBinding(),
+					String.Format("http://{0}:{1}/EmailServiceWeb", serviceHostName, serviceWebPort)
+				);
+				WebHttpBehavior httpBehavior = new WebHttpBehavior();
+				webEndPoint.Behaviors.Add(httpBehavior);
 
 				EmailSendingHost.AddServiceEndpoint(
 					typeof(IEmailService),
 					new BasicHttpBinding(),
 					String.Format("http://{0}:{1}/EmailService", serviceHostName, servicePort)
 				);
+
 				MailjetEventsHost.AddServiceEndpoint(
 					typeof(IMailjetEventService),
 					new WebHttpBinding(),

@@ -7,7 +7,7 @@ namespace EmailService
 	[ServiceContract]
 	public interface IEmailService
 	{
-		[WebInvoke(UriTemplate = "/SendEmail", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+		[WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest)]
 		[OperationContract]
 		Tuple<bool, string> SendEmail(Email mail);
 	}
