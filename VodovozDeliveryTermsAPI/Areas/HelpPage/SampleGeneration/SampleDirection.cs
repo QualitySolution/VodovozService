@@ -1,4 +1,4 @@
-namespace WebAPI2.Areas.HelpPage
+namespace DeliveryTermsAPI.Areas.HelpPage
 {
     /// <summary>
     /// Indicates whether the sample is used for request or response

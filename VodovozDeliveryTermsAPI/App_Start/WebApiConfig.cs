@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace VodovozDeliveryTermsAPI
+namespace DeliveryTermsAPI
 {
     public static class WebApiConfig
     {
@@ -15,7 +15,7 @@ namespace VodovozDeliveryTermsAPI
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
-                name: "DefaultApi",
+                name: "Api",
                 routeTemplate: "api/v1/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );

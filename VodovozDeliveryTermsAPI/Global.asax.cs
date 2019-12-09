@@ -1,25 +1,35 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
-//using System.Web.Optimization;
+using System.Web.Optimization;
 using System.Web.Routing;
-using NLog;
 using MySql.Data.MySqlClient;
 using Nini.Config;
+using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
 using QSSupportLib;
-using VodovozDeliveryTermsAPI.App_Start;
 
-
-namespace VodovozDeliveryTermsAPI
+namespace DeliveryTermsAPI
 {
-    public class WebApiApplication : System.Web.HttpApplication
+    public class WebApiApplication : HttpApplication
     {
+        static string configFile
+        {
+            get
+            {
+                if(IsLinux())
+                    return "/etc/vodovoz-delivery-rules-api.conf";
+
+                return "vodovoz-delivery-rules-api.conf";
+            }
+        }
         private static Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        private static string configFile = "vodovoz-delivery-rules-api.conf";
-        //private static string configFile = "/etc/vodovoz-delivery-rules-api.conf";
+        // private static string configFile = "vodovoz-delivery-rules-api.conf";
+       // private static string configFile = "/etc/vodovoz-delivery-rules-api.conf";
 
         //Mysql
         private static string mysqlServerHostName;
@@ -28,19 +38,28 @@ namespace VodovozDeliveryTermsAPI
         private static string mysqlPassword;
         private static string mysqlDatabase;
 
+        private static string osrmServerUrl;
+        public static bool IsLinux()
+        {
+            int p = (int)Environment.OSVersion.Platform;
+            if ((p == 4) || (p == 6) || (p == 128))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         protected void Application_Start()
         {
             AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
-            AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
-
 
             try
             {
-                QSOsm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
-
                 IniConfigSource confFile = new IniConfigSource(configFile);
                 confFile.Reload();
                 IConfig OsrmConfig = confFile.Configs["OsrmService"];
+                osrmServerUrl = OsrmConfig.GetString("server_url");
 
                 IConfig mysqlConfig = confFile.Configs["Mysql"];
                 mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
@@ -51,12 +70,10 @@ namespace VodovozDeliveryTermsAPI
             }
             catch (Exception ex)
             {
-                logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
+                logger.Fatal(ex, "Error reading config file.");
                 return;
             }
-
-            logger.Info(String.Format("Запуск WEB API"));
-
+             
             try
             {
                 var conStrBuilder = new MySqlConnectionStringBuilder();
@@ -80,15 +97,16 @@ namespace VodovozDeliveryTermsAPI
                        System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase)),
                        System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap))
                     });
-                
+                QSOsm.Osrm.OsrmMain.ServerUrl = osrmServerUrl;// ;
                 MainSupport.LoadBaseParameters();
-                //QS.HistoryLog.HistoryMain.Enable();
+               
 
                 AreaRegistration.RegisterAllAreas();
                 GlobalConfiguration.Configure(WebApiConfig.Register);
                 FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
                 RouteConfig.RegisterRoutes(RouteTable.Routes);
-                //BundleConfig.RegisterBundles(BundleTable.Bundles);
+                BundleConfig.RegisterBundles(BundleTable.Bundles);
+
             }
             catch (Exception e)
             {
@@ -105,11 +123,6 @@ namespace VodovozDeliveryTermsAPI
         static void AppDomain_CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             logger.Fatal((Exception)e.ExceptionObject, "UnhandledException");
-        }
-
-        private static void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
-        {
-            logger.Fatal((Exception)e.Exception, "UnhandledException");
         }
     }
 }

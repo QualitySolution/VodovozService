@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using Newtonsoft.Json;
 using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 
-namespace VodovozDeliveryTermsAPI.Models
+namespace DeliveryTermsAPI.Models
 {
     public class DeliveryTerms
     {
@@ -16,7 +14,7 @@ namespace VodovozDeliveryTermsAPI.Models
         public string GetRulesByDistrict(decimal latitude, decimal longitude)
         {
             var rules = new DeliveryRulesDTO();
-            logger.Debug($"получены координаты {latitude} - {longitude}");
+           // logger.Debug($"получены координаты {latitude} - {longitude}");
 
             try
             {
@@ -25,17 +23,17 @@ namespace VodovozDeliveryTermsAPI.Models
             }
             catch (Exception e)
             {
-                logger.Debug($"получены неправильные координаты");
-                return "not found";
+                logger.Fatal($"получены неправильные координаты");
+                return "wrong data";
             }
 
             using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение правил доставки "))
             {
-                logger.Debug($"получаем район");
+                //logger.Debug($"получаем район");
                 try
                 {
                     DeliveryPointObj.SetСoordinates(latitude, longitude, uow);
-                    logger.Debug($"получен DeliveryPoint");
+                    //logger.Debug($"получен DeliveryPoint");
                     var district = DeliveryPointObj.District;
 
                     if (district != null)
@@ -48,52 +46,26 @@ namespace VodovozDeliveryTermsAPI.Models
                         rules.deliveryRule = district.ScheduleRestrictedDistrictRuleItems.Count > 0
                             ? district.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPriceRule.ToString()
                             : "-1";
-                        //return JsonConvert.SerializeObject(rules);
-                        return $"{rules.minBottles}+{rules.deliveryRule}+{rules.deliveryPrice}";
+                        return JsonConvert.SerializeObject(rules);
                     }
                 }
                 catch (Exception e)
                 {
                     logger.Error(e);
                 }
-
             }
             logger.Debug($"район не обслуживается");
             return "the area is not serviced";
         }
-
-        //public string GetRulesByDistrict(decimal latitude, decimal longitude)
-        //{
-        //    var minbottles = "district not found";
-        //    using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[MB]Получение  "))
-        //    {
-
-        //        DeliveryPoint.SetСoordinates(latitude, longitude, uow);
-        //        var t = DeliveryPoint.District;
-
-        //        if (t != null)
-        //        {
-        //            var deliveryPice = t.ScheduleRestrictedDistrictRuleItems.Count > 0
-        //                ? t.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPrice
-        //                : -1;
-        //            var DeliveryPriceRule = t.ScheduleRestrictedDistrictRuleItems.Count > 0
-        //                ? t.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPriceRule.ToString()
-        //                : "-1";
-        //            minbottles = "minbottles-" + t?.MinBottles + ";" + "deliveryPice-" + deliveryPice + ";" +
-        //                         "DeliveryPriceRule-" + DeliveryPriceRule + ";";
-        //        }
-        //    }
-
-        //    return minbottles;
-        //}
     }
 
     class DeliveryRulesDTO
-    { 
+    {
         public int? minBottles;
-         
+
         public string deliveryRule;
-         
+
         public decimal? deliveryPrice;
     }
+     
 }

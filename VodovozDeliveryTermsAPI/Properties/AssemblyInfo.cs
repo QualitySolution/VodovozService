@@ -2,34 +2,34 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// Управление общими сведениями о сборке осуществляется с помощью 
+// Управление общими сведениями о сборке осуществляется следующим образом
 // набора атрибутов. Измените значения этих атрибутов для изменения сведений,
 // связанных с этой сборкой.
-[assembly: AssemblyTitle("VodovozDeliveryTermsAPI")]
+[assembly: AssemblyTitle("DeliveryTermsAPI")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("VodovozDeliveryTermsAPI")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyProduct("DeliveryTermsAPI")]
+[assembly: AssemblyCopyright("© , 2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-// Установка значения false в параметре ComVisible делает типы в этой сборке невидимыми 
-// для компонентов COM. Если требуется обратиться к типу в этой сборке через 
+// Установка значения False в параметре ComVisible делает типы в этой сборке невидимыми
+// для компонентов COM.  Если требуется обратиться к типу в этой сборке через
 // COM, задайте атрибуту ComVisible значение true для требуемого типа.
 [assembly: ComVisible(false)]
 
-// Следующий GUID служит для идентификации библиотеки типов typelib, если этот проект видим для COM
-[assembly: Guid("5ba0c109-af6a-41df-90a3-ae2c61283ff7")]
+// Следующий GUID служит для ID библиотеки типов typelib, если этот проект видим для COM
+[assembly: Guid("f19640f6-26d5-4a1f-bcd8-02868c5eef50")]
 
 // Сведения о версии сборки состоят из указанных ниже четырех значений:
 //
 //      основной номер версии;
-//      дополнительный номер версии;
+//      Дополнительный номер версии
 //      номер сборки;
 //      редакция.
 //
-// Можно задать все значения или принять номер сборки и номер редакции по умолчанию, 
+// Можно задать все значения или принять номер редакции и номер сборки по умолчанию,
 // используя "*", как показано ниже:
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
