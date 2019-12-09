@@ -2,10 +2,8 @@
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
-using System.ServiceModel.Description;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.Services;
-using System.Collections.ObjectModel;
 
 namespace VodovozSmsInformerService
 {
