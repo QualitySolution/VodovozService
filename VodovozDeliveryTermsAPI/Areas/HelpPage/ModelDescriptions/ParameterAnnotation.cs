@@ -1,6 +1,6 @@
 using System;
 
-namespace DeliveryTermsAPI.Areas.HelpPage.ModelDescriptions
+namespace WebAPI2.Areas.HelpPage.ModelDescriptions
 {
     public class ParameterAnnotation
     {

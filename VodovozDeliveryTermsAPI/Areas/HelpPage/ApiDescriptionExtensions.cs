@@ -3,7 +3,7 @@ using System.Text;
 using System.Web;
 using System.Web.Http.Description;
 
-namespace DeliveryTermsAPI.Areas.HelpPage
+namespace WebAPI2.Areas.HelpPage
 {
     public static class ApiDescriptionExtensions
     {

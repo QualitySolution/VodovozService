@@ -1,26 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Net;
+using Newtonsoft.Json;
 using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using VodovozDeliveryTermsService.DTO;
 
-namespace VodovozDeliveryTermsAPI.Models
+namespace VodovozDeliveryTermsService
 {
-    public class DeliveryTerms
+    public class DeliveryTerms: IDeliveryTerms
     {
         static Logger logger = LogManager.GetCurrentClassLogger();
         public virtual DeliveryPoint DeliveryPointObj { get; set; } = new DeliveryPoint();
+        public static string BaseUrl { get; set; }
+
+        public DeliveryTerms()
+        {
+            
+        }
 
         public string GetRulesByDistrict(decimal latitude, decimal longitude)
         {
-            var rules = new DeliveryRulesDTO();
+            var rules = new DeliveryRulesDTO() ;
             logger.Debug($"получены координаты {latitude} - {longitude}");
 
             try
             {
-                var templat = (decimal)latitude;
+                var templat = (decimal) latitude;
                 var templong = (decimal)longitude;
             }
             catch (Exception e)
@@ -56,44 +62,10 @@ namespace VodovozDeliveryTermsAPI.Models
                 {
                     logger.Error(e);
                 }
-
+                
             }
             logger.Debug($"район не обслуживается");
-            return "the area is not serviced";
+            return "not found";
         }
-
-        //public string GetRulesByDistrict(decimal latitude, decimal longitude)
-        //{
-        //    var minbottles = "district not found";
-        //    using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[MB]Получение  "))
-        //    {
-
-        //        DeliveryPoint.SetСoordinates(latitude, longitude, uow);
-        //        var t = DeliveryPoint.District;
-
-        //        if (t != null)
-        //        {
-        //            var deliveryPice = t.ScheduleRestrictedDistrictRuleItems.Count > 0
-        //                ? t.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPrice
-        //                : -1;
-        //            var DeliveryPriceRule = t.ScheduleRestrictedDistrictRuleItems.Count > 0
-        //                ? t.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPriceRule.ToString()
-        //                : "-1";
-        //            minbottles = "minbottles-" + t?.MinBottles + ";" + "deliveryPice-" + deliveryPice + ";" +
-        //                         "DeliveryPriceRule-" + DeliveryPriceRule + ";";
-        //        }
-        //    }
-
-        //    return minbottles;
-        //}
-    }
-
-    class DeliveryRulesDTO
-    { 
-        public int? minBottles;
-         
-        public string deliveryRule;
-         
-        public decimal? deliveryPrice;
     }
 }
