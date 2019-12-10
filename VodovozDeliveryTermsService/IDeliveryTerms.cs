@@ -13,7 +13,7 @@ namespace VodovozDeliveryTermsService
         [OperationContract]
         [
             WebGet(
-                UriTemplate = "/api/deliverypoint?latitude={latitude}&longitude={longitude}",
+                UriTemplate = "/api/{type}/",
                 ResponseFormat = WebMessageFormat.Json
             )
         ]
