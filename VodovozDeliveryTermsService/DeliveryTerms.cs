@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Newtonsoft.Json;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using VodovozDeliveryTermsService;
@@ -43,7 +42,7 @@ namespace VodovozDeliveryTermsAPI.Models
                 }
             }
 
-            return JsonConvert.SerializeObject(rules);
+            return minbottles;
         }
     }
 }
