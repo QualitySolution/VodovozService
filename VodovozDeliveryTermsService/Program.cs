@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Mime;
 using NLog;
 using MySql.Data.MySqlClient;
 using Nini.Config;
@@ -15,7 +14,7 @@ namespace VodovozDeliveryTermsService
     class Program
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-       //private static string configFile = "vodovoz-delivery-rules-api.conf";
+        //private static string configFile = "vodovoz-delivery-rules-api.conf";
         private static string configFile = "/etc/vodovoz-delivery-rules-api.conf";
 
         //Mysql
@@ -28,11 +27,8 @@ namespace VodovozDeliveryTermsService
         private static string osrmServerUrl;
 
         public static void Main(string[] args)
-        { 
+        {
             AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
-            AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
-           
-            
             IConfig serviceConfig;
 
             try
@@ -110,11 +106,6 @@ namespace VodovozDeliveryTermsService
                     Thread.CurrentThread.Abort();
                 Environment.Exit(0);
             }
-        }
-
-        private static void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
-        {
-            logger.Fatal((Exception)e.Exception, "UnhandledException");
         }
 
         static void AppDomain_CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
