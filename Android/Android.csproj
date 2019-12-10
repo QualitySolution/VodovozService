@@ -72,6 +72,7 @@
     <Compile Include="TrackMaintainer.cs" />
     <Compile Include="TracksService.cs" />
     <Compile Include="DTO\CheckVersionResultDTO.cs" />
+    <Compile Include="IAndroidDriverServiceWeb.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">

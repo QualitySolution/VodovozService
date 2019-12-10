@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ServiceModel;
+using System.ServiceModel.Web;
 using Android;
 using Chats;
 using MySql.Data.MySqlClient;
@@ -8,6 +9,7 @@ using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
 using QSSupportLib;
+using System.ServiceModel.Description;
 
 namespace VodovozAndroidDriverService
 {
@@ -24,6 +26,7 @@ namespace VodovozAndroidDriverService
 		{
 			string serviceHostName;
 			string servicePort;
+			string serviceWebPort;
 
 			string firebaseServerApiToken;
 			string firebaseSenderId;
@@ -31,6 +34,7 @@ namespace VodovozAndroidDriverService
 			try {
 				serviceHostName = serviceConfig.GetString("service_host_name");
 				servicePort = serviceConfig.GetString("service_port");
+				serviceWebPort = serviceConfig.GetString("service_web_port");
 
 				firebaseServerApiToken = firebaseConfig.GetString("firebase_server_api_token");
 				firebaseSenderId = firebaseConfig.GetString("firebase_sender_id");
@@ -52,6 +56,14 @@ namespace VodovozAndroidDriverService
 				new BasicHttpBinding(),
 				String.Format("http://{0}:{1}/ChatService", serviceHostName, servicePort)
 			);
+
+			ServiceEndpoint webEndPoint = AndroidDriverHost.AddServiceEndpoint(
+					typeof(IAndroidDriverServiceWeb),
+					new WebHttpBinding(),
+					String.Format("http://{0}:{1}/AndroidDriverServiceWeb", serviceHostName, serviceWebPort)
+				);
+			WebHttpBehavior httpBehavior = new WebHttpBehavior();
+			webEndPoint.Behaviors.Add(httpBehavior);
 
 			AndroidDriverHost.AddServiceEndpoint(
 				typeof(IAndroidDriverService),

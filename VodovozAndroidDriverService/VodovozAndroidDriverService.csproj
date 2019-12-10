@@ -83,6 +83,7 @@
     <Reference Include="NHibernate.Spatial.MySQL">
       <HintPath>..\packages\NHibernate.Spatial.MySQL.5.2.0\lib\netstandard2.0\NHibernate.Spatial.MySQL.dll</HintPath>
     </Reference>
+    <Reference Include="System.ServiceModel.Web" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

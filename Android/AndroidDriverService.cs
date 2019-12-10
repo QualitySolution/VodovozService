@@ -12,10 +12,11 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
+using QS.DomainModel.Tracking;
 
 namespace Android
 {
-	public class AndroidDriverService : IAndroidDriverService
+	public class AndroidDriverService : IAndroidDriverService, IAndroidDriverServiceWeb
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
@@ -467,6 +468,16 @@ namespace Android
 			}
 			return false;
 		}
+
+		public bool ServiceStatus()
+		{
+			int activeUoWCount = UowWatcher.GetActiveUoWCount();
+			if(activeUoWCount > 10) {
+				return false;
+			}
+			return true;
+		}
+
 		#endregion
 	}
 }
