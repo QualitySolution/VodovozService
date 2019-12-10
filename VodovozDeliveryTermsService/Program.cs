@@ -1,21 +1,36 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+//using System.Web.Http;
+//using System.Web.Mvc;
+//using System.Web.Optimization;
+//using System.Web.Routing; 
+using NLog;
+using MySql.Data.MySqlClient;
+using Nini.Config;
+using QS.Project.DB;
+using QSProjectsLib; 
+using System;
+using System.ServiceModel;
+using System.Threading;
+using System;
+using System.Threading;
+using Mono.Unix;
+using Mono.Unix.Native;
 using NLog;
 using MySql.Data.MySqlClient;
 using Nini.Config;
 using QS.Project.DB;
 using QSProjectsLib;
-using System.Threading;
-using Mono.Unix;
-using Mono.Unix.Native;
 using QSSupportLib;
 
 namespace VodovozDeliveryTermsService
 {
     class Program
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-        //private static string configFile = "vodovoz-delivery-rules-api.conf";
-        private static string configFile = "/etc/vodovoz-delivery-rules-api.conf";
+        private static Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static string configFile = "/etc/vodovoz-rules-service.conf";
 
         //Mysql
         private static string mysqlServerHostName;
@@ -23,23 +38,18 @@ namespace VodovozDeliveryTermsService
         private static string mysqlUser;
         private static string mysqlPassword;
         private static string mysqlDatabase;
-
-        private static string osrmServerUrl;
-
-        public static void Main(string[] args)
+        static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
+
             IConfig serviceConfig;
 
             try
             {
+                QSOsm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
                 IniConfigSource confFile = new IniConfigSource(configFile);
                 confFile.Reload();
                 serviceConfig = confFile.Configs["Service"];
-
-
-                IConfig osrmConfig = confFile.Configs["OsrmService"];
-                osrmServerUrl = osrmConfig.GetString("server_url");
 
                 IConfig mysqlConfig = confFile.Configs["Mysql"];
                 mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
@@ -50,10 +60,11 @@ namespace VodovozDeliveryTermsService
             }
             catch (Exception ex)
             {
-                logger.Fatal(ex, "Error reading config file.");
+                logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
                 return;
             }
 
+            logger.Info(String.Format("Запуск службы отправки электронной почты"));
             try
             {
                 var conStrBuilder = new MySqlConnectionStringBuilder();
@@ -65,19 +76,19 @@ namespace VodovozDeliveryTermsService
                 conStrBuilder.SslMode = MySqlSslMode.None;
 
                 QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
-                var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+                var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
                     .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
                     .ConnectionString(QSMain.ConnectionString);
 
-                OrmConfig.ConfigureOrm(dbConfig,
-                    new[] {
+                OrmConfig.ConfigureOrm(db_config,
+                    new System.Reflection.Assembly[] {
 
                        System.Reflection.Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
                        System.Reflection.Assembly.GetAssembly (typeof(QS.Contacts.Phone)),
                        System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase)),
                        System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap))
                     });
-                QSOsm.Osrm.OsrmMain.ServerUrl = osrmServerUrl;// ;
+                
                 MainSupport.LoadBaseParameters();
             }
             catch (Exception ex)
@@ -85,10 +96,10 @@ namespace VodovozDeliveryTermsService
                 logger.Fatal(ex, "Ошибка в настройке подключения к БД.");
             }
 
-            logger.Info("Запуск службы правил доставки");
+            logger.Info(String.Format("Запуск службы мобильного приложения"));
             try
             {
-                DeliveryRulesServiceStarter.StartService(serviceConfig);
+                MobileServiceStarter.StartService(serviceConfig);
 
                 UnixSignal[] signals = {
                     new UnixSignal (Signum.SIGINT),
