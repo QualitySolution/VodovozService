@@ -9,6 +9,7 @@ using System.ServiceModel.Web;
 using System.Text;
 using Nini.Config;
 using NLog;
+using VodovozDeliveryTermsAPI.Models;
 
 namespace VodovozDeliveryTermsService
 {
@@ -34,7 +35,7 @@ namespace VodovozDeliveryTermsService
                 throw;
             }
 
-            logger.Info(String.Format("Запуск службы правил доставки"));
+            logger.Info(String.Format("Запуск службы мобильного приложения"));
 
             WebServiceHost mobileHost = new WebServiceHost(typeof(DeliveryTerms));
 
