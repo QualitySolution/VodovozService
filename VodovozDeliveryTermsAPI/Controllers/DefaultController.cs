@@ -18,11 +18,11 @@ namespace VodovozDeliveryTermsAPI.Controllers
         }
 
         // GET: api/Default/5
-        public string Get(decimal latitude, decimal longitude)
+        public string Get(decimal latitude, decimal longiitude)
         {
             var res = new DeliveryTerms();
 
-            return res.GetRulesByDistrict(latitude, longitude);
+            return res.GetRulesByDistrict(latitude, longiitude);
         }
 
         // POST: api/Default

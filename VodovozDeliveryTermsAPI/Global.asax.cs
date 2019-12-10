@@ -18,8 +18,7 @@ namespace VodovozDeliveryTermsAPI
     public class WebApiApplication : System.Web.HttpApplication
     {
         private static Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        private static string configFile = "vodovoz-delivery-rules-api.conf";
-        //private static string configFile = "/etc/vodovoz-delivery-rules-api.conf";
+        private static string configFile = "vodovoz-rules-service.conf";
 
         //Mysql
         private static string mysqlServerHostName;
@@ -31,8 +30,6 @@ namespace VodovozDeliveryTermsAPI
         protected void Application_Start()
         {
             AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
-            AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
-
 
             try
             {
@@ -55,8 +52,7 @@ namespace VodovozDeliveryTermsAPI
                 return;
             }
 
-            logger.Info(String.Format("Запуск WEB API"));
-
+            logger.Info(String.Format("Запуск службы отправки электронной почты"));
             try
             {
                 var conStrBuilder = new MySqlConnectionStringBuilder();
@@ -105,11 +101,6 @@ namespace VodovozDeliveryTermsAPI
         static void AppDomain_CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             logger.Fatal((Exception)e.ExceptionObject, "UnhandledException");
-        }
-
-        private static void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
-        {
-            logger.Fatal((Exception)e.Exception, "UnhandledException");
         }
     }
 }
