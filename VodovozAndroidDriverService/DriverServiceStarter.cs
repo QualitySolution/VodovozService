@@ -1,14 +1,10 @@
 ﻿using System;
 using System.ServiceModel;
-using System.ServiceModel.Web;
 using Android;
 using Chats;
-using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog;
-using QS.Project.DB;
-using QSProjectsLib;
-using QSSupportLib;
+using System.ServiceModel.Web;
 using System.ServiceModel.Description;
 
 namespace VodovozAndroidDriverService

@@ -96,6 +96,8 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ExtendedOsmService.cs" />
+    <Compile Include="IOSMServiceMonitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

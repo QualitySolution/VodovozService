@@ -47,7 +47,7 @@ namespace VodovozOSMService
 
 			logger.Info(String.Format("Запуск службы OSM"));
 
-			WebServiceHost OsmHost = new WebServiceHost(typeof(OsmService));
+			WebServiceHost OsmHost = new WebServiceHost(typeof(ExtendedOsmService));
 
 			try {
 				OsmWorker.ServiceHost = serviceHostName;
@@ -56,6 +56,12 @@ namespace VodovozOSMService
 					typeof(IOsmService),
 					new WebHttpBinding(),
 					OsmWorker.ServiceAddress
+				);
+
+				OsmHost.AddServiceEndpoint(
+					typeof(IOsmServiceMonitor),
+					new WebHttpBinding(),
+					$"http://{OsmWorker.ServiceHost}:{OsmWorker.ServicePort}/OsmServiceMonitor"
 				);
 
 #if DEBUG
