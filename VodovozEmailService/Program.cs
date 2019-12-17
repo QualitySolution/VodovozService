@@ -93,7 +93,7 @@ namespace VodovozEmailService
 				EmailInstanceProvider emailInstanceProvider = new EmailInstanceProvider(new BaseParametersProvider());
 
 				ServiceHost EmailSendingHost = new EmailServiceHost(emailInstanceProvider);
-				WebServiceHost MailjetEventsHost = new WebServiceHost(typeof(EmailService.EmailService));
+				ServiceHost MailjetEventsHost = new EmailServiceHost(emailInstanceProvider);
 
 				ServiceEndpoint webEndPoint = EmailSendingHost.AddServiceEndpoint(
 					typeof(IEmailServiceWeb),
@@ -109,11 +109,13 @@ namespace VodovozEmailService
 					String.Format("http://{0}:{1}/EmailService", serviceHostName, servicePort)
 				);
 
-				MailjetEventsHost.AddServiceEndpoint(
+				var mailjetEndPoint = MailjetEventsHost.AddServiceEndpoint(
 					typeof(IMailjetEventService),
 					new WebHttpBinding(),
 					String.Format("http://{0}:{1}/Mailjet", serviceHostName, servicePort)
 				);
+				WebHttpBehavior mailjetHttpBehavior = new WebHttpBehavior();
+				mailjetEndPoint.Behaviors.Add(httpBehavior);
 
 #if DEBUG
 				EmailSendingHost.Description.Behaviors.Add(new PreFilter());
