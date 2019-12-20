@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Net.Http.Headers;
+using System.ServiceModel;
+using System.ServiceModel.Web;
 using System.Text;
 using Nini.Config;
 using NLog;
+using Vodovoz.Core.DataService;
+using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Repositories.Orders;
 
 namespace VodovozSalesReceiptsService
 {
@@ -11,13 +17,19 @@ namespace VodovozSalesReceiptsService
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		static System.Timers.Timer orderRoutineTimer;
 
-		public static void StartService(IConfig kassaConfig)
+		public static void StartService(IConfig serviceConfig, IConfig kassaConfig)
 		{
+			string serviceHostName;
+			string servicePort;
+
 			string baseAddress;
 			string userNameForService;
 			string pwdForService;
 
 			try {
+				serviceHostName = serviceConfig.GetString("service_host_name");
+				servicePort = serviceConfig.GetString("service_port");
+
 				baseAddress = kassaConfig.GetString("base_address");
 				userNameForService = kassaConfig.GetString("user_name");
 				pwdForService = kassaConfig.GetString("password");
@@ -55,6 +67,20 @@ namespace VodovozSalesReceiptsService
 			};
 			orderRoutineTimer.Start();
 			logger.Info("Служба фискализации запущена");
+
+			SalesReceiptsInstanceProvider salesReceiptsInstanceProvider = new SalesReceiptsInstanceProvider(
+					new BaseParametersProvider(),
+					OrderSingletonRepository.GetInstance()
+				);
+			WebServiceHost salesReceiptsHost = new SalesReceiptsServiceHost(salesReceiptsInstanceProvider);
+			salesReceiptsHost.AddServiceEndpoint(
+				typeof(ISalesReceiptsService),
+				new WebHttpBinding(),
+				String.Format("http://{0}:{1}/SalesReceipts", serviceHostName, servicePort)
+			);
+			salesReceiptsHost.Open();
+			logger.Info("Запущена служба мониторинга отправки чеков");
+
 		}
 	}
 }

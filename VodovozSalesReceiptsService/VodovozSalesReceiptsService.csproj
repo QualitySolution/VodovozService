@@ -80,6 +80,7 @@
       <HintPath>..\packages\RestSharp.106.6.10\lib\net452\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="System.ServiceModel.Web" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -91,6 +92,11 @@
     <Compile Include="DTO\InventPositionDTO.cs" />
     <Compile Include="DTO\MoneyPositionDTO.cs" />
     <Compile Include="DTO\SalesDocumentDTO.cs" />
+    <Compile Include="ISalesReceiptsService.cs" />
+    <Compile Include="SalesReceiptsInstanceProvider.cs" />
+    <Compile Include="SalesReceiptsService.cs" />
+    <Compile Include="SalesReceiptsServiceBehavior.cs" />
+    <Compile Include="SalesReceiptsServiceHost.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

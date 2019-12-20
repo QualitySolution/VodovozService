@@ -16,6 +16,10 @@ namespace VodovozSalesReceiptsService
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		static readonly string configFile = "/etc/vodovoz-sales-receipts-service.conf";
 
+		//Service
+		private static string serviceHostName;
+		private static string servicePort;
+
 		//Mysql
 		static string mysqlServerHostName;
 		static string mysqlServerPort;
@@ -28,10 +32,15 @@ namespace VodovozSalesReceiptsService
 			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
 
 			logger.Info("Чтение конфигурационного файла...");
+			IConfig serviceConfig;
 			IConfig kassaConfig;
 			try {
 				IniConfigSource confFile = new IniConfigSource(configFile);
 				confFile.Reload();
+				serviceConfig = confFile.Configs["Service"];
+				serviceHostName = serviceConfig.GetString("service_host_name");
+				servicePort = serviceConfig.GetString("service_port");
+
 				kassaConfig = confFile.Configs["ModulKassa"];
 				IConfig mysqlConfig = confFile.Configs["Mysql"];
 				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
@@ -84,7 +93,7 @@ namespace VodovozSalesReceiptsService
 			}
 
 			try {
-				ReceiptServiceStarter.StartService(kassaConfig);
+				ReceiptServiceStarter.StartService(serviceConfig, kassaConfig);
 				UnixSignal[] signals = {
 					new UnixSignal (Signum.SIGINT),
 					new UnixSignal (Signum.SIGHUP),
