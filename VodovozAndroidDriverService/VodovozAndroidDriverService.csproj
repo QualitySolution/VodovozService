@@ -92,6 +92,10 @@
     <Compile Include="DriverServiceStarter.cs" />
     <Compile Include="PreFilter.cs" />
     <Compile Include="ConsoleMessageTracer.cs" />
+    <Compile Include="LoggerInteractiveService.cs" />
+    <Compile Include="AndroidDriverServiceInstanceProvider.cs" />
+    <Compile Include="AndroidDriverServiceBehavior.cs" />
+    <Compile Include="AndroidDriverServiceHost.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

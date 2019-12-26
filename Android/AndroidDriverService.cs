@@ -13,12 +13,20 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using QS.DomainModel.Tracking;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
 namespace Android
 {
 	public class AndroidDriverService : IAndroidDriverService, IAndroidDriverServiceWeb
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+
+		private readonly WageCalculationServiceFactory wageCalculationServiceFactory;
+
+		public AndroidDriverService(WageCalculationServiceFactory wageCalculationServiceFactory)
+		{
+			this.wageCalculationServiceFactory = wageCalculationServiceFactory ?? throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
+		}
 
 		/// <summary>
 		/// Const value, equals to android code version on AndroidManifest.xml
@@ -456,7 +464,7 @@ namespace Android
 						return false;
 					}
 
-					routeList.CompleteRoute();
+					routeList.CompleteRoute(wageCalculationServiceFactory);
 					uow.Save(routeList);
 					uow.Commit();
 					return true;

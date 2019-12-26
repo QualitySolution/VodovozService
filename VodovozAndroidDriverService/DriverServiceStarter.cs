@@ -6,6 +6,9 @@ using Nini.Config;
 using NLog;
 using System.ServiceModel.Web;
 using System.ServiceModel.Description;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Core.DataService;
 
 namespace VodovozAndroidDriverService
 {
@@ -44,8 +47,11 @@ namespace VodovozAndroidDriverService
 
 			FCMHelper.Configure(firebaseServerApiToken, firebaseSenderId);
 
+			WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), new LoggerInteractiveService());
+			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider = new AndroidDriverServiceInstanceProvider(wageCalculationServiceFactory);
+
 			ServiceHost ChatHost = new ServiceHost(typeof(ChatService));
-			ServiceHost AndroidDriverHost = new ServiceHost(typeof(AndroidDriverService));
+			ServiceHost AndroidDriverHost = new AndroidDriverServiceHost(androidDriverServiceInstanceProvider);
 
 			ChatHost.AddServiceEndpoint(
 				typeof(IChatService),
