@@ -9,8 +9,15 @@ namespace VodovozAndroidDriverService
 		private readonly LoggerInteractiveMessage interactiveMessage = new LoggerInteractiveMessage();
 		private readonly LoggerQuestion loggerQuestion = new LoggerQuestion();
 
-		public IInteractiveMessage InteractiveMessage => interactiveMessage;
-		public IInteractiveQuestion InteractiveQuestion => loggerQuestion;
+		public bool Question(string message, string title = null)
+		{
+			return loggerQuestion.Question(message,title);
+		}
+
+		public void ShowMessage(ImportanceLevel level, string message, string title = null)
+		{
+			interactiveMessage.ShowMessage(ImportanceLevel.Info, message, title);
+		}
 	}
 
 	public class LoggerInteractiveMessage : IInteractiveMessage
