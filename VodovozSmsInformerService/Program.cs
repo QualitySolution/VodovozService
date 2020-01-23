@@ -97,7 +97,7 @@ namespace VodovozSmsInformerService
 
 				ISmsNotificationRepository smsNotificationRepository = new SmsNotificationRepository();
 
-				SmsBlissSendController smsSender = new SmsBlissSendController(smsServiceLogin, smsServicePassword);
+				SmsBlissSendController smsSender = new SmsBlissSendController(smsServiceLogin, smsServicePassword, SmsSendInterface.BalanceType.CurrencyBalance);
 				newClientInformer = new NewClientSmsInformer(smsSender, smsNotificationRepository);
 				newClientInformer.Start();
 
