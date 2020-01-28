@@ -7,6 +7,7 @@ echo "3) Mobile"
 echo "4) OSM"
 echo "5) SmsInformer"
 echo "6) ModulKassa (SalesReceipts)"
+echo "7) InstantSms"
 echo "0) Old server DriverMobileGroup"
 echo "Можно вызывать вместе, например Driver+Email=12"
 read service;
@@ -33,6 +34,9 @@ smsServiceName="vodovoz-smsinformer.service"
 
 kassaServiceFolder="VodovozSalesReceiptsService"
 kassaServiceName="vodovoz-sales-receipts.service"
+
+instantSmsServiceFolder="VodovozInstantSmsService"
+instantSmsServiceName="vodovoz-instant-sms.service"
 
 serverAddress="root@srv2.vod.qsolution.ru"
 serverPort="2203"
@@ -160,6 +164,20 @@ function UpdateSalesReceiptsService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $kassaServiceName
 }
 
+function UpdateInstantSmsService {
+	printf "\nОбновление службы моментальных SMS сообщений\n"
+
+	echo "-- Stoping $instantSmsServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl stop $instantSmsServiceName
+
+	echo "-- Copying $instantSmsServiceName files"
+	DeleteHttpDll $instantSmsServiceFolder
+	CopyFiles $instantSmsServiceFolder
+
+	echo "-- Starting $instantSmsServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl start $instantSmsServiceName
+}
+
 function UpdateDriverMobileGroupService {
 	printf "\nОбновление службы для водителей и мобильного приложения на старом сервере\n"
 
@@ -192,6 +210,9 @@ case $service in
 	;;&
 	*6*)
 		UpdateSalesReceiptsService
+	;;&
+	*7*)
+		UpdateInstantSmsService
 	;;&
 	*0*)
 		UpdateDriverMobileGroupService

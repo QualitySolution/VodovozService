@@ -13,11 +13,73 @@ namespace SmsBlissSendService
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private readonly SmsBlissClient smsBlissClient;
+		private readonly SmsBlissAPI.Model.BalanceType balanceType;
 
-		public SmsBlissSendController(string login, string password)
+		public SmsSendInterface.BalanceResponse GetBalanceResponse {
+			get {
+				SmsBlissAPI.Model.BalanceResponse balance = smsBlissClient.GetBalance();
+				SmsSendInterface.BalanceResponse balanceResponse = new SmsSendInterface.BalanceResponse();
+
+				switch(balance.Status) {
+				case ResponseStatus.Ok:
+					balanceResponse.Status = BalanceResponseStatus.Ok;
+					break;
+				case ResponseStatus.Error:
+					balanceResponse.Status = BalanceResponseStatus.Error;
+					break;
+				}
+				foreach(var item in balance.Balances) {
+					if(balanceType == item.Type) {
+
+						item.BalanceValue = item.BalanceValue.Replace('.', ',');
+						if(!decimal.TryParse(item.BalanceValue, out decimal balanceValue)) {
+							logger.Warn($"Невозможно преобразовать значение баланса из \"{item.BalanceValue}\" в число");
+							continue;
+						}
+						balanceResponse.BalanceValue += balanceValue;
+					}
+				}
+				return balanceResponse;
+			}
+		}
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:SmsBlissSendService.SmsBlissSendController"/> class.
+		/// </summary>
+		/// <param name="login">Login.</param>
+		/// <param name="password">Password.</param>
+		/// <param name="responseBalanceType">Тип возвращаемого баланса в <see cref="GetBalanceResponse"/></param>
+		public SmsBlissSendController(string login, string password, SmsSendInterface.BalanceType responseBalanceType)
 		{
 			smsBlissClient = new SmsBlissClient(login, password);
+
+			balanceType = ConvertBalanceType(responseBalanceType);
 		}
+
+		#region Converters
+
+		private SmsSendInterface.BalanceType ConvertBalanceType(SmsBlissAPI.Model.BalanceType bType)
+		{
+			switch(bType) {
+			case SmsBlissAPI.Model.BalanceType.RUB:
+				return SmsSendInterface.BalanceType.CurrencyBalance;
+			case SmsBlissAPI.Model.BalanceType.SMS:
+				return SmsSendInterface.BalanceType.SmsCounts;
+			default: throw new ArgumentException("Unrecognized balance type");
+			}
+		}
+
+		private SmsBlissAPI.Model.BalanceType ConvertBalanceType(SmsSendInterface.BalanceType bType)
+		{
+			switch(bType) {
+			case SmsSendInterface.BalanceType.CurrencyBalance:
+				return SmsBlissAPI.Model.BalanceType.RUB;
+			case SmsSendInterface.BalanceType.SmsCounts:
+				return SmsBlissAPI.Model.BalanceType.SMS;
+			default: throw new ArgumentException("Unrecognized balance type");
+			}
+		}
+
+		#endregion
 
 		#region ISmsSender implementation
 
@@ -95,20 +157,12 @@ namespace SmsBlissSendService
 			MessageResponse messageResponse = response.Messages.First();
 			if(messageResponse.Status == MessageResponseStatus.Accepted) {
 				foreach(var item in response.Balances) {
-					SmsSendInterface.BalanceType balanceType = SmsSendInterface.BalanceType.CurrencyBalance;
-					switch(item.Type) {
-					case SmsBlissAPI.Model.BalanceType.RUB:
-						balanceType = SmsSendInterface.BalanceType.CurrencyBalance;
-						break;
-					case SmsBlissAPI.Model.BalanceType.SMS:
-						balanceType = SmsSendInterface.BalanceType.SmsCounts;
-						break;
-					}
+
 					if(!decimal.TryParse(item.BalanceValue, out decimal balance)) {
 						logger.Warn($"Невозможно преобразовать значение баланса из \"{item.BalanceValue}\" в число");
 						continue;
 					}
-					OnBalanceChange?.Invoke(this, new SmsBalanceEventArgs(balanceType, balance));
+					OnBalanceChange?.Invoke(this, new SmsBalanceEventArgs(ConvertBalanceType(item.Type), balance));
 				}
 			}
 		}

@@ -21,5 +21,7 @@ namespace SmsSendInterface
 		/// <returns>Задача возвращающая результат отправки</returns>
 		/// <param name="message">Смс сообщение</param>
 		Task<ISmsSendResult> SendSmsAsync(ISmsMessage message);
+
+		BalanceResponse GetBalanceResponse { get; }
 	}
 }

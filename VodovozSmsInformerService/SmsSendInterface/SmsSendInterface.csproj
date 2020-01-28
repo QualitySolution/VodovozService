@@ -37,7 +37,7 @@
     <Compile Include="ISmsSendResult.cs" />
     <Compile Include="SmsSentStatus.cs" />
     <Compile Include="SmsBalanceEventArgs.cs" />
-    <Compile Include="BalanceType.cs" />
+    <Compile Include="BalanceResponse.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
