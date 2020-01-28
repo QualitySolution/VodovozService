@@ -113,7 +113,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozSalesReceiptsService
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstantSmsService", "VodovozSmsInformerService\InstantSmsService\InstantSmsService.csproj", "{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozInstantSmsService", "VodovozSmsInformerService\VodovozInstantSmsService\VodovozInstantSmsService.csproj", "{D123B6CA-4ABC-469D-B61D-EC4C7358FDAE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozInstantSmsService", "VodovozInstantSmsService\VodovozInstantSmsService.csproj", "{D123B6CA-4ABC-469D-B61D-EC4C7358FDAE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

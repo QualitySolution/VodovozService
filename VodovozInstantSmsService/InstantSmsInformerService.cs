@@ -28,11 +28,11 @@ namespace VodovozInstantSmsService
 				}
 				BalanceResponse balanceResponse = smsSender.GetBalanceResponse;
 				if(balanceResponse.Status == BalanceResponseStatus.Error) {
-					logger.Info($"Нет ответа от сервера отправки Sms");
+					logger.Info($"Ошибка запроса баланса");
 					return false;
 				}
 				if(balanceResponse.BalanceValue < minBalanceValue) {
-					logger.Info($"Балан на счёте менее {minBalanceValue} рублей");
+					logger.Info($"Баланс на счёте менее {minBalanceValue} рублей");
 					return false;
 				}
 			}

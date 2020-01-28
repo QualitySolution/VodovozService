@@ -6,7 +6,7 @@
 
 		BalanceType BalanceType { get; set; }
 
-		int BalanceValue { get; set; }
+		decimal BalanceValue { get; set; }
 	}
 
 	public class BalanceResponse : IBalanceResponse
@@ -15,7 +15,7 @@
 
 		public BalanceType BalanceType { get; set; }
 
-		public int BalanceValue { get; set; }
+		public decimal BalanceValue { get; set; }
 	}
 
 	public enum BalanceResponseStatus

@@ -14,6 +14,7 @@ namespace InstantSmsService
 
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private ISmsSender smsSender;
+		decimal minBalanceValue = 5;
 
 		public SmsMessageResult SendSms(InstantSmsMessage smsNotification)
 		{
@@ -22,7 +23,7 @@ namespace InstantSmsService
 				SmsMessage smsMessage = new SmsMessage(smsNotification.MobilePhone, smsNotification.ServerMessageId, smsNotification.MessageText);
 
 				if(DateTime.Now > smsNotification.ExpiredTime) {
-					smsResult.ErrorDescription = "Време отправки Sms сообщения вышло";
+					smsResult.ErrorDescription = "Время отправки Sms сообщения вышло";
 					return smsResult;
 				}
 				var result = smsSender.SendSms(smsMessage);
@@ -52,6 +53,28 @@ namespace InstantSmsService
 				logger.Error(ex);
 			}
 			return smsResult;
+		}
+
+		public bool ServiceStatus()
+		{
+			logger.Info("Запрос статуса службы моментальных смс уведомлений");
+			try {
+				BalanceResponse balanceResponse = smsSender.GetBalanceResponse;
+				if(balanceResponse.Status == BalanceResponseStatus.Error) {
+					logger.Info($"Ошибка запроса баланса");
+					return false;
+				}
+				if(balanceResponse.BalanceValue < minBalanceValue) {
+					logger.Info($"Баланс на счёте менее {minBalanceValue} рублей");
+					return false;
+				}
+				logger.Info($"Баланс на счёте: {balanceResponse.BalanceValue}р.");
+			}
+			catch(Exception ex) {
+				logger.Error(ex, "Ошибка при проверке работоспособности службы смс уведомлений");
+				return false;
+			}
+			return true;
 		}
 	}
 }

@@ -7,6 +7,11 @@ namespace InstantSmsService
 	{
 		[DataMember]
 		private string errorDescription;
+		/// <summary>
+		/// Gets or sets the error description.
+		/// Set also changes <see cref="MessageStatus"/> to <see cref="SmsMessageStatus.Error"/>
+		/// </summary>
+		/// <value>The error description.</value>
 		[DataMember]
 		public string ErrorDescription { 
 		get => errorDescription;

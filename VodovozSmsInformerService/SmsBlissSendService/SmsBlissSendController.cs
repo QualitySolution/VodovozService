@@ -29,8 +29,15 @@ namespace SmsBlissSendService
 					break;
 				}
 				foreach(var item in balance.Balances) {
-					if(balanceType == item.Type)
-						balanceResponse.BalanceValue += Convert.ToInt32(item.BalanceValue);
+					if(balanceType == item.Type) {
+
+						item.BalanceValue = item.BalanceValue.Replace('.', ',');
+						if(!decimal.TryParse(item.BalanceValue, out decimal balanceValue)) {
+							logger.Warn($"Невозможно преобразовать значение баланса из \"{item.BalanceValue}\" в число");
+							continue;
+						}
+						balanceResponse.BalanceValue += balanceValue;
+					}
 				}
 				return balanceResponse;
 			}

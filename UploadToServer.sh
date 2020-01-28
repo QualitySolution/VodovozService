@@ -35,7 +35,7 @@ smsServiceName="vodovoz-smsinformer.service"
 kassaServiceFolder="VodovozSalesReceiptsService"
 kassaServiceName="vodovoz-sales-receipts.service"
 
-instantSmsServiceFolder="VodovozSmsInformerService/VodovozInstantSmsService"
+instantSmsServiceFolder="VodovozInstantSmsService"
 instantSmsServiceName="vodovoz-instant-sms.service"
 
 serverAddress="root@srv2.vod.qsolution.ru"

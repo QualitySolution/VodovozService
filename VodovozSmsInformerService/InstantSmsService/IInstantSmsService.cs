@@ -1,4 +1,5 @@
 ﻿using System.ServiceModel;
+using System.ServiceModel.Web;
 
 namespace InstantSmsService
 {
@@ -7,5 +8,9 @@ namespace InstantSmsService
 	{
 		[OperationContract]
 		SmsMessageResult SendSms(InstantSmsMessage smsNotification);
+
+		[OperationContract]
+		[WebGet(ResponseFormat = WebMessageFormat.Json)]
+		bool ServiceStatus();
 	}
 }
