@@ -39,3 +39,6 @@ Thumbs.db
 
 #dotCover
 *.dotCover
+
+#monodevelop
+mono_crash.*.json
