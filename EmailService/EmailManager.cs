@@ -12,6 +12,7 @@ using QSSupportLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Repositories;
 
 namespace EmailService
@@ -28,6 +29,7 @@ namespace EmailService
 		static BlockingCollection<MailjetEvent> unsavedEventsQueue = new BlockingCollection<MailjetEvent>();
 		static bool IsInitialized => !(string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(userSecretKey));
 		static int workerTasksCreatedCounter = 0;
+		static IEmailRepository emailRepository = new EmailRepository();
 
 
 		static EmailManager()
@@ -123,7 +125,7 @@ namespace EmailService
 
 		static void AddEmailToSend(Email email)
 		{
-			if(!EmailRepository.CanSendByTimeout(email.Recipient.EmailAddress, email.Order)) {
+			if(!emailRepository.CanSendByTimeout(email.Recipient.EmailAddress, email.Order)) {
 				logger.Error("{0} Попытка отправить почту до истечения минимального времени до повторной отправки", GetThreadInfo());
 				throw new Exception("Отправка на один и тот же адрес возможна раз в 10 минут");
 			}
@@ -271,7 +273,7 @@ namespace EmailService
 
 			//Запись информации о письме в базу
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Обработка события Mailjet")) {
-				var emailAction = EmailRepository.GetStoredEmailByMessageId(uow, mailjetEvent.MessageID.ToString());
+				var emailAction = emailRepository.GetStoredEmailByMessageId(uow, mailjetEvent.MessageID.ToString());
 				if(emailAction == null) {
 					int mailId;
 					if(int.TryParse(mailjetEvent.CustomID, out mailId)) {
