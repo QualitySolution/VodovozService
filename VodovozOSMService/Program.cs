@@ -11,7 +11,6 @@ using Mono.Unix.Native;
 using Nini.Config;
 using NLog;
 using QSOsm;
-using WCFServer;
 
 namespace VodovozOSMService
 {
@@ -47,7 +46,7 @@ namespace VodovozOSMService
 
 			logger.Info(String.Format("Запуск службы OSM"));
 
-			WebServiceHost OsmHost = new WebServiceHost(typeof(ExtendedOsmService));
+			WebServiceHost OsmHost = new WebServiceHost(typeof(OsmService));
 
 			try {
 				OsmWorker.ServiceHost = serviceHostName;
@@ -56,12 +55,6 @@ namespace VodovozOSMService
 					typeof(IOsmService),
 					new WebHttpBinding(),
 					OsmWorker.ServiceAddress
-				);
-
-				OsmHost.AddServiceEndpoint(
-					typeof(IOsmServiceMonitor),
-					new WebHttpBinding(),
-					$"http://{OsmWorker.ServiceHost}:{OsmWorker.ServicePort}/OsmServiceMonitor"
 				);
 
 #if DEBUG
