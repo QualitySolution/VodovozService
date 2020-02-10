@@ -14,6 +14,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using QS.DomainModel.Tracking;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.Services;
 
 namespace Android
 {
@@ -22,10 +23,12 @@ namespace Android
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
 		private readonly WageCalculationServiceFactory wageCalculationServiceFactory;
+		private readonly IDriverServiceParametersProvider parameters;
 
-		public AndroidDriverService(WageCalculationServiceFactory wageCalculationServiceFactory)
+		public AndroidDriverService(WageCalculationServiceFactory wageCalculationServiceFactory, IDriverServiceParametersProvider parameters)
 		{
 			this.wageCalculationServiceFactory = wageCalculationServiceFactory ?? throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
+			this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
 		}
 
 		/// <summary>
@@ -480,7 +483,7 @@ namespace Android
 		public bool ServiceStatus()
 		{
 			int activeUoWCount = UowWatcher.GetActiveUoWCount();
-			if(activeUoWCount > 10) {
+			if(activeUoWCount > parameters.MaxUoWAllowed) {
 				return false;
 			}
 			return true;

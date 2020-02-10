@@ -8,6 +8,7 @@ using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
 using QSSupportLib;
+using Vodovoz.Core.DataService;
 
 namespace VodovozAndroidDriverService
 {
@@ -80,7 +81,7 @@ namespace VodovozAndroidDriverService
 
 
 			try {
-				DriverServiceStarter.StartService(driverServiceConfig, firebaseConfig);
+				DriverServiceStarter.StartService(driverServiceConfig, firebaseConfig, new BaseParametersProvider());
 
 				UnixSignal[] signals = {
 					new UnixSignal (Signum.SIGINT),

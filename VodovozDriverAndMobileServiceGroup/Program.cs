@@ -10,6 +10,7 @@ using MySql.Data.MySqlClient;
 using QS.Project.DB;
 using QSProjectsLib;
 using QSSupportLib;
+using Vodovoz.Core.DataService;
 
 namespace VodovozDriverAndMobileServiceGroup
 {
@@ -76,7 +77,6 @@ namespace VodovozDriverAndMobileServiceGroup
 				OrmConfig.ConfigureOrm(db_config,
 					new System.Reflection.Assembly[] {
 						System.Reflection.Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
-						System.Reflection.Assembly.GetAssembly (typeof(QS.Contacts.Phone)),
 						System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 						System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
 						System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
@@ -90,7 +90,7 @@ namespace VodovozDriverAndMobileServiceGroup
 			}
 
 			try {
-				DriverServiceStarter.StartService(driverServiceConfig, firebaseConfig);
+				DriverServiceStarter.StartService(driverServiceConfig, firebaseConfig, new BaseParametersProvider());
 				MobileServiceStarter.StartService(mobileServiceConfig);
 
 				UnixSignal[] signals = {

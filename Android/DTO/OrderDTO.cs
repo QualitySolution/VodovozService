@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using Gamma.Utilities;
-using QS.Contacts;
-using QSContacts;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Contacts;
 
 namespace Android
 {
@@ -114,12 +113,12 @@ namespace Android
             DPPhone2 = new List<string> ();
 		    foreach (Phone phone in item.Order.DeliveryPoint.Phones)
 		    {
-		        DPPhone2.Add(String.Format("{0}: {1}", phone.NumberType?.Name, phone.Number));
+		        DPPhone2.Add(String.Format("{0}: {1}", phone.PhoneType?.Name, phone.Number));
 		    }
 
             CPPhones = new List<string> ();
 			foreach (Phone phone in item.Order.Client.Phones) {
-				CPPhones.Add (String.Format("{0}: {1}", phone.NumberType?.Name, phone.Number));
+				CPPhones.Add (String.Format("{0}: {1}", phone.PhoneType?.Name, phone.Number));
 			}
 
 			OrderItems = new List<string> ();

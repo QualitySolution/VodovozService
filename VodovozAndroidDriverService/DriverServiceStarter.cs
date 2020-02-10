@@ -9,6 +9,7 @@ using System.ServiceModel.Description;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Core.DataService;
+using Vodovoz.Services;
 
 namespace VodovozAndroidDriverService
 {
@@ -21,7 +22,7 @@ namespace VodovozAndroidDriverService
 		private static System.Timers.Timer orderRoutineTimer;
 		private static System.Timers.Timer trackRoutineTimer;
 
-		public static void StartService(IConfig serviceConfig, IConfig firebaseConfig)
+		public static void StartService(IConfig serviceConfig, IConfig firebaseConfig, IDriverServiceParametersProvider parameters)
 		{
 			string serviceHostName;
 			string servicePort;
@@ -48,7 +49,7 @@ namespace VodovozAndroidDriverService
 			FCMHelper.Configure(firebaseServerApiToken, firebaseSenderId);
 
 			WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), new LoggerInteractiveService());
-			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider = new AndroidDriverServiceInstanceProvider(wageCalculationServiceFactory);
+			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider = new AndroidDriverServiceInstanceProvider(wageCalculationServiceFactory, parameters);
 
 			ServiceHost ChatHost = new ServiceHost(typeof(ChatService));
 			ServiceHost AndroidDriverHost = new AndroidDriverServiceHost(androidDriverServiceInstanceProvider);
