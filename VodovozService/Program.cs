@@ -19,7 +19,7 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.MobileService;
 using Chats;
-using WCFServer;
+using VodovozOSMService;
 
 namespace VodovozService
 {

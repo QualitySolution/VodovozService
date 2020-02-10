@@ -174,6 +174,10 @@
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
       <Name>QS.Banks</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VodovozOSMService\VodovozOSMService.csproj">
+      <Project>{CD4BBD26-5CFC-4DD4-BB6D-FAA73B56A7BF}</Project>
+      <Name>VodovozOSMService</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
