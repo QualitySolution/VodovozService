@@ -181,7 +181,7 @@ namespace VodovozOSMService
 						"LEFT JOIN osm_streets_to_districts ON osm_streets_to_districts.street_id = osm_streets.id " +
 						"LEFT JOIN osm_city_districts ON osm_streets_to_districts.district_id = osm_city_districts.id " +
 						"WHERE osm_cities.id = @city_id " +
-						$"AND osm_streets.name LIKE '%{searchString}%' " +
+						$"AND osm_streets.name ILIKE '%{searchString.ToLower()}%' " +
 						"GROUP BY osm_streets.id, osm_streets.name;";
 						//"LIMIT @limit;";
 						cmd.Parameters.AddWithValue("@city_id", cityId);
