@@ -66,7 +66,6 @@ namespace VodovozAndroidDriverService
 				OrmConfig.ConfigureOrm(db_config,
 					new System.Reflection.Assembly[] {
 						System.Reflection.Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
-						System.Reflection.Assembly.GetAssembly (typeof(QS.Contacts.Phone)),
 						System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 						System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
 						System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
