@@ -45,17 +45,6 @@ deliveryRulesServiceName="vodovoz-delivery-rules.service"
 serverAddress="root@srv2.vod.qsolution.ru"
 serverPort="2203"
 
-
-# ------ для объединенной службы водителей и мобильного приложения для старого сервера
-
-oldServerAddress="root@192.168.0.7"
-oldServerPort="22"
-
-driverMobileGroupServiceFolder="VodovozDriverAndMobileServiceGroup"
-driverMobileGroupServiceName="vodovoz-driver-mobile-group.service"
-
-# ------------------------------
-
 buildFolderName=""
 case $build in
 	1)
@@ -78,10 +67,6 @@ function DeleteHttpDll {
 
 function CopyFiles {
 	rsync -vizaP --delete -e "ssh -p $serverPort" ./$1/bin/$buildFolderName/ $serverAddress:/opt/$1
-}
-
-function CopyFilesToOldServer {
-	rsync -vizaP --delete -e "ssh -p $oldServerPort" ./$1/bin/$buildFolderName/ $oldServerAddress:/opt/$1
 }
 
 function UpdateDriverService {
@@ -196,20 +181,6 @@ function UpdateDeliveryRulesService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $deliveryRulesServiceName
 }
 
-function UpdateDriverMobileGroupService {
-	printf "\nОбновление службы для водителей и мобильного приложения на старом сервере\n"
-
-	echo "-- Stoping $driverMobileGroupServiceName"
-	ssh $oldServerAddress -p$oldServerPort sudo systemctl stop $driverMobileGroupServiceName
-
-	echo "-- Copying $driverMobileGroupServiceName files"
-	DeleteHttpDll $driverMobileGroupServiceFolder
-	CopyFilesToOldServer $driverMobileGroupServiceFolder
-
-	echo "-- Starting $driverMobileGroupServiceName"
-	ssh $oldServerAddress -p$oldServerPort sudo systemctl start $driverMobileGroupServiceName
-}
-
 case $service in
 	*1*)
 		UpdateDriverService
@@ -234,9 +205,6 @@ case $service in
 	;;&
 	*8*)
 		UpdateDeliveryRulesService
-	;;&
-	*0*)
-		UpdateDriverMobileGroupService
 	;;
 esac
 
