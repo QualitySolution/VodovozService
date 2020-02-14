@@ -4,7 +4,6 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
-using System.ServiceModel.Web;
 using System.Threading;
 using Mono.Unix;
 using Mono.Unix.Native;
@@ -14,6 +13,7 @@ using NLog;
 using QS.Banks.Domain;
 using QS.Project.DB;
 using QSProjectsLib;
+using Vodovoz.EntityRepositories.Delivery;
 
 namespace VodovozDeliveryRulesService
 {
@@ -86,7 +86,9 @@ namespace VodovozDeliveryRulesService
 				});
 				QSOsm.Osrm.OsrmMain.ServerUrl = serverUrl;
 
-				ServiceHost deliveryRulesHost = new WebServiceHost(typeof(DeliveryRulesService));
+				IDeliveryRepository deliveryRepository = new DeliveryRepository();
+				DeliveryRulesInstanceProvider deliveryRulesInstanceProvider = new DeliveryRulesInstanceProvider(deliveryRepository);
+				ServiceHost deliveryRulesHost = new DeliveryRulesServiceHost(deliveryRulesInstanceProvider);
 
 				ServiceEndpoint webEndPoint = deliveryRulesHost.AddServiceEndpoint(
 					typeof(IDeliveryRulesService),

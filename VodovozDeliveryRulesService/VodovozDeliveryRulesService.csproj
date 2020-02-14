@@ -116,6 +116,11 @@
     <Compile Include="DeliveryRulesService.cs" />
     <Compile Include="IDeliveryRulesService.cs" />
     <Compile Include="DeliveryRuleDTO.cs" />
+    <Compile Include="DeliveryRulesResponse.cs" />
+    <Compile Include="DeliveryRulesResponseStatus.cs" />
+    <Compile Include="DeliveryRulesInstanceProvider.cs" />
+    <Compile Include="DeliveryRulesServiceBehavior.cs" />
+    <Compile Include="DeliveryRulesServiceHost.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

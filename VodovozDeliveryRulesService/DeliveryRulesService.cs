@@ -1,44 +1,62 @@
 ﻿using System;
 using NLog;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Delivery;
 
 namespace VodovozDeliveryRulesService
 {
 	public class DeliveryRulesService : IDeliveryRulesService
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly IDeliveryRepository deliveryRepository;
 
-		public DeliveryRuleDTO GetRulesByDistrict(decimal latitude, decimal longitude)
+		public DeliveryRulesService(IDeliveryRepository deliveryRepository)
 		{
-			var rule = new DeliveryRuleDTO();
+			this.deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+		}
 
+		public DeliveryRulesResponse GetRulesByDistrict(decimal latitude, decimal longitude)
+		{
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение правил доставки ")) {
 				try {
-					//FIXME Сделать получение информации о районе нормально через репозиторий
-					DeliveryPoint dp = new DeliveryPoint();
-					dp.SetСoordinates(latitude, longitude, uow);
-					var district = dp.District;
+					var district = deliveryRepository.GetDistrict(uow, latitude, longitude);
 
 					if(district != null) {
-						logger.Debug($"район получен {district.DistrictName}");
-						rule.MinBottles = district?.MinBottles;
+						logger.Debug($"Район получен {district.DistrictName}");
+						var rule = new DeliveryRuleDTO();
+						rule.MinBottles = district?.MinBottles ?? 0;
 						rule.DeliveryPrice = district.ScheduleRestrictedDistrictRuleItems.Count > 0
-							? district.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPrice
-							: -1;
-						rule.DeliveryRule = district.ScheduleRestrictedDistrictRuleItems.Count > 0
+							? district.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPrice ?? 0
+							: 0;
+						rule.DeliveryRuleTitle = district.ScheduleRestrictedDistrictRuleItems.Count > 0
 							? district.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPriceRule.ToString()
-							: "-1";
-						return rule;
+							: "";
+						rule.DeliverySchedule = district.GetSchedulesString();
+
+						return new DeliveryRulesResponse {
+							StatusEnum = DeliveryRulesResponseStatus.Ok,
+							DeliveryRule = rule,
+							Message = ""
+						};
+					} else {
+						string message = $"Невозможно получить информацию о правилах доставки так как по координатам {latitude}, {longitude} не был найден район";
+						logger.Debug(message);
+						return new DeliveryRulesResponse {
+							StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
+							DeliveryRule = null,
+							Message = message
+						};
 					}
 				}
 				catch(Exception e) {
 					logger.Error(e);
+					return new DeliveryRulesResponse {
+						StatusEnum = DeliveryRulesResponseStatus.Error,
+						DeliveryRule = null,
+						Message = "Возникла внутренняя ошибка при получении правила доставки"
+					};
 				}
 			}
-
-			logger.Debug($"район не обслуживается");
-			return null;
 		}
 	}
 }

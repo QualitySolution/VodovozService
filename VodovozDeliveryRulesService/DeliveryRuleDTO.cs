@@ -6,12 +6,16 @@ namespace VodovozDeliveryRulesService
 	public class DeliveryRuleDTO
 	{
 		[DataMember]
-		public int? MinBottles { get; set; }
+		public int MinBottles { get; set; }
 
 		[DataMember]
-		public string DeliveryRule { get; set; }
+		public decimal DeliveryPrice { get; set; }
 
 		[DataMember]
-		public decimal? DeliveryPrice { get; set; }
+		public string DeliveryRuleTitle { get; set; }
+
+		[DataMember]
+		public string DeliverySchedule { get; set; }
+
 	}
 }
