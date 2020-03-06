@@ -58,5 +58,13 @@ namespace VodovozDeliveryRulesService
 				}
 			}
 		}
+
+		public bool ServiceStatus()
+		{
+			var response = GetRulesByDistrict(59.886134m, 30.394007m);
+			if(response.StatusEnum == DeliveryRulesResponseStatus.Error)
+				return false;
+			return true;
+		}
 	}
 }

@@ -9,5 +9,9 @@ namespace VodovozDeliveryRulesService
 		[WebGet(ResponseFormat = WebMessageFormat.Json)]
 		[OperationContract]
 		DeliveryRulesResponse GetRulesByDistrict(decimal latitude, decimal longitude);
+
+		[OperationContract()]
+		[WebGet(ResponseFormat = WebMessageFormat.Json)]
+		bool ServiceStatus();
 	}
 }
