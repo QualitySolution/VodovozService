@@ -104,7 +104,7 @@ namespace VodovozOSMService
 							"LEFT JOIN osm_suburb_districts ON osm_suburb_districts.id = osm_cities.suburb_district_id " +
 							"WHERE osm_cities.name IS NOT NULL " +
 							"AND osm_cities.name <> ''" +
-							$"AND osm_cities.name LIKE '%{searchString}%' " +
+							$"AND osm_cities.name ILIKE '%{searchString.ToLower()}%' " +
 							"LIMIT @limit;";
 						cmd.Parameters.AddWithValue("@limit", limit);
 
