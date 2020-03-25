@@ -15,6 +15,11 @@ using Vodovoz.Repository.Logistics;
 using QS.DomainModel.Tracking;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Services;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Core.DataService;
 
 namespace Android
 {
@@ -29,6 +34,24 @@ namespace Android
 		{
 			this.wageCalculationServiceFactory = wageCalculationServiceFactory ?? throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
 			this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+		}
+
+		private CallTaskWorker callTaskWorker;
+		public virtual CallTaskWorker CallTaskWorker {
+			get {
+				if(callTaskWorker == null) {
+					callTaskWorker = new CallTaskWorker(
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						OrderSingletonRepository.GetInstance(),
+						EmployeeSingletonRepository.GetInstance(),
+						new BaseParametersProvider(),
+						null,
+						null);
+				}
+				return callTaskWorker;
+			}
+			set { callTaskWorker = value; }
 		}
 
 		/// <summary>
@@ -324,10 +347,10 @@ namespace Android
 
 					switch (status)
 					{
-						case "EnRoute": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.EnRoute); break;
-						case "Completed": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Completed); break;
-						case "Canceled": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Canceled); break;
-						case "Overdue": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Overdue); break;
+						case "EnRoute": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.EnRoute, CallTaskWorker); break;
+						case "Completed": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Completed, CallTaskWorker); break;
+						case "Canceled": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Canceled, CallTaskWorker); break;
+						case "Overdue": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Overdue, CallTaskWorker); break;
 						default: return false;
 					}
 					routeListItem.DriverBottlesReturned = bottlesReturned;
@@ -368,10 +391,10 @@ namespace Android
 					}
 
 					switch(status) {
-					case "EnRoute": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.EnRoute); break;
-					case "Completed": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Completed); break;
-					case "Canceled": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Canceled); break;
-					case "Overdue": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Overdue); break;
+					case "EnRoute": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.EnRoute, CallTaskWorker); break;
+					case "Completed": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Completed, CallTaskWorker); break;
+					case "Canceled": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Canceled, CallTaskWorker); break;
+					case "Overdue": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Overdue, CallTaskWorker); break;
 					default: return false;
 					}
 
@@ -467,7 +490,7 @@ namespace Android
 						return false;
 					}
 
-					routeList.CompleteRoute(wageCalculationServiceFactory);
+					routeList.CompleteRoute(wageCalculationServiceFactory, CallTaskWorker);
 					uow.Save(routeList);
 					uow.Commit();
 					return true;
