@@ -23,7 +23,7 @@ namespace VodovozSalesReceiptsService.DTO
 						PriceWithoutDiscount = item.Price,
 						Quantity = item.Count,
 						DiscSum = item.DiscountMoney,
-						Vat = Vodovoz.Domain.Goods.VAT.No
+						VatTag = (int)VatTag.VatFree
 					}
 				);
 			}

@@ -30,7 +30,7 @@ namespace VodovozSalesReceiptsService.DTO
 
 		[DataMember(IsRequired = true)]
 		int vatTag;
-		int VatTag {
+		public int VatTag {
 			get => vatTag;
 			set {
 				vatTag = value;
