@@ -9,6 +9,7 @@ echo "5) SmsInformer"
 echo "6) ModulKassa (SalesReceipts)"
 echo "7) InstantSms"
 echo "8) DeliveryRules"
+echo "9) Solr"
 echo "0) Old server DriverMobileGroup"
 echo "Можно вызывать вместе, например Driver+Email=12"
 read service;
@@ -41,6 +42,9 @@ instantSmsServiceName="vodovoz-instant-sms.service"
 
 deliveryRulesServiceFolder="VodovozDeliveryRulesService"
 deliveryRulesServiceName="vodovoz-delivery-rules.service"
+
+solrServiceFolder="VodovozSolrService"
+solrServiceName="vodovoz-solr.service"
 
 serverAddress="root@srv2.vod.qsolution.ru"
 serverPort="2203"
@@ -167,18 +171,18 @@ function UpdateInstantSmsService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $instantSmsServiceName
 }
 
-function UpdateDeliveryRulesService {
-	printf "\nОбновление службы правил доставки\n"
+function UpdateSolrService {
+	printf "\nОбновление службы импорта данных в базу полнотекстового поиска Solr\n"
 
-	echo "-- Stoping $deliveryRulesServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl stop $deliveryRulesServiceName
+	echo "-- Stoping $solrServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl stop $solrServiceName
 
-	echo "-- Copying $deliveryRulesServiceName files"
-	DeleteHttpDll $deliveryRulesServiceFolder
-	CopyFiles $deliveryRulesServiceFolder
+	echo "-- Copying $solrServiceName files"
+	DeleteHttpDll $solrServiceFolder
+	CopyFiles $solrServiceFolder
 
-	echo "-- Starting $deliveryRulesServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl start $deliveryRulesServiceName
+	echo "-- Starting $solrServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl start $solrServiceName
 }
 
 case $service in
@@ -205,6 +209,9 @@ case $service in
 	;;&
 	*8*)
 		UpdateDeliveryRulesService
+	;;&
+	*9*)
+		UpdateSolrService
 	;;
 esac
 
