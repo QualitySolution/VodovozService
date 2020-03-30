@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace SolrImportService
 {
@@ -22,6 +23,11 @@ namespace SolrImportService
 		private ConcurrentDictionary<string, byte> requestPool = new ConcurrentDictionary<string, byte>();
 		private CancellationTokenSource cts = new CancellationTokenSource();
 
+		private IEnumerable<string> automaticImportsEntities = new string[] {
+			"counterparty",
+			"delivery_points"
+		};
+
 		public SolrService(IConfig solrConfig)
 		{
 			if(solrConfig == null) {
@@ -35,8 +41,16 @@ namespace SolrImportService
 				workerDelay = 500;
 			}
 
-			RunNext();
+			RunImportTask();
+			RunPeriodicImportTask();
 		}
+
+		public void Dispose()
+		{
+			cts?.Cancel();
+		}
+
+		#region Группировщик запросов
 
 		private string GetDeltaImportQuery(string solrEntityName)
 		{
@@ -74,7 +88,7 @@ namespace SolrImportService
 			}
 		}
 
-		private void RunNext()
+		private void RunImportTask()
 		{
 			Task workTask = Task.Run(() => {
 				string nextKey = requestPool.Keys.FirstOrDefault();
@@ -83,6 +97,9 @@ namespace SolrImportService
 				}
 				if(requestPool.TryRemove(nextKey, out byte value)) {
 					try {
+						if(cts.IsCancellationRequested) {
+							return;
+						}
 						RunQuery(nextKey);
 					}
 					catch(Exception ex) {
@@ -91,17 +108,34 @@ namespace SolrImportService
 				}
 			}, cts.Token);
 
-			workTask.ContinueWith((task) => NextIteration(), cts.Token);
+			workTask.ContinueWith((task) => NextImport(), cts.Token);
 		}
 
-		private void NextIteration()
+		private void NextImport()
 		{
-			Task.Delay(workerDelay, cts.Token).ContinueWith((task) => RunNext(), cts.Token);
+			Task.Delay(workerDelay, cts.Token).ContinueWith((task) => RunImportTask(), cts.Token);
 		}
 
-		public void Dispose()
+		#endregion Группировщик запросов
+
+
+		#region Периодический запуск
+
+		private void RunPeriodicImportTask()
 		{
-			cts?.Cancel();
+			Task periodicImport = Task.Run(() => {
+				foreach(var entityName in automaticImportsEntities) {
+					AddToWorkQueue(entityName);
+				}
+			}, cts.Token);
+			periodicImport.ContinueWith((task) => NextPeriodicImport(), cts.Token);
 		}
+
+		private void NextPeriodicImport()
+		{
+			Task.Delay(30000, cts.Token).ContinueWith((task) => RunPeriodicImportTask(), cts.Token);
+		}
+
+		#endregion Периодический запуск
 	}
 }
