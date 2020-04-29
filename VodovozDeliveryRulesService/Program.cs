@@ -11,6 +11,7 @@ using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog;
 using QS.Banks.Domain;
+using QS.Osm.Osrm;
 using QS.Project.DB;
 using QSProjectsLib;
 using Vodovoz.EntityRepositories.Delivery;
@@ -84,7 +85,7 @@ namespace VodovozDeliveryRulesService
 					System.Reflection.Assembly.GetAssembly (typeof(Bank)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
 				});
-				QSOsm.Osrm.OsrmMain.ServerUrl = serverUrl;
+				OsrmMain.ServerUrl = serverUrl;
 
 				IDeliveryRepository deliveryRepository = new DeliveryRepository();
 				DeliveryRulesInstanceProvider deliveryRulesInstanceProvider = new DeliveryRulesInstanceProvider(deliveryRepository);

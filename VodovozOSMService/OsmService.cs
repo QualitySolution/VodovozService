@@ -4,8 +4,8 @@ using System.Linq;
 using Nini.Config;
 using NLog;
 using Npgsql;
-using QSOsm;
-using QSOsm.DTO;
+using QS.Osm;
+using QS.Osm.DTO;
 
 namespace VodovozOSMService
 {
