@@ -9,12 +9,12 @@ namespace VodovozSalesReceiptsService.DTO
 	[DataContract]
 	public class SalesDocumentDTO
 	{
-		public SalesDocumentDTO(Order order)
+		public SalesDocumentDTO(Order order, string cashier)
 		{
 			CheckoutDateTime = (order.TimeDelivered ?? DateTime.Now).ToString("O");
 			DocNum = Id = string.Concat("vod_", order.Id);
 			Email = order.GetContact();
-			CashierName = order.Author.ShortName;
+			CashierName = cashier;
 			InventPositions = new List<InventPositionDTO>();
 			foreach(var item in order.OrderItems) {
 				InventPositions.Add(

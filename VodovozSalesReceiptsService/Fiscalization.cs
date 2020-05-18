@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Utilities;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozSalesReceiptsService.DTO;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 
 namespace VodovozSalesReceiptsService
 {
@@ -62,6 +64,7 @@ namespace VodovozSalesReceiptsService
 				var ordersAndReceiptNodes = GetReceiptsForOrders(uow);
 				var withoutReceipts = ordersAndReceiptNodes.Where(r => r.ReceiptId == null);
 				var withNotSentReceipts = ordersAndReceiptNodes.Where(r => r.ReceiptId.HasValue && r.WasSent != true);
+				var cashier = uow.GetById<Employee>(new BaseParametersProvider().DefaultSalesReceiptCashierId).ShortName;
 				receiptsToSend = withoutReceipts.Count() + withNotSentReceipts.Count();
 
 				if(receiptsToSend <= 0) {
@@ -74,7 +77,7 @@ namespace VodovozSalesReceiptsService
 					foreach(var o in ordersWithoutReceipts) {
 						logger.Info(string.Format("Подготовка документа \"№{0}\" к отправке...", o.Id));
 						var newReceipt = new CashReceipt { Order = o };
-						var doc = new SalesDocumentDTO(o);
+						var doc = new SalesDocumentDTO(o, cashier);
 						if(!doc.IsValid)
 							notValid++;
 						await SendSalesDocumentAsync(newReceipt, doc);
@@ -96,7 +99,7 @@ namespace VodovozSalesReceiptsService
 							continue;
 						}
 						logger.Info(string.Format("Подготовка документа \"№{0}\" к переотправке...", r.Order.Id));
-						var doc = new SalesDocumentDTO(r.Order);
+						var doc = new SalesDocumentDTO(r.Order, cashier);
 						if(!doc.IsValid)
 							notValid++;
 						await SendSalesDocumentAsync(r, doc);
