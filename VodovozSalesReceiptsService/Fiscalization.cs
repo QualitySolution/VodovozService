@@ -10,6 +10,7 @@ using QS.Utilities;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozSalesReceiptsService.DTO;
+using Vodovoz.Domain.Client;
 
 namespace VodovozSalesReceiptsService
 {
@@ -162,13 +163,22 @@ namespace VodovozSalesReceiptsService
 
 		static ReceiptForOrderNode[] GetReceiptsForOrders(IUnitOfWork uow)
 		{
-			ReceiptForOrderNode[] orderIds = null;
-			orderIds = OrderSingletonRepository.GetInstance()
+			ReceiptForOrderNode[] notSelfDeliveredOrderIds = null;
+			ReceiptForOrderNode[] selfDeliveredOrderIds = null;
+
+			notSelfDeliveredOrderIds = OrderSingletonRepository.GetInstance()
 											   .GetShippedOrdersWithReceiptsForDates(
 													uow,
-													Vodovoz.Domain.Client.PaymentType.cash,
-													DateTime.Today.AddDays(-3)
-												);
+													DateTime.Today.AddDays(-3));
+
+			selfDeliveredOrderIds = OrderSingletonRepository.GetInstance()
+															.GetClosedSelfDeliveredOrdersWithReceiptsForDates(
+																uow,
+																PaymentType.cash,
+																OrderStatus.Closed,
+																DateTime.Today.AddDays(-3));
+
+			var orderIds = notSelfDeliveredOrderIds.Union(selfDeliveredOrderIds).ToArray();
 
 			return orderIds;
 		}

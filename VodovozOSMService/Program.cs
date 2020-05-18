@@ -10,7 +10,7 @@ using Mono.Unix;
 using Mono.Unix.Native;
 using Nini.Config;
 using NLog;
-using QSOsm;
+using QS.Osm;
 
 namespace VodovozOSMService
 {

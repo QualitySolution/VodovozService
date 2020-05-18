@@ -29,6 +29,9 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="QS.Osm, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null, ProcessorArchitecture=MSIL">
+      <HintPath>..\..\QSProjects\QS.Osm\bin\Debug\QS.Osm.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
@@ -118,12 +121,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="vodovoz-osm-service.conf" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\QSProjects\QSOsm\QSOsm.csproj">
-      <Project>{5CFB297D-4964-4CBD-9102-A5E795BE7B85}</Project>
-      <Name>QSOsm</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -10,7 +10,7 @@ using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Payments;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using VodovozMobileService.DTO;
 
 namespace VodovozMobileService
