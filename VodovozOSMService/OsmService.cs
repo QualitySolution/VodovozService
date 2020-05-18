@@ -360,6 +360,69 @@ namespace VodovozOSMService
 			//houses.Sort (new StringWorks.NaturalStringComparerNonStatic ());
 			return houses;
 		}
+
+		public long GetBuildingCountInCity(string city)
+		{
+			long result = 0;
+			try {
+				using(var connection = GetPostgisConnection()) {
+					connection.Open();
+
+					using(var cmd = new NpgsqlCommand()) {
+						cmd.Connection = connection;
+						cmd.CommandText = "SELECT COUNT(*) " +
+							"FROM planet_osm_polygon " +
+							"WHERE \"addr:housenumber\" <> '' " +
+							"AND tags->'addr:city' = @city ";
+						cmd.Parameters.AddWithValue("@city", city);
+
+						using(var reader = cmd.ExecuteReader()) {
+								if(reader.Read())
+									result = reader.GetInt64(0);
+						}
+					}
+				}
+			}
+			catch(Exception ex) {
+				logger.Error(ex, $"Ошибка при получении кол-ва домов в {city}");
+			}
+			return result;
+		}
+
+		public long GetBuildingCointInRegion(string region)
+		{
+			long result = 0;
+			try {
+				using(var connection = GetPostgisConnection()) {
+					connection.Open();
+
+					using(var cmd = new NpgsqlCommand()) {
+						cmd.Connection = connection;
+						cmd.CommandTimeout = 200;
+						cmd.CommandText = "SELECT COUNT(*) " +
+							"FROM planet_osm_polygon " +
+							"WHERE \"addr:housenumber\" <> '' " +
+							"AND ST_Contains((" +
+								"SELECT region.way " +
+								"FROM planet_osm_polygon AS region " +
+								"WHERE region.admin_level = '4' AND region.boundary = 'administrative' " +
+								"AND region.name = @region LIMIT 1), " +
+							"planet_osm_polygon.way) ;";
+						cmd.Parameters.AddWithValue("@region", region);
+
+						using(var reader = cmd.ExecuteReader()) {
+							if(reader.Read())
+								result = reader.GetInt64(0);
+						}
+					}
+				}
+			}
+			catch(Exception ex) {
+				logger.Error(ex, $"Ошибка при получении кол-ва домов в {region}");
+			}
+			return result;
+		}
+		
 	}
 }
 
