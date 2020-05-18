@@ -389,7 +389,7 @@ namespace VodovozOSMService
 			return result;
 		}
 
-		public long GetBuildingCoinInRegion(string region)
+		public long GetBuildingCointInRegion(string region)
 		{
 			long result = 0;
 			try {
@@ -422,8 +422,7 @@ namespace VodovozOSMService
 			}
 			return result;
 		}
-
-
+		
 	}
 }
 
