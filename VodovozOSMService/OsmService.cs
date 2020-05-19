@@ -389,7 +389,7 @@ namespace VodovozOSMService
 			return result;
 		}
 
-		public long GetBuildingCointInRegion(string region)
+		public long GetBuildingCountInRegion(string region)
 		{
 			long result = 0;
 			try {
