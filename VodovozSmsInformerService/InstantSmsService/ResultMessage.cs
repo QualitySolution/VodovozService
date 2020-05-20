@@ -3,7 +3,7 @@
 namespace InstantSmsService
 {
 	[DataContract]
-	public class SmsMessageResult
+	public class ResultMessage
 	{
 		[DataMember]
 		private string errorDescription;

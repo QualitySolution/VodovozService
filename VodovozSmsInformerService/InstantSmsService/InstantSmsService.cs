@@ -16,9 +16,9 @@ namespace InstantSmsService
 		private ISmsSender smsSender;
 		decimal minBalanceValue = 5;
 
-		public SmsMessageResult SendSms(InstantSmsMessage smsNotification)
+		public ResultMessage SendSms(InstantSmsMessage smsNotification)
 		{
-			SmsMessageResult smsResult = new SmsMessageResult { MessageStatus = SmsMessageStatus.Ok};
+			ResultMessage smsResult = new ResultMessage { MessageStatus = SmsMessageStatus.Ok};
 			try {
 				SmsMessage smsMessage = new SmsMessage(smsNotification.MobilePhone, smsNotification.ServerMessageId, smsNotification.MessageText);
 

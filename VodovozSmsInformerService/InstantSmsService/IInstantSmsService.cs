@@ -7,7 +7,7 @@ namespace InstantSmsService
 	public interface IInstantSmsService
 	{
 		[OperationContract]
-		SmsMessageResult SendSms(InstantSmsMessage smsNotification);
+		ResultMessage SendSms(InstantSmsMessage smsNotification);
 
 		[OperationContract]
 		[WebGet(ResponseFormat = WebMessageFormat.Json)]

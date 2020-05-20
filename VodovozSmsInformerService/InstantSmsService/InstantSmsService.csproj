@@ -29,7 +29,7 @@
     <Compile Include="IInstantSmsService.cs" />
     <Compile Include="InstantSmsService.cs" />
     <Compile Include="InstantSmsServiceSetting.cs" />
-    <Compile Include="SmsMessageResult.cs" />
+    <Compile Include="ResultMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ServiceModel" />
