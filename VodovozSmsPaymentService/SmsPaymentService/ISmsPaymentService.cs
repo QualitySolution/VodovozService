@@ -1,7 +1,5 @@
 using System.ServiceModel;
 using System.ServiceModel.Web;
-using InstantSmsService;
-using Vodovoz.Domain;
 
 namespace SmsPaymentService
 {
@@ -20,17 +18,23 @@ namespace SmsPaymentService
         /// <param name="orderId">Номер заказа</param>
         /// <param name="phoneNumber">Номер телефона клиента</param>
         [OperationContract, WebGet(ResponseFormat = WebMessageFormat.Json)]
-        ResultMessage SendPayment(int orderId, string phoneNumber);
+		PaymentResult SendPayment(int orderId, string phoneNumber);
         
         /// <summary>
         /// Записывает в базу и возвращает актуальный статус платежа
         /// </summary>
         /// <param name="externalId">Id платежа во внешней базе</param>
         [OperationContract, WebGet(ResponseFormat = WebMessageFormat.Json)]
-        SmsPaymentStatus? RefreshPaymentStatus(int externalId);
+		PaymentResult RefreshPaymentStatus(int externalId);
 
-        
-        [OperationContract, WebGet(ResponseFormat = WebMessageFormat.Json)]
+		/// <summary>
+		/// Возвращает актуальный статус оплаты заказа
+		/// </summary>
+		/// <param name="orderId">Id заказа</param>
+		[OperationContract, WebGet(ResponseFormat = WebMessageFormat.Json)]
+		PaymentResult GetPaymentStatus(int orderId);
+
+		[OperationContract, WebGet(ResponseFormat = WebMessageFormat.Json)]
         bool ServiceStatus();
     }
 }

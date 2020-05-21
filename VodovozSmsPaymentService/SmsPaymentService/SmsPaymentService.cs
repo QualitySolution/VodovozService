@@ -59,10 +59,10 @@ namespace SmsPaymentService
             return JsonConvert.SerializeObject( new { status = HttpStatusCode.OK });
         }
 
-        public ResultMessage SendPayment(int orderId, string phoneNumber)
+        public PaymentResult SendPayment(int orderId, string phoneNumber)
         {
             logger.Error($"Поступил запрос на отправку платежа с данными orderId: {orderId}, phoneNumber: {phoneNumber}");
-            ResultMessage resultMessage = new ResultMessage { MessageStatus = SmsMessageStatus.Ok };
+			PaymentResult resultMessage = new PaymentResult(SmsPaymentStatus.WaitingForPayment);
             if (orderId <= 0) {
                 resultMessage.ErrorDescription = "Неверное значение номера заказа";
                 logger.Error("Запрос на отправку платежа пришёл с неверным значением номера заказа");
@@ -127,7 +127,7 @@ namespace SmsPaymentService
             return resultMessage;
         }
 
-        public SmsPaymentStatus? RefreshPaymentStatus(int externalId)
+        public PaymentResult RefreshPaymentStatus(int externalId)
         {
             logger.Error($"Поступил запрос на обновление статуса платежа с externalId: {externalId}");
             try {
@@ -143,7 +143,7 @@ namespace SmsPaymentService
                     }
                     var status = paymentWorker.GetPaymentStatus(externalId);
                     if (status == null)
-                        return null;
+                        return new PaymentResult();
                     
                     if (payment.SmsPaymentStatus != status) {
                         var oldStatus = payment.SmsPaymentStatus;
@@ -153,16 +153,21 @@ namespace SmsPaymentService
                         logger.Error($"Платеж с externalId: {externalId} сменил статус с {Enum.GetName(typeof(SmsPaymentStatus), oldStatus)} на {Enum.GetName(typeof(SmsPaymentStatus), status)}");
                     }
                     
-                    return status;
+                    return new PaymentResult(status.Value);
                 }
             }
             catch (Exception ex) {
                 logger.Error(ex, $"Ошибка при обновлении статуса платежа externalId: {externalId}");
-                return null;
+				return new PaymentResult();
             }
         }
 
-        public bool ServiceStatus()
+		public PaymentResult GetPaymentStatus(int orderId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool ServiceStatus()
         {
             try {
                 using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {

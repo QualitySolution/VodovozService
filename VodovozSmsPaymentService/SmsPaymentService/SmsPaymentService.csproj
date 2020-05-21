@@ -66,6 +66,7 @@
         <Compile Include="SendResponse.cs" />
         <Compile Include="SmsPaymentDTO.cs" />
         <Compile Include="SmsPaymentService.cs" />
+        <Compile Include="PaymentResult.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />
