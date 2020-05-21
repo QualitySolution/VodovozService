@@ -258,21 +258,6 @@ namespace SmsPaymentService
                 SmsPaymentStatus = SmsPaymentStatus.WaitingForPayment
             };
         }
-    }
-
-    public struct RequestBody
-    {
-        public int ExternalId { get; set; }
-        public int Status { get; set; }
-        public string PaidDate { get; set; }
-    }
-
-    public struct StatusCode
-    {
-        public StatusCode(HttpStatusCode code)
-        {
-            status = (int)code;
-        }
-        public int status { get; set; }
+        
     }
 }

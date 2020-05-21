@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using Vodovoz.Domain;
 
 namespace SmsPaymentService
@@ -13,10 +12,8 @@ namespace SmsPaymentService
 			Error
 		}
 
-
 		[DataMember]
 		public MessageStatus Status { get; set; }
-
 
 		private string errorDescription;
 		[DataMember]
@@ -57,6 +54,5 @@ namespace SmsPaymentService
 			PaymentStatus = null;
 		}
 	}
-
-
+	
 }

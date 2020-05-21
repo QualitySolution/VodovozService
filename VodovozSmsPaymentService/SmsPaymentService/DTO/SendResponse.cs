@@ -2,7 +2,7 @@ using System.Net;
 
 namespace SmsPaymentService
 {
-    public class SendResponse
+    public struct SendResponse
     {
         public HttpStatusCode HttpStatusCode { get; set; }
         

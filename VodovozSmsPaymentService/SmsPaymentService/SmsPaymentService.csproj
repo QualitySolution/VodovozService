@@ -60,13 +60,15 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="BitrixPaymentWorker.cs" />
+        <Compile Include="DTO\PaymentResult.cs" />
+        <Compile Include="DTO\RequestBody.cs" />
+        <Compile Include="DTO\SendResponse.cs" />
+        <Compile Include="DTO\SmsPaymentDTO.cs" />
+        <Compile Include="DTO\StatusCode.cs" />
         <Compile Include="IPaymentWorker.cs" />
         <Compile Include="ISmsPaymentService.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="SendResponse.cs" />
-        <Compile Include="SmsPaymentDTO.cs" />
         <Compile Include="SmsPaymentService.cs" />
-        <Compile Include="PaymentResult.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />
