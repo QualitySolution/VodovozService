@@ -1,8 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using InstantSmsService;
-using Newtonsoft.Json;
 using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
@@ -21,25 +20,25 @@ namespace SmsPaymentService
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly IPaymentWorker paymentWorker;
         
-        public string ReceivePayment(RequestBody body)
+        public StatusCode ReceivePayment(RequestBody body)
         {
             var externalId = body.ExternalId;
             var status = (SmsPaymentStatus)body.Status;
             var paidDate = DateTime.Parse(body.PaidDate);
             
             logger.Info($"Поступил запрос на изменения статуса платежа с параметрами externalId: {externalId}, status: {status} и paidDate: {paidDate}");
-
+            
             var acceptedStatuses = new[] { SmsPaymentStatus.Paid, SmsPaymentStatus.Cancelled };
             if (externalId == 0 || !acceptedStatuses.Contains(status)) { 
                 logger.Error($"Запрос на изменение статуса пришёл с неверным статусом (status: {status})");
-                return JsonConvert.SerializeObject( new { status = HttpStatusCode.BadRequest });
+                return new StatusCode(HttpStatusCode.UnsupportedMediaType);
             }
             try {
                 using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
                     var payment = uow.Session.QueryOver<SmsPayment>().Where(x => x.ExternalId == externalId).Take(1).SingleOrDefault();
                     if (payment == null) {
-                        logger.Error($"Запрос на изменение статуса платежа указывает на несуществующий платеж (externalId: {externalId}"); 
-                        return JsonConvert.SerializeObject( new { status = HttpStatusCode.UnsupportedMediaType });
+                        logger.Error($"Запрос на изменение статуса платежа указывает на несуществующий платеж (externalId: {externalId})"); 
+                        return new StatusCode(HttpStatusCode.UnsupportedMediaType);
                     }
                     var oldStatus = payment.SmsPaymentStatus;
                     payment.SmsPaymentStatus = status;
@@ -54,9 +53,9 @@ namespace SmsPaymentService
             }
             catch (Exception ex) {
                 logger.Error(ex, $"Ошибка при обработке поступившего платежа (externalId: {externalId}, status: {status})");
-                return  JsonConvert.SerializeObject( new { status = HttpStatusCode.InternalServerError });
+                return new StatusCode(HttpStatusCode.InternalServerError);
             }
-            return JsonConvert.SerializeObject( new { status = HttpStatusCode.OK });
+            return new StatusCode(HttpStatusCode.OK);
         }
 
         public PaymentResult SendPayment(int orderId, string phoneNumber)
@@ -139,18 +138,18 @@ namespace SmsPaymentService
                     
                     if (payment == null) {
                         logger.Error($"Платеж с externalId: {externalId} не найден в базе");
-                        return null;
+                        return new PaymentResult("Платеж с externalId: {externalId} не найден в базе");
                     }
                     var status = paymentWorker.GetPaymentStatus(externalId);
                     if (status == null)
-                        return new PaymentResult();
+                        return new PaymentResult($"Ошибка при получении статуса платежа с externalId: {externalId}");
                     
                     if (payment.SmsPaymentStatus != status) {
                         var oldStatus = payment.SmsPaymentStatus;
                         payment.SmsPaymentStatus = status.Value;
                         uow.Save(payment);
                         uow.Commit();
-                        logger.Error($"Платеж с externalId: {externalId} сменил статус с {Enum.GetName(typeof(SmsPaymentStatus), oldStatus)} на {Enum.GetName(typeof(SmsPaymentStatus), status)}");
+                        logger.Error($"Платеж с externalId: {externalId} сменил статус с {oldStatus} на {status}");
                     }
                     
                     return new PaymentResult(status.Value);
@@ -158,14 +157,51 @@ namespace SmsPaymentService
             }
             catch (Exception ex) {
                 logger.Error(ex, $"Ошибка при обновлении статуса платежа externalId: {externalId}");
-				return new PaymentResult();
+				return new PaymentResult($"Ошибка при обновлении статуса платежа externalId: {externalId}");
             }
         }
 
-		public PaymentResult GetPaymentStatus(int orderId)
+        /// <summary>
+        /// Если есть хотя бы один оплаченный платеж возвращает со статусом <see cref="SmsPaymentStatus.Paid"/>,
+        /// если таких нет и есть хотя бы одна ошибка - возвращает с <see cref="PaymentResult.MessageStatus"/> = <see cref="PaymentResult.MessageStatus.Error"/>,
+        /// если таких нет и есть хотя бы один в ожидании оплаты, возвращает <see cref="SmsPaymentStatus.WaitingForPayment"/>,
+        /// иначе если есть хотя бы один платеж - <see cref="SmsPaymentStatus.Cancelled"/>
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+		public PaymentResult GetActualPaymentStatus(int orderId)
 		{
-			throw new NotImplementedException();
-		}
+            logger.Error($"Поступил запрос на актульный статус платежа для заказа с Id: {orderId}");
+
+            try {
+                using (var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+                    var payments = uow.Session.QueryOver<SmsPayment>().Where(x => x.Order.Id == orderId).List();
+                    if (!payments.Any())
+                        return new PaymentResult($"Для заказа с Id: {orderId} не создано ни одного платежа");
+
+                    IList<PaymentResult> results = new List<PaymentResult>();
+                    foreach (var payment in payments) {
+                        results.Add(RefreshPaymentStatus(payment.ExternalId));
+                    }
+                    
+                    if(results.Any(x => x.PaymentStatus == SmsPaymentStatus.Paid))
+                        return new PaymentResult(SmsPaymentStatus.Paid);
+
+                    var errorResult = results.FirstOrDefault(x => x.Status == PaymentResult.MessageStatus.Error);
+                    if(errorResult != null)
+                        return new PaymentResult(errorResult.ErrorDescription);
+                    
+                    if(results.Any(x => x.PaymentStatus == SmsPaymentStatus.WaitingForPayment))
+                        return new PaymentResult(SmsPaymentStatus.WaitingForPayment);
+                    
+                    return new PaymentResult(SmsPaymentStatus.Cancelled);
+                }
+            }
+            catch (Exception ex) {
+                logger.Error(ex, $"Ошибка при запросе актульного статуса платежа для заказа с Id: {orderId}");
+                return new PaymentResult();
+            }
+        }
 
 		public bool ServiceStatus()
         {
@@ -179,6 +215,35 @@ namespace SmsPaymentService
             }
         
             return true;
+        }
+
+        public void SynchronizePaymentStatuses()
+        {
+            logger.Info("Запущен процесс синхронизации статусов платежей");
+
+            try {
+                using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+                    var payments = uow.Session.QueryOver<SmsPayment>().Where(x => x.SmsPaymentStatus == SmsPaymentStatus.WaitingForPayment).List();
+
+                    int count = 0;
+                    foreach (var payment in payments) {
+                        var actualStatus = paymentWorker.GetPaymentStatus(payment.ExternalId);
+                        if(actualStatus == null || actualStatus == payment.SmsPaymentStatus)
+                            continue;
+
+                        payment.SmsPaymentStatus = actualStatus.Value;
+                        uow.Save(payment);
+                        count++;
+                    }
+                    if (count != 0) {
+                        uow.Commit();
+                        logger.Info($"Синхронизировано {count} статусов платежей");
+                    }
+                }
+            }
+            catch (Exception ex) {
+                logger.Error(ex,"При синхронизации произошла ошибка");
+            }    
         }
         
         private SmsPayment CreateNewSmsPayment(IUnitOfWork uow, SmsPaymentDTO dto, int externalId)
@@ -200,5 +265,14 @@ namespace SmsPaymentService
         public int ExternalId { get; set; }
         public int Status { get; set; }
         public string PaidDate { get; set; }
+    }
+
+    public struct StatusCode
+    {
+        public StatusCode(HttpStatusCode code)
+        {
+            status = (int)code;
+        }
+        public int status { get; set; }
     }
 }

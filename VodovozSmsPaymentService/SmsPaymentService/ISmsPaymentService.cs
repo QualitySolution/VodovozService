@@ -10,8 +10,8 @@ namespace SmsPaymentService
         /// Меняет статус платежа и время оплаты
         /// </summary>
         [OperationContract, WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        string ReceivePayment(RequestBody body);
-        
+        StatusCode ReceivePayment(RequestBody body);
+
         /// <summary>
         /// Формирует и отправляет платеж
         /// </summary>
@@ -25,16 +25,23 @@ namespace SmsPaymentService
         /// </summary>
         /// <param name="externalId">Id платежа во внешней базе</param>
         [OperationContract, WebGet(ResponseFormat = WebMessageFormat.Json)]
-		PaymentResult RefreshPaymentStatus(int externalId);
+        PaymentResult RefreshPaymentStatus(int externalId);
 
 		/// <summary>
 		/// Возвращает актуальный статус оплаты заказа
 		/// </summary>
 		/// <param name="orderId">Id заказа</param>
 		[OperationContract, WebGet(ResponseFormat = WebMessageFormat.Json)]
-		PaymentResult GetPaymentStatus(int orderId);
+		PaymentResult GetActualPaymentStatus(int orderId);
 
-		[OperationContract, WebGet(ResponseFormat = WebMessageFormat.Json)]
+		/// <summary>
+        /// Синхронизирует статусы платежей
+        /// </summary>
+        [OperationContract]
+        void SynchronizePaymentStatuses();
+
+        [OperationContract, WebGet(ResponseFormat = WebMessageFormat.Json)]
+
         bool ServiceStatus();
     }
 }

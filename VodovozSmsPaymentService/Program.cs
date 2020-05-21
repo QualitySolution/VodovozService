@@ -114,6 +114,11 @@ namespace VodovozSmsPaymentService
 				
 				smsPaymentServiceHost.Open();
 				logger.Info("Server started.");
+				
+				ChannelFactory<ISmsPaymentService> factory = new ChannelFactory<ISmsPaymentService>(
+					new BasicHttpBinding(), new EndpointAddress($"http://{serviceHostName}:{servicePort}/SmsPaymentService"));
+				ISmsPaymentService service = factory.CreateChannel();
+				service.SynchronizePaymentStatuses();
 
 				UnixSignal[] signals = {
 					new UnixSignal (Signum.SIGINT),
