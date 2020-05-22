@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -51,7 +52,7 @@ namespace SmsPaymentService
                 logger.Info($"Битрикс вернул http код: {httpResponse.StatusCode} Content: {responseContent}");
 
                 JObject obj = JObject.Parse(responseContent);
-                var externalId = (int) obj["dealId"];
+                var externalId = (int)obj["dealId"];
 
                 return new SendResponse { HttpStatusCode = httpResponse.StatusCode, ExternalId = externalId };
             }
@@ -77,12 +78,16 @@ namespace SmsPaymentService
                 logger.Info($"Битрикс вернул http код: {httpResponse.StatusCode}, Content: {responseContent}");
                 
                 JObject obj = JObject.Parse(responseContent);
-                if(obj.TryGetValue("status", out JToken value) && (int)value == 404 ) {
-                    logger.Info($"В базе Битрикса не найден платеж с externalId: {externalId} (Код 404)");
+                if (!obj.TryGetValue("status", out JToken value)) {
+                    logger.Info("Не получилось прочитать ответ Битрикса");
                     return null;
                 }
-                SmsPaymentStatus status = (SmsPaymentStatus)(int)obj["UF_CRM_1589369958853"];
-                return status;
+                var status = (int)value;
+                if (Enum.GetValues(typeof(SmsPaymentStatus)).Cast<int>().Contains(status)) {
+                    return (SmsPaymentStatus)status;
+                }
+                logger.Info($"В базе Битрикса не найден платеж с externalId: {externalId} (Код {status}");
+                return null;
             }
         }
         
