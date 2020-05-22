@@ -20,6 +20,8 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Core.DataService;
+using Android.DTO;
+using SmsPaymentService;
 
 namespace Android
 {
@@ -29,11 +31,20 @@ namespace Android
 
 		private readonly WageCalculationServiceFactory wageCalculationServiceFactory;
 		private readonly IDriverServiceParametersProvider parameters;
+		private readonly ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory;
+		private readonly IDriverNotificator driverNotificator;
 
-		public AndroidDriverService(WageCalculationServiceFactory wageCalculationServiceFactory, IDriverServiceParametersProvider parameters)
+		public AndroidDriverService(
+			WageCalculationServiceFactory wageCalculationServiceFactory, 
+			IDriverServiceParametersProvider parameters,
+			ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory,
+			IDriverNotificator driverNotificator
+			)
 		{
 			this.wageCalculationServiceFactory = wageCalculationServiceFactory ?? throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
 			this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+			this.smsPaymentChannelFactory = smsPaymentChannelFactory ?? throw new ArgumentNullException(nameof(smsPaymentChannelFactory));
+			this.driverNotificator = driverNotificator ?? throw new ArgumentNullException(nameof(driverNotificator));
 		}
 
 		private CallTaskWorker callTaskWorker;
@@ -67,8 +78,11 @@ namespace Android
 		{
 			using (var uow = UnitOfWorkFactory.CreateWithoutRoot("[ADS]Проверка текущей версии приложения"))
 			{
-				var lastVersionParameter = uow.Session.Get<BaseParameter>("last_android_version_code");
-				var lastVersionNameParameter = uow.Session.Get<BaseParameter>("last_android_version_name");
+				BaseParameter lastVersionParameter = null;
+				BaseParameter lastVersionNameParameter = null;
+				lastVersionParameter = uow.Session.Get<BaseParameter>("last_android_version_code");
+				lastVersionNameParameter = uow.Session.Get<BaseParameter>("last_android_version_name");
+
 
 				var result = new CheckVersionResultDTO();
 				result.DownloadUrl = "market://details?id=ru.qsolution.vodovoz.driver";
@@ -243,7 +257,25 @@ namespace Android
 					if (orderUoW == null || orderUoW.Root == null)
 						return null;
 					var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
-					return new OrderDTO(routeListItem);
+					OrderDTO orderDTO = new OrderDTO(routeListItem);
+					SmsPaymentStatus? smsPaymentStatus = OrderSingletonRepository.GetInstance().GetOrderPaymentStatus(orderUoW, orderUoW.Root.Id);
+					if(smsPaymentStatus == null) {
+						orderDTO.PaymentStatus = PaymentStatus.None;
+					} else {
+						switch(smsPaymentStatus.Value) {
+						case SmsPaymentStatus.WaitingForPayment:
+							orderDTO.PaymentStatus = PaymentStatus.WaitingForPayment;
+							break;
+						case SmsPaymentStatus.Paid:
+							orderDTO.PaymentStatus = PaymentStatus.Paid;
+							break;
+						case SmsPaymentStatus.Cancelled:
+							orderDTO.PaymentStatus = PaymentStatus.Cancelled;
+							break;
+						}
+					}
+
+					return orderDTO;
 				}
 			}
 			catch (Exception e)
@@ -252,34 +284,8 @@ namespace Android
 			}
 			return null;
 		}
-
-	    public OrderDTO GetOrderDetailed2(string authKey, int orderId)
-	    {
-#if DEBUG
-	        logger.Debug("GetOrderDetailed2 called with args:\nauthKey: {0}\norderId: {1}", authKey, orderId);
-#endif
-
-	        try
-	        {
-	            if (!CheckAuth(authKey))
-	                return null;
-
-	            using (var orderUoW = UnitOfWorkFactory.CreateForRoot<Order>(orderId, "[ADS]v2 Детальная информация по заказу"))
-	            {
-	                if (orderUoW == null || orderUoW.Root == null)
-	                    return null;
-	                var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
-	                return new OrderDTO(routeListItem);
-	            }
-	        }
-	        catch (Exception e)
-	        {
-	            logger.Error(e);
-	        }
-	        return null;
-	    }
-
-        public int? StartOrResumeTrack (string authKey, int routeListId)
+		
+		public int? StartOrResumeTrack (string authKey, int routeListId)
 		{
 			try
 			{
@@ -323,50 +329,7 @@ namespace Android
 
 			return TracksService.ReceivedCoordinates(trackId, TrackPointList);
 		}
-
-		public bool ChangeOrderStatus (string authKey, int orderId, string status, int? bottlesReturned) {
-			try
-			{
-				if (!CheckAuth (authKey))
-					return false;
-
-				using(var orderUoW = UnitOfWorkFactory.CreateForRoot<Order>(orderId, $"[ADS]Изменение статуса заказа {orderId}"))
-				{
-					if (orderUoW == null || orderUoW.Root == null)
-						return false;
-
-					var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
-					if (routeListItem == null)
-						return false;
-
-					if (routeListItem.Status == RouteListItemStatus.Transfered)
-					{
-						logger.Error("Попытка переключить статус у переданного адреса. address_id = {0}", routeListItem.Id);
-						return false;
-					}
-
-					switch (status)
-					{
-						case "EnRoute": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.EnRoute, CallTaskWorker); break;
-						case "Completed": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Completed, CallTaskWorker); break;
-						case "Canceled": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Canceled, CallTaskWorker); break;
-						case "Overdue": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Overdue, CallTaskWorker); break;
-						default: return false;
-					}
-					routeListItem.DriverBottlesReturned = bottlesReturned;
-
-					orderUoW.Save(routeListItem);
-					orderUoW.Commit();
-					return true;
-				}
-			}
-			catch (Exception e)
-			{
-				logger.Error(e);
-			}
-			return false;
-		}
-
+		
 
 		public bool ChangeOrderStatus2(string authKey, int orderId, string status, string bottlesReturned)
 		{
@@ -510,6 +473,78 @@ namespace Android
 				return false;
 			}
 			return true;
+		}
+
+		public PaymentInfoDTO GetPaymentStatus(string authKey, int orderId)
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ADS] GetPaymentStatus method")) {
+				PaymentInfoDTO result = new PaymentInfoDTO(orderId, PaymentStatus.None);
+
+				if(!CheckAuth(uow, authKey))
+					return result;
+
+
+				ISmsPaymentService smsPaymentService = smsPaymentChannelFactory.CreateChannel();
+				if(smsPaymentService == null) {
+					logger.Warn($"Невозможно получить статус платежа. {nameof(smsPaymentService)} is null");
+					return result;
+				}
+
+				PaymentResult paymentResult = null;
+				try {
+					paymentResult = smsPaymentService.GetActualPaymentStatus(orderId);
+				}
+				catch(Exception ex) {
+					logger.Error(ex);
+				}
+				if(paymentResult == null || paymentResult.Status == PaymentResult.MessageStatus.Error || paymentResult.PaymentStatus == null) {
+					result.Status = PaymentStatus.None;
+					return result;
+				}
+
+				switch(paymentResult.PaymentStatus.Value) {
+					case SmsPaymentStatus.WaitingForPayment:
+						result.Status = PaymentStatus.WaitingForPayment;
+						break;
+					case SmsPaymentStatus.Paid:
+						result.Status = PaymentStatus.Paid;
+						break;
+					case SmsPaymentStatus.Cancelled:
+						result.Status = PaymentStatus.Cancelled;
+						break;
+				}
+
+				return result;
+			}
+		}
+
+		public PaymentInfoDTO CreateOrderPayment(string authKey, int orderId, string phoneNumber)
+		{
+			ISmsPaymentService smsPaymentService = smsPaymentChannelFactory.CreateChannel();
+			if(smsPaymentService == null) {
+				logger.Warn($"Невозможно создать платеж для заказа {orderId}. {nameof(smsPaymentService)} is null");
+				return new PaymentInfoDTO(orderId, PaymentStatus.None);
+			}
+
+			PaymentResult paymentResult = smsPaymentService.SendPayment(orderId, phoneNumber);
+			if(paymentResult == null || paymentResult.Status == PaymentResult.MessageStatus.Error) {
+				return new PaymentInfoDTO(orderId, PaymentStatus.None);
+			}
+
+			if(paymentResult.PaymentStatus == null) {
+				return new PaymentInfoDTO(orderId, PaymentStatus.None);
+			} else {
+				switch(paymentResult.PaymentStatus.Value) {
+					case SmsPaymentStatus.WaitingForPayment:
+						return new PaymentInfoDTO(orderId, PaymentStatus.WaitingForPayment);
+					case SmsPaymentStatus.Paid:
+						return new PaymentInfoDTO(orderId, PaymentStatus.Paid);
+					case SmsPaymentStatus.Cancelled:
+						return new PaymentInfoDTO(orderId, PaymentStatus.Cancelled);
+					default:
+						return new PaymentInfoDTO(orderId, PaymentStatus.None);
+				}
+			}
 		}
 
 		#endregion

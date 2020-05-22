@@ -10,6 +10,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Services;
+using SmsPaymentService;
 
 namespace VodovozAndroidDriverService
 {
@@ -27,6 +28,8 @@ namespace VodovozAndroidDriverService
 			string serviceHostName;
 			string servicePort;
 			string serviceWebPort;
+			string smsPaymentServiceHostName;
+			string smsPaymentServicePort;
 
 			string firebaseServerApiToken;
 			string firebaseSenderId;
@@ -35,6 +38,8 @@ namespace VodovozAndroidDriverService
 				serviceHostName = serviceConfig.GetString("service_host_name");
 				servicePort = serviceConfig.GetString("service_port");
 				serviceWebPort = serviceConfig.GetString("service_web_port");
+				smsPaymentServiceHostName = serviceConfig.GetString("payment_service_host_name");
+				smsPaymentServicePort = serviceConfig.GetString("payment_service_port");
 
 				firebaseServerApiToken = firebaseConfig.GetString("firebase_server_api_token");
 				firebaseSenderId = firebaseConfig.GetString("firebase_sender_id");
@@ -46,10 +51,15 @@ namespace VodovozAndroidDriverService
 
 			logger.Info(String.Format("Запуск службы для водителей"));
 
-			FCMHelper.Configure(firebaseServerApiToken, firebaseSenderId);
+			IDriverNotificator driverNotificator = new FirebaseCloudMessagingClient(firebaseServerApiToken, firebaseSenderId);
+
+			ChannelFactory<ISmsPaymentService> smsPaymentServiceChannelFactory = new ChannelFactory<ISmsPaymentService>(
+				new BasicHttpBinding(),
+				string.Format("http://{0}:{1}/SmsPaymentService", smsPaymentServiceHostName, smsPaymentServicePort)
+			);
 
 			WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), new LoggerInteractiveService());
-			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider = new AndroidDriverServiceInstanceProvider(wageCalculationServiceFactory, parameters);
+			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider = new AndroidDriverServiceInstanceProvider(wageCalculationServiceFactory, parameters, smsPaymentServiceChannelFactory, driverNotificator);
 
 			ServiceHost ChatHost = new ServiceHost(typeof(ChatService));
 			ServiceHost AndroidDriverHost = new AndroidDriverServiceHost(androidDriverServiceInstanceProvider);

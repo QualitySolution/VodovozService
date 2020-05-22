@@ -95,6 +95,7 @@ namespace VodovozSmsPaymentService
 				var paymentSender = new BitrixPaymentWorker(baseAddress);
 				
 				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(paymentSender);
+
 				ServiceHost smsPaymentServiceHost = new SmsPaymentServiceHost(smsPaymentServiceInstanceProvider);
 				
 				ServiceEndpoint webEndPoint = smsPaymentServiceHost.AddServiceEndpoint(

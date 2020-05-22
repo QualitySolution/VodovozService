@@ -101,6 +101,7 @@
     <Reference Include="Google.Protobuf">
       <HintPath>..\packages\Google.Protobuf.3.11.4\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="AndroidDriverServiceInstanceProvider.cs" />
     <Compile Include="AndroidDriverServiceBehavior.cs" />
     <Compile Include="AndroidDriverServiceHost.cs" />
+    <Compile Include="FirebaseCloudMessagingClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -161,6 +163,10 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj">
       <Project>{B1DD034B-EC88-400C-9C6B-83CE68AB3541}</Project>
       <Name>QS.Contacts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VodovozSmsPaymentService\SmsPaymentService\SmsPaymentService.csproj">
+      <Project>{EFE73102-83BC-4036-8642-D3A4121E8351}</Project>
+      <Name>SmsPaymentService</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
