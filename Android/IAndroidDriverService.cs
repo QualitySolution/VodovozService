@@ -2,6 +2,7 @@
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Collections.Generic;
+using Android.DTO;
 
 namespace Android
 {
@@ -32,10 +33,6 @@ namespace Android
 		[WebInvoke (UriTemplate = "/GetOrderDetailed", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
 		OrderDTO GetOrderDetailed (string authKey, int orderId);
 
-	    [OperationContract]
-	    [WebInvoke(UriTemplate = "/GetOrderDetailed2", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
-	    OrderDTO GetOrderDetailed2(string authKey, int orderId);
-
 		[OperationContract]
 		[WebInvoke(UriTemplate = "/ChangeOrderStatus2", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
 		bool ChangeOrderStatus2(string authKey, int orderId, string status, string bottlesReturned);
@@ -49,10 +46,6 @@ namespace Android
 		int? StartOrResumeTrack (string authKey, int routeListId);
 
 		[OperationContract]
-		[WebInvoke (UriTemplate = "/ChangeOrderStatus", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
-		bool ChangeOrderStatus (string authKey, int orderId, string status, int? bottlesReturned);
-
-		[OperationContract]
 		[WebInvoke (UriTemplate = "/EnablePushNotifications", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
 		bool EnablePushNotifications (string authKey, string token);
 
@@ -63,5 +56,13 @@ namespace Android
 		[OperationContract]
 		[WebInvoke (UriTemplate = "/FinishRouteList", BodyStyle = WebMessageBodyStyle.WrappedRequest)] 
 		bool FinishRouteList (string authKey, int routeListId);
+
+		[OperationContract]
+		[WebInvoke(UriTemplate = "/GetPaymentStatus", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+		PaymentInfoDTO GetPaymentStatus(string authKey, int orderId);
+
+		[OperationContract]
+		[WebInvoke(UriTemplate = "/CreateOrderPayment", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+		PaymentInfoDTO CreateOrderPayment(string authKey, int orderId, string phoneNumber);
 	}
 }

@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Contacts;
+using Android.DTO;
 
 namespace Android
 {
@@ -80,6 +81,9 @@ namespace Android
 
 		[DataMember]
 		public string BottlesReturn;
+
+		[DataMember]
+		public PaymentStatus PaymentStatus;
 
 		public OrderDTO (RouteListItem item)
 		{

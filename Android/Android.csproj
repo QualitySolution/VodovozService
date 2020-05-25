@@ -73,6 +73,9 @@
     <Compile Include="TracksService.cs" />
     <Compile Include="DTO\CheckVersionResultDTO.cs" />
     <Compile Include="IAndroidDriverServiceWeb.cs" />
+    <Compile Include="DTO\PaymentInfoDTO.cs" />
+    <Compile Include="DTO\PaymentStatus.cs" />
+    <Compile Include="IDriverNotificator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
@@ -118,6 +121,10 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
       <Project>{F22749B2-E35B-455D-BD8D-081373B16FC7}</Project>
       <Name>QS.BusinessCommon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VodovozSmsPaymentService\SmsPaymentService\SmsPaymentService.csproj">
+      <Project>{EFE73102-83BC-4036-8642-D3A4121E8351}</Project>
+      <Name>SmsPaymentService</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
