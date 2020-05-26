@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using NLog;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -41,14 +42,27 @@ namespace SmsPaymentService
                         return new StatusCode(HttpStatusCode.UnsupportedMediaType);
                     }
                     var oldStatus = payment.SmsPaymentStatus;
-                    payment.SmsPaymentStatus = status;
-                    if (status == SmsPaymentStatus.Paid)
-                        payment.PaidDate = paidDate;
+                    var oldPaymentType = payment.Order.PaymentType;
                     
+                    payment.SmsPaymentStatus = status;
+
+                    if (status == SmsPaymentStatus.Paid) {
+                        payment.PaidDate = paidDate;
+                        
+                        PaymentFrom smsPaymentFrom = uow.GetById<PaymentFrom>(new BaseParametersProvider().GetSmsPaymentByCardFromId);
+                        if (payment.Order.PaymentType != PaymentType.ByCard || payment.Order.PaymentByCardFrom.Id != smsPaymentFrom.Id) {
+                            payment.Order.PaymentType = PaymentType.ByCard;    
+                            payment.Order.PaymentByCardFrom = smsPaymentFrom;
+                            payment.Order.OnlineOrder = externalId;
+                        }
+                    }
                     uow.Save(payment);
                     uow.Commit();
                     
-                    logger.Info($"Статус платежа № {payment.Id} изменён c {oldStatus}" + $" на {status}");
+                    if(oldStatus != status)
+                        logger.Info($"Статус платежа № {payment.Id} изменён c {oldStatus} на {status}");
+                    if(oldPaymentType != PaymentType.ByCard)
+                        logger.Info($"Тип оплаты заказа № {payment.Order.Id} изменён c {oldPaymentType} на {PaymentType.ByCard}");
                 }
             }
             catch (Exception ex) {

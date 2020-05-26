@@ -86,7 +86,7 @@ namespace SmsPaymentService
                 if (Enum.GetValues(typeof(SmsPaymentStatus)).Cast<int>().Contains(status)) {
                     return (SmsPaymentStatus)status;
                 }
-                logger.Info($"В базе Битрикса не найден платеж с externalId: {externalId} (Код {status}");
+                logger.Info($"В базе Битрикса не найден платеж с externalId: {externalId} (Код {status})");
                 return null;
             }
         }
