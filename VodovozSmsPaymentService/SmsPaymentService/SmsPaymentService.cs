@@ -74,7 +74,7 @@ namespace SmsPaymentService
 
         public PaymentResult SendPayment(int orderId, string phoneNumber)
         {
-            logger.Error($"Поступил запрос на отправку платежа с данными orderId: {orderId}, phoneNumber: {phoneNumber}");
+            logger.Info($"Поступил запрос на отправку платежа с данными orderId: {orderId}, phoneNumber: {phoneNumber}");
 			PaymentResult resultMessage = new PaymentResult(SmsPaymentStatus.WaitingForPayment);
             if (orderId <= 0) {
                 resultMessage.ErrorDescription = "Неверное значение номера заказа";
@@ -142,7 +142,7 @@ namespace SmsPaymentService
 
         public PaymentResult RefreshPaymentStatus(int externalId)
         {
-            logger.Error($"Поступил запрос на обновление статуса платежа с externalId: {externalId}");
+            logger.Info($"Поступил запрос на обновление статуса платежа с externalId: {externalId}");
             try {
                 using (var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
                     var payment = uow.Session.QueryOver<SmsPayment>()
@@ -163,7 +163,7 @@ namespace SmsPaymentService
                         payment.SmsPaymentStatus = status.Value;
                         uow.Save(payment);
                         uow.Commit();
-                        logger.Error($"Платеж с externalId: {externalId} сменил статус с {oldStatus} на {status}");
+                        logger.Info($"Платеж с externalId: {externalId} сменил статус с {oldStatus} на {status}");
                     }
                     
                     return new PaymentResult(status.Value);
@@ -185,7 +185,7 @@ namespace SmsPaymentService
         /// <returns></returns>
 		public PaymentResult GetActualPaymentStatus(int orderId)
 		{
-            logger.Error($"Поступил запрос на актульный статус платежа для заказа с Id: {orderId}");
+            logger.Info($"Поступил запрос на актульный статус платежа для заказа с Id: {orderId}");
 
             try {
                 using (var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
