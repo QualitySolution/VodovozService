@@ -69,6 +69,7 @@
         <Compile Include="ISmsPaymentService.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="SmsPaymentService.cs" />
+        <Compile Include="IDriverPaymentService.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />

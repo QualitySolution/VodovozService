@@ -64,5 +64,9 @@ namespace Android
 		[OperationContract]
 		[WebInvoke(UriTemplate = "/CreateOrderPayment", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
 		PaymentInfoDTO CreateOrderPayment(string authKey, int orderId, string phoneNumber);
+
+		[OperationContract]
+		[WebInvoke(UriTemplate = "/RefreshPaymentStatus", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+		bool RefreshPaymentStatus(int orderId);
 	}
 }

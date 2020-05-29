@@ -13,19 +13,22 @@ namespace SmsPaymentService
 {
     public class SmsPaymentService : ISmsPaymentService
     {
-        public SmsPaymentService(IPaymentWorker paymentWorker)
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly IPaymentWorker paymentWorker;
+		private readonly IDriverPaymentService androidDriverService;
+
+		public SmsPaymentService(IPaymentWorker paymentWorker, IDriverPaymentService androidDriverService)
         {
             this.paymentWorker = paymentWorker ?? throw new ArgumentNullException(nameof(paymentWorker));
-        }
-        
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        private readonly IPaymentWorker paymentWorker;
-        
-        public StatusCode ReceivePayment(RequestBody body)
+			this.androidDriverService = androidDriverService ?? throw new ArgumentNullException(nameof(androidDriverService));
+		}
+
+		public StatusCode ReceivePayment(RequestBody body)
         {
             var externalId = body.ExternalId;
             var status = (SmsPaymentStatus)body.Status;
             var paidDate = DateTime.Parse(body.PaidDate);
+			int orderId;
             
             logger.Info($"Поступил запрос на изменения статуса платежа с параметрами externalId: {externalId}, status: {status} и paidDate: {paidDate}");
             
@@ -58,18 +61,27 @@ namespace SmsPaymentService
                     }
                     uow.Save(payment);
                     uow.Commit();
-                    
-                    if(oldStatus != status)
+					orderId = payment.Order.Id;
+
+					if(oldStatus != status)
                         logger.Info($"Статус платежа № {payment.Id} изменён c {oldStatus} на {status}");
                     if(oldPaymentType != PaymentType.ByCard)
                         logger.Info($"Тип оплаты заказа № {payment.Order.Id} изменён c {oldPaymentType} на {PaymentType.ByCard}");
-                }
+				}
             }
             catch (Exception ex) {
                 logger.Error(ex, $"Ошибка при обработке поступившего платежа (externalId: {externalId}, status: {status})");
                 return new StatusCode(HttpStatusCode.InternalServerError);
             }
-            return new StatusCode(HttpStatusCode.OK);
+
+			try {
+				androidDriverService.RefreshPaymentStatus(orderId);
+			}
+			catch(Exception ex) {
+				logger.Error(ex, $"Не получилось уведомить службу водителей об обновлении статуса заказа");
+			}
+
+			return new StatusCode(HttpStatusCode.OK);
         }
 
         public PaymentResult SendPayment(int orderId, string phoneNumber)

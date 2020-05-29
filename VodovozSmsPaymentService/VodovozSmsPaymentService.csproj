@@ -133,6 +133,7 @@
         <Compile Include="SmsPaymentServiceBehavior.cs" />
         <Compile Include="SmsPaymentServiceHost.cs" />
         <Compile Include="SmsPaymentServiceInstanceProvider.cs" />
+        <Compile Include="DriverPaymentService.cs" />
     </ItemGroup>
     <ItemGroup>
       <Content Include="vodovoz-sms-payment-service.conf" />
@@ -171,6 +172,14 @@
       <ProjectReference Include="SmsPaymentService\SmsPaymentService.csproj">
         <Project>{efe73102-83bc-4036-8642-d3a4121e8351}</Project>
         <Name>SmsPaymentService</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\VodovozAndroidDriverService\VodovozAndroidDriverService.csproj">
+        <Project>{9444E255-BF6E-443D-9919-4EFCB4FAA58A}</Project>
+        <Name>VodovozAndroidDriverService</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\Android\Android.csproj">
+        <Project>{AAEC7B35-D03F-4DF6-B5E3-07EAF28AC773}</Project>
+        <Name>Android</Name>
       </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

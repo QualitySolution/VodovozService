@@ -547,6 +547,48 @@ namespace Android
 			}
 		}
 
+		public bool RefreshPaymentStatus(int orderId)
+		{
+			try {
+				if(orderId < 1) {
+					logger.Warn($"Передан неверный номер заказа ({orderId}) при попытке обновить статус платежа");
+					return false;
+				}
+
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+					RouteListItem routeListItemAlias = null;
+					RouteList routeListAlias = null;
+					Order orderAlias = null;
+
+					var routeLists = uow.Session.QueryOver<RouteList>(() => routeListAlias)
+					   .Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
+					   .Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+					   .Where(() => orderAlias.Id == orderId)
+					   .Where(() => !routeListItemAlias.WasTransfered)
+					   .Where(() => routeListItemAlias.Status == RouteListItemStatus.EnRoute)
+					   .List();
+					if(!routeLists.Any()) {
+						logger.Warn($"При обновлении статуса платежа для заказа ({orderId}) не был найден МЛ");
+						return false;
+					}
+
+					RouteList rl = routeLists.First();
+					string token = rl.Driver.AndroidToken;
+
+					if(string.IsNullOrWhiteSpace(token)) {
+						logger.Warn($"Водителю ({rl.Driver.GetPersonNameWithInitials()}. Id:{rl.Driver.Id}) не присвоен Token для уведомлений.");
+						return false;
+					}
+					driverNotificator.SendOrderPaymentStatusChangedMessage(token, "Веселый водовоз", "Обновлен статус платежа");
+				}
+				return true;
+			}
+			catch(Exception ex) {
+				logger.Error(ex);
+				return false;
+			}
+		}
+
 		#endregion
 	}
 }
