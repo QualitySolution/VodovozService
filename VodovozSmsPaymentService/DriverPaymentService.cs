@@ -18,7 +18,6 @@ namespace VodovozSmsPaymentService
 		{
 			IAndroidDriverService androidDriverService = androidDriverServiceChannelFactory.CreateChannel();
 			androidDriverService.RefreshPaymentStatus(orderId);
-			androidDriverServiceChannelFactory.Close();
 		}
 	}
 }
