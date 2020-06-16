@@ -25,11 +25,11 @@ namespace VodovozDeliveryRulesService
 						logger.Debug($"Район получен {district.DistrictName}");
 						var rule = new DeliveryRuleDTO();
 						rule.MinBottles = district?.MinBottles ?? 0;
-						rule.DeliveryPrice = district.ScheduleRestrictedDistrictRuleItems.Count > 0
-							? district.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPrice ?? 0
+						rule.DeliveryPrice = district.CommonDistrictRuleItems.Count > 0
+							? district.CommonDistrictRuleItems[0]?.Price ?? 0
 							: 0;
-						rule.DeliveryRuleTitle = district.ScheduleRestrictedDistrictRuleItems.Count > 0
-							? district.ScheduleRestrictedDistrictRuleItems[0]?.DeliveryPriceRule.ToString()
+						rule.DeliveryRuleTitle = district.CommonDistrictRuleItems.Count > 0
+							? district.CommonDistrictRuleItems[0]?.DeliveryPriceRule.ToString()
 							: "";
 						rule.DeliverySchedule = district.GetSchedulesString();
 
